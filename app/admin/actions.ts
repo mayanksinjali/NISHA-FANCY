@@ -120,6 +120,12 @@ async function uploadImage(file: File): Promise<string> {
   return data.publicUrl;
 }
 
+async function uploadImages(files: File[]): Promise<string[]> {
+  const urls: string[] = [];
+  for (const file of files) urls.push(await uploadImage(file));
+  return urls;
+}
+
 /**
  * Public storage URLs look like:
  *   https://<ref>.supabase.co/storage/v1/object/public/product-images/<path>
@@ -168,21 +174,25 @@ export async function createProductAction(
   const parsed = parseProductForm(formData);
   if ("error" in parsed) return parsed;
 
-  let imageUrl: string | null = null;
+  let imageUrls: string[] = [];
   try {
-    const file = formData.get("image");
-    if (file instanceof File && file.size > 0) {
-      imageUrl = await uploadImage(file);
-    }
+    const files = formData
+      .getAll("images")
+      .filter((value): value is File => value instanceof File && value.size > 0);
+    imageUrls = await uploadImages(files);
 
     const { error } = await getSupabaseAdmin()
       .from("products")
-      .insert({ ...parsed, image_url: imageUrl });
+      .insert({
+        ...parsed,
+        image_url: imageUrls[0] ?? null,
+        image_urls: imageUrls,
+      });
 
     if (error) throw new Error(error.message);
   } catch (err) {
     // Don't orphan an uploaded file if the row insert failed.
-    if (imageUrl) await removeStoredImage(imageUrl);
+    for (const url of imageUrls) await removeStoredImage(url);
     return { error: err instanceof Error ? err.message : "Could not save product." };
   }
 
@@ -207,31 +217,39 @@ export async function updateProductAction(
   if ("error" in parsed) return parsed;
 
   const previousUrl = String(formData.get("existing_image_url") ?? "") || null;
-  let newImageUrl: string | null = null;
+  const previousImageUrls = JSON.parse(
+    String(formData.get("existing_image_urls") ?? "[]"),
+  ) as string[];
+  let newImageUrls: string[] = [];
 
   try {
-    const file = formData.get("image");
-    if (file instanceof File && file.size > 0) {
-      newImageUrl = await uploadImage(file);
-    }
+    const files = formData
+      .getAll("images")
+      .filter((value): value is File => value instanceof File && value.size > 0);
+    newImageUrls = await uploadImages(files);
 
     const { error } = await getSupabaseAdmin()
       .from("products")
       .update({
         ...parsed,
-        // Only overwrite image_url when a new photo was actually chosen.
-        ...(newImageUrl ? { image_url: newImageUrl } : {}),
+        ...(newImageUrls.length
+          ? { image_url: newImageUrls[0], image_urls: newImageUrls }
+          : {}),
       })
       .eq("id", id);
 
     if (error) throw new Error(error.message);
   } catch (err) {
-    if (newImageUrl) await removeStoredImage(newImageUrl);
+    for (const url of newImageUrls) await removeStoredImage(url);
     return { error: err instanceof Error ? err.message : "Could not update product." };
   }
 
   // Row is saved — now it's safe to bin the old photo.
-  if (newImageUrl) await removeStoredImage(previousUrl);
+  if (newImageUrls.length) {
+    for (const url of [previousUrl, ...previousImageUrls]) {
+      await removeStoredImage(url);
+    }
+  }
 
   revalidateStorefront();
   redirect("/admin/products?updated=1");
@@ -248,16 +266,19 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   // Read the image URL first so we can clean up storage after the row is gone.
   const { data: existing } = await supabase
     .from("products")
-    .select("image_url")
+    .select("image_url,image_urls")
     .eq("id", id)
     .maybeSingle();
 
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw new Error(error.message);
 
-  await removeStoredImage(
-    (existing as { image_url: string | null } | null)?.image_url ?? null,
-  );
+  const existingImages = existing as
+    | { image_url: string | null; image_urls: string[] | null }
+    | null;
+  for (const url of [existingImages?.image_url, ...(existingImages?.image_urls ?? [])]) {
+    await removeStoredImage(url ?? null);
+  }
 
   revalidateStorefront();
   redirect("/admin/products?deleted=1");

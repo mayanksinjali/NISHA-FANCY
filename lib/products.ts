@@ -9,11 +9,15 @@ export type Product = {
   category: string | null;
   description: string | null;
   image_url: string | null;
+  image_urls: string[] | null;
   in_stock: boolean;
   created_at: string | null;
 };
 
-const COLUMNS = "id,name,price,category,description,image_url,in_stock,created_at";
+const COLUMNS =
+  "id,name,price,category,description,image_url,image_urls,in_stock,created_at";
+const LEGACY_COLUMNS =
+  "id,name,price,category,description,image_url,in_stock,created_at";
 
 /**
  * Storefront product list. Newest first.
@@ -35,7 +39,18 @@ export async function getProducts(options?: {
   if (options?.category) query = query.eq("category", options.category);
   if (options?.limit) query = query.limit(options.limit);
 
-  const { data, error } = await query;
+  let { data, error } = await query;
+  if (error?.message.includes("image_urls")) {
+    let legacyQuery = supabase
+      .from("products")
+      .select(LEGACY_COLUMNS)
+      .order("created_at", { ascending: false });
+    if (options?.category) legacyQuery = legacyQuery.eq("category", options.category);
+    if (options?.limit) legacyQuery = legacyQuery.limit(options.limit);
+    const legacyResult = await legacyQuery;
+    data = legacyResult.data as typeof data;
+    error = legacyResult.error;
+  }
   if (error) {
     console.error("[products] getProducts failed:", error.message);
     return [];
@@ -90,5 +105,32 @@ export async function getProductForAdmin(id: string): Promise<Product | null> {
     .maybeSingle();
 
   if (error) throw new Error(error.message);
+  return (data as Product) ?? null;
+}
+
+export async function getProduct(id: string): Promise<Product | null> {
+  const supabase = getSupabase();
+  if (!supabase) return null;
+
+  let { data, error } = await supabase
+    .from("products")
+    .select(COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error?.message.includes("image_urls")) {
+    const legacyResult = await supabase
+      .from("products")
+      .select(LEGACY_COLUMNS)
+      .eq("id", id)
+      .maybeSingle();
+    data = legacyResult.data as typeof data;
+    error = legacyResult.error;
+  }
+
+  if (error) {
+    console.error("[products] getProduct failed:", error.message);
+    return null;
+  }
   return (data as Product) ?? null;
 }

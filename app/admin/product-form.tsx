@@ -33,9 +33,10 @@ export default function ProductForm({ product, knownCategories }: Props) {
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(
-    product?.image_url ?? null,
-  );
+  const [previews, setPreviews] = useState<string[]>([
+    ...(product?.image_url ? [product.image_url] : []),
+    ...(product?.image_urls ?? []),
+  ].filter((url, index, all) => all.indexOf(url) === index));
   const [fileNote, setFileNote] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
 
@@ -44,22 +45,25 @@ export default function ProductForm({ product, knownCategories }: Props) {
    * DataTransfer, so the form submits the compressed version.
    */
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
 
     setWorking(true);
     try {
-      const compressed = await compressImage(file);
-
       const transfer = new DataTransfer();
-      transfer.items.add(compressed);
+      const compressedFiles: File[] = [];
+      for (const file of files) {
+        const compressed = await compressImage(file);
+        compressedFiles.push(compressed);
+        transfer.items.add(compressed);
+      }
       if (fileInputRef.current) fileInputRef.current.files = transfer.files;
 
-      setPreview((old) => {
-        if (old?.startsWith("blob:")) URL.revokeObjectURL(old);
-        return URL.createObjectURL(compressed);
+      setPreviews((old) => {
+        old.filter((url) => url.startsWith("blob:")).forEach(URL.revokeObjectURL);
+        return compressedFiles.map((file) => URL.createObjectURL(file));
       });
-      setFileNote(`${(compressed.size / 1024).toFixed(0)} KB ready to upload`);
+      setFileNote(`${compressedFiles.length} photo${compressedFiles.length === 1 ? "" : "s"} ready to upload`);
     } finally {
       setWorking(false);
     }
@@ -77,21 +81,31 @@ export default function ProductForm({ product, knownCategories }: Props) {
           value={product.image_url}
         />
       )}
+      {product?.image_urls && (
+        <input
+          type="hidden"
+          name="existing_image_urls"
+          value={JSON.stringify(product.image_urls)}
+        />
+      )}
 
       {/* ---------- Photo ---------- */}
       <section className="border-b border-line px-5 py-6">
         <h2 className="eyebrow text-ink-soft">Photo</h2>
 
         <div className="mt-4 flex items-start gap-4">
-          <div className="relative h-28 w-24 shrink-0 overflow-hidden bg-bone">
-            {preview ? (
+          <div className="flex h-28 w-24 shrink-0 gap-1 overflow-hidden bg-bone">
+            {previews.length ? (
+              previews.slice(0, 3).map((image) => (
               // Blob previews aren't known to next/image, so use a plain img.
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={preview}
+                key={image}
+                src={image}
                 alt="Product preview"
-                className="h-full w-full object-cover"
+                className="h-full min-w-full object-cover"
               />
+              ))
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-ink-soft">
                 No photo
@@ -104,20 +118,21 @@ export default function ProductForm({ product, knownCategories }: Props) {
               htmlFor="image"
               className="btn btn-outline w-full cursor-pointer"
             >
-              {preview ? "Change photo" : "Take or choose photo"}
+              {previews.length ? "Change photos" : "Take or choose photos"}
             </label>
             <input
               ref={fileInputRef}
               id="image"
-              name="image"
+              name="images"
               type="file"
               accept="image/*"
+              multiple
               onChange={handleFileChange}
               className="sr-only"
             />
             <p className="mt-2 text-xs leading-relaxed text-ink-soft">
               {fileNote ??
-                "Shoot straight from your phone — the photo is resized automatically before upload."}
+                "Choose several photos if you want a gallery — each is resized before upload."}
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Product } from "@/lib/products";
 import { formatRs, indexLabel } from "@/lib/format";
 import { whatsappOrderUrl } from "@/lib/whatsapp";
+import Link from "next/link";
 
 type Props = {
   product: Product;
@@ -26,7 +27,11 @@ export default function ProductCard({
 
   return (
     <article className="group flex flex-col">
-      <div className="relative aspect-[3/4] overflow-hidden bg-[#e5decf]">
+      <Link
+        href={`/shop/${product.id}`}
+        aria-label={`View ${product.name}`}
+        className="relative block aspect-[3/4] overflow-hidden bg-[#e5decf]"
+      >
         {product.image_url ? (
           <Image
             src={product.image_url}
@@ -56,11 +61,13 @@ export default function ProductCard({
             Sold out
           </span>
         )}
-      </div>
+      </Link>
 
       <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-line pt-3">
         <h3 className="font-display text-[17px] leading-snug md:text-lg">
-          {product.name}
+          <Link href={`/shop/${product.id}`} className="hover:text-terracotta">
+            {product.name}
+          </Link>
         </h3>
         <p className="shrink-0 text-sm tabular-nums">{formatRs(product.price)}</p>
       </div>
@@ -81,7 +88,12 @@ export default function ProductCard({
         </p>
       ) : (
         <a
-          href={whatsappOrderUrl(product.name, product.price)}
+          href={whatsappOrderUrl(
+            product.name,
+            product.price,
+            product.category,
+            product.image_url,
+          )}
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-outline mt-4 w-full"

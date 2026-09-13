@@ -10,9 +10,13 @@ create table if not exists products (
   category text,
   description text,
   image_url text,
+  image_urls jsonb default '[]'::jsonb,
   in_stock boolean default true,
   created_at timestamp default now()
 );
+
+-- Safe migration for projects created from an earlier version of this file.
+alter table products add column if not exists image_urls jsonb default '[]'::jsonb;
 
 -- The shop filters by category and always sorts newest-first.
 create index if not exists products_created_at_idx on products (created_at desc);
