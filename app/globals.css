@@ -7,18 +7,18 @@
 
 /* ---------------------------------------------------------------------------
   Design tokens
-  Palette: one continuous wine gradient, cream text, and muted gold accents.
+  Palette: black charcoal, warm cream, and muted gold accents.
   --------------------------------------------------------------------------- */
 @theme {
   --color-bone: rgba(0, 0, 0, 0.2);
   --color-paper: #f0e4d4;
   --color-surface: rgba(0, 0, 0, 0.2);
   --color-ink: #f0e4d4;
-  --color-ink-soft: #c9a3ab;
-  --color-line: rgba(240, 228, 212, 0.12);
-  --color-terracotta: #d4af6e;
-  --color-terracotta-deep: #b58f4e;
-  --color-wine-deep: #1a0e12;
+  --color-ink-soft: #b9ad96;
+  --color-line: rgba(243, 234, 216, 0.14);
+  --color-terracotta: #d6ae57;
+  --color-terracotta-deep: #b88d3c;
+  --color-wine-deep: #0d0d0c;
 
   --font-display: var(--font-bodoni), "Didot", Georgia, serif;
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
@@ -33,12 +33,12 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   min-height: 100%;
-  background: linear-gradient(160deg, #1a0e12 0%, #2e141c 40%, #451c28 70%, #5c2534 100%);
+  background: linear-gradient(135deg, #0d0d0c 0%, #171713 48%, #29251d 100%);
 }
 
 body {
   min-height: 100%;
-  background: linear-gradient(160deg, #1a0e12 0%, #2e141c 40%, #451c28 70%, #5c2534 100%);
+  background: linear-gradient(135deg, #0d0d0c 0%, #171713 48%, #29251d 100%);
   background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -47,9 +47,9 @@ body {
 .hero-scrim {
   background: linear-gradient(
     35deg,
-    rgba(26, 14, 18, 0.82) 0%,
-    rgba(26, 14, 18, 0.42) 48%,
-    rgba(26, 14, 18, 0.08) 100%
+    rgba(13, 13, 12, 0.82) 0%,
+    rgba(13, 13, 12, 0.42) 48%,
+    rgba(13, 13, 12, 0.08) 100%
   );
 }
 
