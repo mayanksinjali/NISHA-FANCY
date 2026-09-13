@@ -28,16 +28,6 @@ export default function SiteFooter() {
             </a>
           </div>
 
-          {/* Private admin entry point */}
-          <div className="md:col-span-3">
-            <Link
-              href="/admin"
-              className="text-sm text-paper/35 transition-colors hover:text-paper/70"
-            >
-              Store admin
-            </Link>
-          </div>
-
           {/* Contact */}
           <div className="md:col-span-2">
             <h2 className="eyebrow text-paper/40">Contact</h2>
@@ -52,6 +42,14 @@ export default function SiteFooter() {
                 </a>
               </li>
               <li className="text-paper/50">{STORE.hours}</li>
+              <li>
+                <Link
+                  href="/admin"
+                  className="text-paper/35 transition-colors hover:text-paper/70"
+                >
+                  Store admin
+                </Link>
+              </li>
             </ul>
           </div>
 

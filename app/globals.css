@@ -27,16 +27,6 @@
 }
 
 /* Dark mode keeps the same warm editorial palette without a white flash. */
-html[data-theme="dark"] {
-  --color-bone: #171612;
-  --color-paper: #211f1a;
-  --color-ink: #f4ede1;
-  --color-ink-soft: #b8ae9e;
-  --color-line: #494235;
-  --color-terracotta: #d46442;
-  --color-terracotta-deep: #a64028;
-}
-
 /* ---------------------------------------------------------------------------
    Base
    --------------------------------------------------------------------------- */
@@ -66,13 +56,6 @@ body {
   body {
     padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
   }
-}
-
-html[data-theme="dark"] body {
-  background-image: radial-gradient(
-    rgba(244, 237, 225, 0.035) 1px,
-    transparent 1px
-  );
 }
 
 ::selection {

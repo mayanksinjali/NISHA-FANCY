@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_LINKS, STORE } from "@/lib/config";
 import { whatsappGeneralUrl } from "@/lib/whatsapp";
-import ThemeToggle from "@/components/theme-toggle";
 
 /**
  * Sticky editorial masthead: wordmark left, rules top and bottom, nav in small
@@ -84,12 +83,8 @@ export default function SiteHeader() {
           >
             WhatsApp
           </a>
-          <ThemeToggle />
         </nav>
 
-        <div className="md:hidden">
-          <ThemeToggle />
-        </div>
       </div>
       </header>
 
