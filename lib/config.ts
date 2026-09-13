@@ -18,9 +18,24 @@ export const STORE = {
     process.env.NEXT_PUBLIC_STORE_ADDRESS || "Your street, Your city, Nepal",
   hours: "Every day, 9:00 – 21:00",
   social: [
-    { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "" },
-    { label: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL || "" },
-    { label: "TikTok", href: process.env.NEXT_PUBLIC_TIKTOK_URL || "" },
+    {
+      label: "Instagram",
+      href:
+        process.env.NEXT_PUBLIC_INSTAGRAM_URL ||
+        "https://www.instagram.com/akhtarshah7788660?stkn=a2k4NnJsc3k4OTY2",
+    },
+    {
+      label: "Facebook",
+      href:
+        process.env.NEXT_PUBLIC_FACEBOOK_URL ||
+        "https://www.facebook.com/profile.php?id=61591790385915",
+    },
+    {
+      label: "TikTok",
+      href:
+        process.env.NEXT_PUBLIC_TIKTOK_URL ||
+        "https://www.tiktok.com/@nisha_fancy_7?_r=1&_t=ZS-99hMaEGXHq0",
+    },
   ].filter((social) => Boolean(social.href)),
 } as const;
 

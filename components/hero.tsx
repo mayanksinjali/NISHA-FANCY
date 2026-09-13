@@ -22,7 +22,7 @@ export default function Hero() {
       {/* Legibility scrim: solid-ish at the bottom-left, clear at top-right. */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-10 bg-linear-to-tr from-ink/90 via-ink/55 to-ink/10"
+        className="hero-scrim absolute inset-0 -z-10"
       />
 
       {/* Vertical side label */}

@@ -44,6 +44,15 @@ body {
   font-family: var(--font-sans);
 }
 
+.hero-scrim {
+  background: linear-gradient(
+    35deg,
+    rgba(26, 14, 18, 0.82) 0%,
+    rgba(26, 14, 18, 0.42) 48%,
+    rgba(26, 14, 18, 0.08) 100%
+  );
+}
+
 /* Keep the mobile drawer opaque even when it sits over the photographic hero. */
 @media (max-width: 767px) {
   header {

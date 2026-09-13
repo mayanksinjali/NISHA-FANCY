@@ -63,8 +63,18 @@ export default function SiteFooter() {
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="transition-colors hover:text-paper"
+                    className="flex items-center gap-2 transition-colors hover:text-terracotta"
                   >
+                    <span
+                      aria-hidden
+                      className="flex h-5 w-5 items-center justify-center rounded-full border border-paper/35 text-[10px] font-semibold text-paper/70"
+                    >
+                      {s.label === "Instagram"
+                        ? "◎"
+                        : s.label === "Facebook"
+                          ? "f"
+                          : "♪"}
+                    </span>
                     {s.label}
                   </a>
                 </li>
