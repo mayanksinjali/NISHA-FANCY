@@ -45,7 +45,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
    * DataTransfer, so the form submits the compressed version.
    */
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []);
+    const files = Array.from(event.target.files ?? []).slice(0, 4);
     if (!files.length) return;
 
     setWorking(true);
@@ -63,7 +63,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
         old.filter((url) => url.startsWith("blob:")).forEach(URL.revokeObjectURL);
         return compressedFiles.map((file) => URL.createObjectURL(file));
       });
-      setFileNote(`${compressedFiles.length} photo${compressedFiles.length === 1 ? "" : "s"} ready to upload`);
+      setFileNote(`${compressedFiles.length} of 4 photos ready to upload`);
     } finally {
       setWorking(false);
     }
@@ -132,7 +132,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
             />
             <p className="mt-2 text-xs leading-relaxed text-ink-soft">
               {fileNote ??
-                "Choose several photos if you want a gallery — each is resized before upload."}
+                "Choose up to 4 photos for the gallery — each is resized before upload."}
             </p>
           </div>
         </div>

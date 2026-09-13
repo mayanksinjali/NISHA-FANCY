@@ -24,7 +24,7 @@ export default async function ProductPage({ params }: Props) {
   const images = [
     ...(product.image_url ? [product.image_url] : []),
     ...(product.image_urls ?? []),
-  ].filter((url, index, all) => all.indexOf(url) === index);
+  ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
   const soldOut = !product.in_stock;
 
   return (
@@ -40,7 +40,7 @@ export default async function ProductPage({ params }: Props) {
               images.map((image, index) => (
                 <div
                   key={image}
-                  className={`relative aspect-[3/4] overflow-hidden bg-bone ${
+                  className={`group relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-bone ${
                     index === 0 && images.length > 1 ? "sm:col-span-2" : ""
                   }`}
                 >
@@ -50,7 +50,7 @@ export default async function ProductPage({ params }: Props) {
                     fill
                     priority={index === 0}
                     sizes="(min-width: 768px) 58vw, 100vw"
-                    className="object-cover"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                   />
                 </div>
               ))

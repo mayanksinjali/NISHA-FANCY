@@ -70,6 +70,8 @@ type ParsedProduct = {
   in_stock: boolean;
 };
 
+const MAX_PRODUCT_IMAGES = 4;
+
 function parseProductForm(formData: FormData): ParsedProduct | { error: string } {
   const name = String(formData.get("name") ?? "").trim();
   const rawPrice = String(formData.get("price") ?? "").trim();
@@ -179,6 +181,9 @@ export async function createProductAction(
     const files = formData
       .getAll("images")
       .filter((value): value is File => value instanceof File && value.size > 0);
+    if (files.length > MAX_PRODUCT_IMAGES) {
+      return { error: `Choose up to ${MAX_PRODUCT_IMAGES} photos per product.` };
+    }
     imageUrls = await uploadImages(files);
 
     const { error } = await getSupabaseAdmin()
@@ -226,6 +231,9 @@ export async function updateProductAction(
     const files = formData
       .getAll("images")
       .filter((value): value is File => value instanceof File && value.size > 0);
+    if (files.length > MAX_PRODUCT_IMAGES) {
+      return { error: `Choose up to ${MAX_PRODUCT_IMAGES} photos per product.` };
+    }
     newImageUrls = await uploadImages(files);
 
     const { error } = await getSupabaseAdmin()
