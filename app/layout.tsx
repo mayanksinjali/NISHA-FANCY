@@ -42,6 +42,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${bodoni.variable} ${archivo.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try { var t = localStorage.getItem('nisha-theme') || 'light'; document.documentElement.dataset.theme = t; } catch (e) {}`,
+          }}
+        />
+      </head>
       <body className="min-h-dvh font-sans antialiased">{children}</body>
     </html>
   );

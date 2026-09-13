@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_LINKS, STORE } from "@/lib/config";
 import { whatsappGeneralUrl } from "@/lib/whatsapp";
+import ThemeToggle from "@/components/theme-toggle";
 
 /**
  * Sticky editorial masthead: wordmark left, rules top and bottom, nav in small
@@ -40,7 +41,7 @@ export default function SiteHeader() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-10 md:flex">
+        <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => {
             const active =
               link.href === "/"
@@ -65,27 +66,31 @@ export default function SiteHeader() {
           >
             WhatsApp
           </a>
+          <ThemeToggle />
         </nav>
 
         {/* Mobile toggle — two rules that become an X */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-label={open ? "Close menu" : "Open menu"}
-          className="-mr-2 flex h-11 w-11 flex-col items-center justify-center gap-[6px] md:hidden"
-        >
-          <span
-            className={`block h-px w-6 bg-ink transition-transform duration-300 ${
-              open ? "translate-y-[3.5px] rotate-45" : ""
-            }`}
-          />
-          <span
-            className={`block h-px w-6 bg-ink transition-transform duration-300 ${
-              open ? "-translate-y-[3.5px] -rotate-45" : ""
-            }`}
-          />
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="-mr-2 flex h-11 w-11 flex-col items-center justify-center gap-[6px]"
+          >
+            <span
+              className={`block h-px w-6 bg-ink transition-transform duration-300 ${
+                open ? "translate-y-[3.5px] rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`block h-px w-6 bg-ink transition-transform duration-300 ${
+                open ? "-translate-y-[3.5px] -rotate-45" : ""
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Mobile panel */}
@@ -118,6 +123,10 @@ export default function SiteHeader() {
         >
           Order on WhatsApp
         </a>
+        <div className="mt-5 flex items-center justify-between border-t border-line pt-5">
+          <span className="eyebrow text-ink-soft">Appearance</span>
+          <ThemeToggle />
+        </div>
         <p className="eyebrow mt-8 text-ink-soft">{STORE.address}</p>
       </div>
     </header>
