@@ -8,8 +8,8 @@
  * product grid. Pure browser APIs — no image library.
  */
 
-const MAX_EDGE = 1600;
-const QUALITY = 0.82;
+const MAX_EDGE = 1200;
+const QUALITY = 0.72;
 
 export async function compressImage(file: File): Promise<File> {
   // Leave anything that isn't a bitmap (e.g. SVG) untouched.
@@ -20,12 +20,6 @@ export async function compressImage(file: File): Promise<File> {
   try {
     const bitmap = await createImageBitmap(file);
     const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
-
-    // Already small enough and reasonably sized on disk? Ship it as-is.
-    if (scale === 1 && file.size < 600_000) {
-      bitmap.close();
-      return file;
-    }
 
     const width = Math.round(bitmap.width * scale);
     const height = Math.round(bitmap.height * scale);
@@ -41,7 +35,7 @@ export async function compressImage(file: File): Promise<File> {
     const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, "image/jpeg", QUALITY),
     );
-    if (!blob || blob.size >= file.size) return file;
+    if (!blob) return file;
 
     return new File([blob], replaceExtension(file.name, "jpg"), {
       type: "image/jpeg",

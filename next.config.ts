@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       // Admin uploads a photo straight from a phone. The client downscales it first
       // (see lib/compress-image.ts) but keep headroom for large originals.
-      bodySizeLimit: "8mb",
+      bodySizeLimit: "16mb",
     },
   },
 };

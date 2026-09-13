@@ -71,6 +71,7 @@ type ParsedProduct = {
 };
 
 const MAX_PRODUCT_IMAGES = 4;
+const MAX_IMAGE_UPLOAD_BYTES = 14 * 1024 * 1024;
 
 function parseProductForm(formData: FormData): ParsedProduct | { error: string } {
   const name = String(formData.get("name") ?? "").trim();
@@ -184,6 +185,9 @@ export async function createProductAction(
     if (files.length > MAX_PRODUCT_IMAGES) {
       return { error: `Choose up to ${MAX_PRODUCT_IMAGES} photos per product.` };
     }
+    if (files.reduce((total, file) => total + file.size, 0) > MAX_IMAGE_UPLOAD_BYTES) {
+      return { error: "The photos are too large together. Choose smaller images and try again." };
+    }
     imageUrls = await uploadImages(files);
 
     const { error } = await getSupabaseAdmin()
@@ -233,6 +237,9 @@ export async function updateProductAction(
       .filter((value): value is File => value instanceof File && value.size > 0);
     if (files.length > MAX_PRODUCT_IMAGES) {
       return { error: `Choose up to ${MAX_PRODUCT_IMAGES} photos per product.` };
+    }
+    if (files.reduce((total, file) => total + file.size, 0) > MAX_IMAGE_UPLOAD_BYTES) {
+      return { error: "The photos are too large together. Choose smaller images and try again." };
     }
     newImageUrls = await uploadImages(files);
 
