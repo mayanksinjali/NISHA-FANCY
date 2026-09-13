@@ -40,8 +40,8 @@ export default async function ProductPage({ params }: Props) {
               images.map((image, index) => (
                 <div
                   key={image}
-                  className={`group relative aspect-[3/4] cursor-zoom-in overflow-hidden bg-bone ${
-                    index === 0 && images.length > 1 ? "sm:col-span-2" : ""
+                  className={`group relative aspect-square cursor-zoom-in overflow-hidden bg-bone sm:aspect-[3/4] ${
+                    index === 0 && images.length > 1 ? "sm:col-span-2 sm:aspect-[3/4]" : ""
                   }`}
                 >
                   <Image
