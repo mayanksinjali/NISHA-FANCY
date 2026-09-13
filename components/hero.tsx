@@ -8,7 +8,7 @@ import Link from "next/link";
  */
 export default function Hero() {
   return (
-    <section className="relative isolate flex min-h-[68svh] flex-col justify-end overflow-hidden bg-wine-deep md:min-h-[92svh]">
+    <section className="relative isolate flex aspect-[16/9] flex-col justify-end overflow-hidden bg-wine-deep md:aspect-auto md:min-h-[92svh]">
       <Image
         src="/hero-gemini.jpeg"
         alt="Nisha Ghumti Fancy fashion campaign"

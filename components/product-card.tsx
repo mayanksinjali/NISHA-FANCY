@@ -96,7 +96,7 @@ export default function ProductCard({
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-outline mt-auto w-full pt-4"
+          className="btn btn-outline mt-auto w-full px-2 py-2.5 text-[9px] leading-tight md:px-4 md:py-3 md:text-[10px]"
         >
           Order on WhatsApp
         </a>
