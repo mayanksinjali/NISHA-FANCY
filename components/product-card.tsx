@@ -26,7 +26,7 @@ export default function ProductCard({
   const soldOut = !product.in_stock;
 
   return (
-    <article className="group flex flex-col">
+    <article className="group flex h-full flex-col">
       <Link
         href={`/shop/${product.id}`}
         aria-label={`View ${product.name}`}
@@ -83,7 +83,7 @@ export default function ProductCard({
       )}
 
       {soldOut ? (
-        <p className="eyebrow mt-4 border border-line px-4 py-3.5 text-center text-ink-soft">
+        <p className="eyebrow mt-auto border border-line px-4 py-3.5 pt-7 text-center text-ink-soft">
           Currently unavailable
         </p>
       ) : (
@@ -96,7 +96,7 @@ export default function ProductCard({
           )}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-outline mt-4 w-full"
+          className="btn btn-outline mt-auto w-full pt-4"
         >
           Order on WhatsApp
         </a>
