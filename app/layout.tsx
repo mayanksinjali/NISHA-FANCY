@@ -24,17 +24,24 @@ export const metadata: Metadata = {
     template: `%s · ${STORE.name}`,
   },
   description: STORE.tagline,
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://nisha-fancy.netlify.app",
+  ),
   openGraph: {
     title: STORE.name,
     description: STORE.tagline,
     type: "website",
     images: ["/logo.jpeg"],
   },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/logo.jpeg"],
+  },
   icons: { icon: "/logo.jpeg", apple: "/logo.jpeg" },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#17150f",
+  themeColor: "#1a0e12",
   width: "device-width",
   initialScale: 1,
 };

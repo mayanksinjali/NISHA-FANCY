@@ -238,7 +238,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
             type="checkbox"
             name="in_stock"
             defaultChecked={product ? product.in_stock : true}
-            className="h-6 w-6 shrink-0 accent-[#a53f22]"
+            className="h-6 w-6 shrink-0 accent-[#d4af6e]"
           />
         </label>
 
@@ -253,7 +253,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
       </section>
 
       {/* ---------- Sticky save bar ---------- */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-line bg-paper/95 px-5 py-4 backdrop-blur-sm">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-line bg-surface/95 px-5 py-4 backdrop-blur-sm">
         <Link href="/admin/products" className="btn btn-outline flex-1">
           Cancel
         </Link>

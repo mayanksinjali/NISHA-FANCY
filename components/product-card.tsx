@@ -30,7 +30,7 @@ export default function ProductCard({
       <Link
         href={`/shop/${product.id}`}
         aria-label={`View ${product.name}`}
-        className="relative block aspect-[3/4] overflow-hidden bg-[#e5decf]"
+        className="relative block aspect-[3/4] overflow-hidden bg-surface"
       >
         {product.image_url ? (
           <Image
@@ -57,7 +57,7 @@ export default function ProductCard({
         </span>
 
         {soldOut && (
-          <span className="eyebrow absolute top-3 right-3 bg-ink px-2.5 py-1.5 text-paper">
+          <span className="eyebrow absolute top-3 right-3 bg-wine-deep px-2.5 py-1.5 text-paper">
             Sold out
           </span>
         )}

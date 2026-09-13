@@ -7,7 +7,7 @@ export default function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-16 bg-ink text-paper md:mt-24">
+    <footer className="mt-16 bg-wine-deep text-paper md:mt-24">
       <div className="mx-auto max-w-[1500px] px-4 py-12 md:px-10 md:py-20">
         <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-12 md:gap-12">
           {/* Wordmark + tagline */}

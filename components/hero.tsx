@@ -9,7 +9,7 @@ import { EDITORIAL_IMAGES, STORE } from "@/lib/config";
  */
 export default function Hero() {
   return (
-    <section className="relative isolate flex min-h-[68svh] flex-col justify-end overflow-hidden bg-ink md:min-h-[92svh]">
+    <section className="relative isolate flex min-h-[68svh] flex-col justify-end overflow-hidden bg-wine-deep md:min-h-[92svh]">
       <Image
         src={EDITORIAL_IMAGES.hero}
         alt="Rail of clothing in a studio"

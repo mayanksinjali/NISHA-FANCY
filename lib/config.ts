@@ -18,10 +18,10 @@ export const STORE = {
     process.env.NEXT_PUBLIC_STORE_ADDRESS || "Your street, Your city, Nepal",
   hours: "Every day, 9:00 – 21:00",
   social: [
-    { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "#" },
-    { label: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL || "#" },
-    { label: "TikTok", href: process.env.NEXT_PUBLIC_TIKTOK_URL || "#" },
-  ],
+    { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "" },
+    { label: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL || "" },
+    { label: "TikTok", href: process.env.NEXT_PUBLIC_TIKTOK_URL || "" },
+  ].filter((social) => Boolean(social.href)),
 } as const;
 
 export const NAV_LINKS = [

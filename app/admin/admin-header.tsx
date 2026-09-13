@@ -10,7 +10,7 @@ export default function AdminHeader({
   backHref?: string;
 }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-paper/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur-sm">
       <div className="flex h-14 items-center justify-between gap-3 px-5">
         <div className="flex min-w-0 items-center gap-3">
           {backHref && (
