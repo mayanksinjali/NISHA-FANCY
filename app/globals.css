@@ -62,6 +62,10 @@ body {
   header {
     background-color: color-mix(in srgb, var(--color-bone) 96%, transparent);
   }
+
+  body {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
+  }
 }
 
 html[data-theme="dark"] body {

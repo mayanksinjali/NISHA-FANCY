@@ -15,23 +15,29 @@ import ThemeToggle from "@/components/theme-toggle";
  */
 export default function SiteHeader() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [scrollingDown, setScrollingDown] = useState(false);
 
-  // Close the panel whenever the route changes.
+  // Keep the compact mobile masthead out of the way while reading the page.
   useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  // Lock body scroll while the mobile panel is open.
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    let previousY = window.scrollY;
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      setScrollingDown(currentY > previousY && currentY > 48);
+      previousY = currentY;
     };
-  }, [open]);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-bone/92 backdrop-blur-sm">
+    <>
+      <header
+        className={`relative z-50 border-b border-line bg-bone/92 backdrop-blur-sm transition-[opacity,transform] duration-300 md:sticky md:top-0 ${
+          scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
+        }`}
+      >
       <div className="mx-auto flex h-14 max-w-[1500px] items-center justify-between px-4 md:h-20 md:px-10">
         {/* Wordmark */}
         <Link
@@ -81,66 +87,45 @@ export default function SiteHeader() {
           <ThemeToggle />
         </nav>
 
-        {/* Mobile toggle — two rules that become an X */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="md:hidden">
           <ThemeToggle />
-          <button
-            type="button"
-            onClick={() => setOpen((v) => !v)}
-            aria-expanded={open}
-            aria-label={open ? "Close menu" : "Open menu"}
-            className="-mr-2 flex h-10 w-10 flex-col items-center justify-center gap-[6px]"
-          >
-            <span
-              className={`block h-px w-6 bg-ink transition-transform duration-300 ${
-                open ? "translate-y-[3.5px] rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`block h-px w-6 bg-ink transition-transform duration-300 ${
-                open ? "-translate-y-[3.5px] -rotate-45" : ""
-              }`}
-            />
-          </button>
         </div>
       </div>
+      </header>
 
-      {/* Mobile panel */}
-      <div
-        className={`fixed inset-x-0 top-14 bottom-0 z-[60] origin-top isolate overflow-y-auto border-t border-line bg-bone px-4 transition-[opacity,transform] duration-300 md:hidden ${
-          open
-            ? "pointer-events-auto opacity-100"
-            : "pointer-events-none -translate-y-2 opacity-0"
-        }`}
+      <nav
+      aria-label="Mobile navigation"
+      className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-line bg-bone/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(23,21,15,0.08)] backdrop-blur-md md:hidden"
+    >
+      {NAV_LINKS.map((link) => {
+        const active =
+          link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+        return (
+          <Link
+            key={link.href}
+            href={link.href}
+            data-active={active}
+            className="flex min-h-14 flex-col items-center justify-center gap-1 border-r border-line px-1 text-[10px] uppercase tracking-[0.12em] text-ink-soft last:border-r-0 data-[active=true]:text-terracotta"
+          >
+            <span className="text-base leading-none" aria-hidden>
+              {link.href === "/" ? "⌂" : link.href === "/shop" ? "◫" : "✉"}
+            </span>
+            {link.label}
+          </Link>
+        );
+      })}
+      <a
+        href={whatsappGeneralUrl()}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-[10px] uppercase tracking-[0.12em] text-terracotta"
       >
-          <nav className="flex flex-col pt-3">
-          {NAV_LINKS.map((link, i) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="flex items-baseline justify-between border-b border-line py-4 font-display text-[2rem] leading-none"
-            >
-              {link.label}
-              <span className="eyebrow text-ink-soft">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-            </Link>
-          ))}
-        </nav>
-        <a
-          href={whatsappGeneralUrl()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-solid mt-6 w-full"
-        >
-          Order on WhatsApp
-        </a>
-        <div className="mt-5 flex items-center justify-between border-t border-line pt-4">
-          <span className="eyebrow text-ink-soft">Appearance</span>
-          <ThemeToggle />
-        </div>
-        <p className="eyebrow mt-6 text-ink-soft">{STORE.address}</p>
-      </div>
-    </header>
+        <span className="text-base leading-none" aria-hidden>
+          ◉
+        </span>
+        WhatsApp
+      </a>
+      </nav>
+    </>
   );
 }
