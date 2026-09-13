@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NAV_LINKS, STORE } from "@/lib/config";
@@ -35,9 +36,20 @@ export default function SiteHeader() {
         {/* Wordmark */}
         <Link
           href="/"
-          className="font-display text-xl leading-none tracking-[0.18em] uppercase md:text-2xl"
+          aria-label={STORE.name}
+          className="flex items-center gap-3"
         >
-          {STORE.name}
+          <Image
+            src="/logo.jpeg"
+            alt="Nisha Ghumti Fancy logo"
+            width={48}
+            height={48}
+            priority
+            className="h-10 w-10 rounded-full object-cover md:h-12 md:w-12"
+          />
+          <span className="font-display text-base leading-none tracking-[0.14em] uppercase md:text-xl">
+            {STORE.name}
+          </span>
         </Link>
 
         {/* Desktop nav */}

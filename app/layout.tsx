@@ -28,7 +28,9 @@ export const metadata: Metadata = {
     title: STORE.name,
     description: STORE.tagline,
     type: "website",
+    images: ["/logo.jpeg"],
   },
+  icons: { icon: "/logo.jpeg", apple: "/logo.jpeg" },
 };
 
 export const viewport: Viewport = {
