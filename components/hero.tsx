@@ -8,21 +8,20 @@ import Link from "next/link";
  */
 export default function Hero() {
   return (
-    <section className="relative isolate flex aspect-[16/9] flex-col justify-end overflow-hidden bg-wine-deep md:aspect-auto md:min-h-[92svh]">
-      <Image
-        src="/hero-gemini.jpeg"
-        alt="Nisha Ghumti Fancy fashion campaign"
-        fill
-        priority
-        quality={95}
-        sizes="100vw"
-        className="-z-10 object-cover object-center"
-      />
+    <section className="relative isolate flex flex-col overflow-hidden bg-wine-deep">
+      <div className="relative aspect-[16/9] w-full">
+        <Image
+          src="/hero-gemini.jpeg"
+          alt="Nisha Ghumti Fancy fashion campaign"
+          fill
+          priority
+          quality={95}
+          sizes="100vw"
+          className="object-contain object-center"
+        />
+      </div>
 
-      <div aria-hidden className="hero-bottom-scrim absolute inset-x-0 bottom-0 -z-10" />
-
-      <div className="relative mt-auto">
-        <div className="mx-auto flex w-full max-w-[1500px] gap-2 px-4 pb-5 md:px-10 md:pb-8">
+      <div className="flex gap-2 px-4 py-4 md:mx-auto md:w-full md:max-w-[1500px] md:px-10 md:py-6">
           <Link href="/shop" className="btn btn-solid flex-1 px-3 py-3 text-[10px] sm:flex-none sm:px-5">
             Shop the collection
           </Link>
@@ -32,7 +31,7 @@ export default function Hero() {
         </div>
 
       {/* Thin index strip — editorial meta, not an icon feature row. */}
-      <div className="relative border-t border-paper/20 bg-wine-deep/55">
+      <div className="relative border-t border-paper/20">
         <dl className="mx-auto grid max-w-[1500px] grid-cols-3 divide-x divide-paper/20 px-3 text-paper/75 md:px-10">
           {[
             ["Delivery", "Butwal Metropolitan Area"],
@@ -48,7 +47,6 @@ export default function Hero() {
             </div>
           ))}
         </dl>
-      </div>
       </div>
     </section>
   );
