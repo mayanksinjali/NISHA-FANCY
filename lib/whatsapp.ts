@@ -8,8 +8,19 @@ import { STORE } from "./config";
  *
  * The number comes from NEXT_PUBLIC_WHATSAPP_NUMBER (digits only, no "+").
  */
-export function whatsappOrderUrl(productName: string, price: number): string {
-  const message = `Hi, I'd like to order: ${productName} - Rs. ${price}`;
+export function whatsappOrderUrl(
+  productName: string,
+  price: number,
+  category?: string | null,
+  imageUrl?: string | null,
+): string {
+  const details = [
+    `Product: ${productName}`,
+    `Price: Rs. ${price}`,
+    category ? `Category: ${category}` : null,
+    imageUrl ? `Photo: ${imageUrl}` : null,
+  ].filter(Boolean);
+  const message = `Hi, I'd like to order:\n${details.join("\n")}\nPlease confirm availability and delivery details.`;
 
   // encodeURIComponent leaves ' ! ( ) * alone; WhatsApp is happier with them
   // percent-encoded, and it matches the target URL format exactly.
