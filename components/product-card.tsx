@@ -77,7 +77,7 @@ export default function ProductCard({
       )}
 
       {product.description && (
-        <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-ink-soft">
+        <p className="mt-2 line-clamp-1 text-[13px] leading-relaxed text-ink-soft md:line-clamp-2">
           {product.description}
         </p>
       )}

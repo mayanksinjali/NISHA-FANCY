@@ -10,7 +10,7 @@ import { getProducts } from "@/lib/products";
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const newArrivals = await getProducts({ limit: 6 });
+  const newArrivals = await getProducts({ limit: 4 });
 
   return (
     <>
