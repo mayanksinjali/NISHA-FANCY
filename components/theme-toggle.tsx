@@ -35,7 +35,7 @@ export default function ThemeToggle() {
       onClick={() => setTheme(nextTheme)}
       aria-label={`Switch to ${nextTheme} mode`}
       title={`Switch to ${nextTheme} mode`}
-      className="eyebrow flex h-10 items-center gap-2 border border-line px-3 text-ink-soft transition-colors hover:border-ink hover:text-ink"
+      className="eyebrow flex h-9 items-center gap-2 border border-line px-2.5 text-ink-soft transition-colors hover:border-ink hover:text-ink md:h-10 md:px-3"
     >
       <span aria-hidden className="text-base leading-none">
         {theme === "dark" ? "☼" : "◐"}

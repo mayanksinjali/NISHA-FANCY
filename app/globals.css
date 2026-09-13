@@ -57,6 +57,13 @@ body {
   background-size: 4px 4px;
 }
 
+/* Keep the mobile drawer opaque even when it sits over the photographic hero. */
+@media (max-width: 767px) {
+  header {
+    background-color: color-mix(in srgb, var(--color-bone) 96%, transparent);
+  }
+}
+
 html[data-theme="dark"] body {
   background-image: radial-gradient(
     rgba(244, 237, 225, 0.035) 1px,

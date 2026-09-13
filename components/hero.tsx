@@ -9,7 +9,7 @@ import { EDITORIAL_IMAGES, STORE } from "@/lib/config";
  */
 export default function Hero() {
   return (
-    <section className="relative isolate flex min-h-[82svh] flex-col justify-end overflow-hidden bg-ink md:min-h-[92svh]">
+    <section className="relative isolate flex min-h-[76svh] flex-col justify-end overflow-hidden bg-ink md:min-h-[92svh]">
       <Image
         src={EDITORIAL_IMAGES.hero}
         alt="Rail of clothing in a studio"
@@ -30,23 +30,23 @@ export default function Hero() {
         Est. 2026 — Nepal
       </span>
 
-      <div className="relative mx-auto w-full max-w-[1500px] px-5 pt-28 pb-10 md:px-10 md:pb-14">
+      <div className="relative mx-auto w-full max-w-[1500px] px-4 pt-20 pb-8 md:px-10 md:pb-14">
         <p className="eyebrow text-paper/70">New season / Volume 01</p>
 
-        <h1 className="mt-6 font-display text-[clamp(3rem,13vw,9.5rem)] leading-[0.82] tracking-[-0.01em] text-paper uppercase">
+        <h1 className="mt-5 max-w-[10ch] font-display text-[clamp(2.7rem,12vw,9.5rem)] leading-[0.82] tracking-[-0.01em] text-paper uppercase md:max-w-none">
           {STORE.name}
         </h1>
 
-        <div className="mt-8 flex flex-col gap-8 md:mt-10 md:flex-row md:items-end md:justify-between">
-          <p className="max-w-md font-display text-xl leading-snug text-paper/85 italic md:text-2xl">
+        <div className="mt-6 flex flex-col gap-6 md:mt-10 md:flex-row md:items-end md:justify-between">
+          <p className="max-w-sm font-display text-lg leading-snug text-paper/85 italic md:max-w-md md:text-2xl">
             {STORE.tagline}
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/shop" className="btn btn-solid">
+            <Link href="/shop" className="btn btn-solid w-full sm:w-auto">
               Shop the collection
             </Link>
-            <Link href="/#new-arrivals" className="btn btn-ghost-light">
+            <Link href="/#new-arrivals" className="btn btn-ghost-light w-full sm:w-auto">
               New arrivals
             </Link>
           </div>
@@ -55,7 +55,7 @@ export default function Hero() {
 
       {/* Thin index strip — editorial meta, not an icon feature row. */}
       <div className="relative border-t border-paper/20">
-        <dl className="mx-auto grid max-w-[1500px] grid-cols-2 divide-paper/20 px-5 text-paper/75 md:grid-cols-3 md:divide-x md:px-10">
+        <dl className="mx-auto grid max-w-[1500px] grid-cols-2 divide-paper/20 px-4 text-paper/75 md:grid-cols-3 md:divide-x md:px-10">
           {[
             ["Delivery", "Butwal Metropolitan Area"],
             ["Payment", "Cash on delivery"],
