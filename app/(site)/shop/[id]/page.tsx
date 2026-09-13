@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatRs } from "@/lib/format";
 import { getProduct } from "@/lib/products";
 import { whatsappOrderUrl } from "@/lib/whatsapp";
+import ProductGallery from "@/components/product-gallery";
 
 export const revalidate = 0;
 
@@ -35,33 +35,7 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="mt-8 grid gap-10 md:grid-cols-12 md:gap-14">
         <div className="md:col-span-7">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {images.length ? (
-              images.map((image, index) => (
-                <div
-                  key={image}
-                  className={`group relative aspect-square cursor-zoom-in overflow-hidden bg-bone sm:aspect-[3/4] ${
-                    index === 0 && images.length > 1 ? "sm:col-span-2 sm:aspect-[3/4]" : ""
-                  }`}
-                >
-                  <Image
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    fill
-                    priority={index === 0}
-                    sizes="(min-width: 768px) 58vw, 100vw"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-                  />
-                </div>
-              ))
-            ) : (
-              <div className="flex aspect-[3/4] items-center justify-center bg-bone sm:col-span-2">
-                <span className="font-display text-7xl text-ink/15">
-                  {product.name.slice(0, 1).toUpperCase()}
-                </span>
-              </div>
-            )}
-          </div>
+          <ProductGallery productName={product.name} images={images} />
         </div>
 
         <div className="md:col-span-5 md:pt-5">

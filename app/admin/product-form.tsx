@@ -38,6 +38,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
     ...(product?.image_urls ?? []),
   ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const selectedFilesRef = useRef<File[]>([]);
   const [previews, setPreviews] = useState<string[]>(existingImages);
   const [fileNote, setFileNote] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
@@ -52,10 +53,10 @@ export default function ProductForm({ product, knownCategories }: Props) {
 
     setWorking(true);
     try {
-      const remaining = 4 - selectedFiles.length;
+      const remaining = 4 - selectedFilesRef.current.length;
       const filesToAdd = files.slice(0, remaining);
       const transfer = new DataTransfer();
-      const compressedFiles: File[] = [...selectedFiles];
+      const compressedFiles: File[] = [...selectedFilesRef.current];
       for (const file of filesToAdd) {
         const compressed = await compressImage(file);
         compressedFiles.push(compressed);
@@ -63,6 +64,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
       compressedFiles.forEach((file) => transfer.items.add(file));
       if (fileInputRef.current) fileInputRef.current.files = transfer.files;
 
+      selectedFilesRef.current = compressedFiles;
       setSelectedFiles(compressedFiles);
       setPreviews((old) => {
         old.filter((url) => url.startsWith("blob:")).forEach(URL.revokeObjectURL);
@@ -143,7 +145,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
               type="file"
               accept="image/*"
               multiple
-              disabled={selectedFiles.length >= 4}
+              disabled={selectedFiles.length >= 4 || working}
               onChange={handleFileChange}
               className="sr-only"
             />
