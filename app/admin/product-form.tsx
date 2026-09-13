@@ -33,10 +33,12 @@ export default function ProductForm({ product, knownCategories }: Props) {
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [previews, setPreviews] = useState<string[]>([
+  const existingImages = [
     ...(product?.image_url ? [product.image_url] : []),
     ...(product?.image_urls ?? []),
-  ].filter((url, index, all) => all.indexOf(url) === index));
+  ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>(existingImages);
   const [fileNote, setFileNote] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
 
@@ -45,25 +47,35 @@ export default function ProductForm({ product, knownCategories }: Props) {
    * DataTransfer, so the form submits the compressed version.
    */
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(event.target.files ?? []).slice(0, 4);
+    const files = Array.from(event.target.files ?? []);
     if (!files.length) return;
 
     setWorking(true);
     try {
+      const remaining = 4 - selectedFiles.length;
+      const filesToAdd = files.slice(0, remaining);
       const transfer = new DataTransfer();
-      const compressedFiles: File[] = [];
-      for (const file of files) {
+      const compressedFiles: File[] = [...selectedFiles];
+      for (const file of filesToAdd) {
         const compressed = await compressImage(file);
         compressedFiles.push(compressed);
-        transfer.items.add(compressed);
       }
+      compressedFiles.forEach((file) => transfer.items.add(file));
       if (fileInputRef.current) fileInputRef.current.files = transfer.files;
 
+      setSelectedFiles(compressedFiles);
       setPreviews((old) => {
         old.filter((url) => url.startsWith("blob:")).forEach(URL.revokeObjectURL);
-        return compressedFiles.map((file) => URL.createObjectURL(file));
+        return [
+          ...existingImages,
+          ...compressedFiles.map((file) => URL.createObjectURL(file)),
+        ];
       });
-      setFileNote(`${compressedFiles.length} of 4 photos ready to upload`);
+      setFileNote(
+        `${compressedFiles.length} of 4 photos ready to upload${
+          files.length > filesToAdd.length ? " — maximum reached" : ""
+        }`,
+      );
     } finally {
       setWorking(false);
     }
@@ -118,7 +130,11 @@ export default function ProductForm({ product, knownCategories }: Props) {
               htmlFor="image"
               className="btn btn-outline w-full cursor-pointer"
             >
-              {previews.length ? "Change photos" : "Take or choose photos"}
+              {selectedFiles.length >= 4
+                ? "4 photos selected"
+                : previews.length
+                  ? "Add more photos"
+                  : "Take or choose photos"}
             </label>
             <input
               ref={fileInputRef}
@@ -127,6 +143,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
               type="file"
               accept="image/*"
               multiple
+              disabled={selectedFiles.length >= 4}
               onChange={handleFileChange}
               className="sr-only"
             />
@@ -177,20 +194,21 @@ export default function ProductForm({ product, knownCategories }: Props) {
           <label htmlFor="category" className="eyebrow text-ink-soft">
             Category
           </label>
-          <input
+          <select
             id="category"
             name="category"
-            list="category-options"
             defaultValue={product?.category ?? ""}
-            placeholder="Women"
             className="field mt-2"
-          />
-          {/* Type anything new, or pick one already in use. */}
-          <datalist id="category-options">
-            {knownCategories.map((c) => (
-              <option key={c} value={c} />
-            ))}
-          </datalist>
+          >
+            <option value="">Choose a category</option>
+            {["Men", "Women", "Children", ...knownCategories]
+              .filter((category, index, all) => all.indexOf(category) === index)
+              .map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+          </select>
         </div>
 
         <div>
