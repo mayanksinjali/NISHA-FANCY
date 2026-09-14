@@ -32,9 +32,9 @@ export default function SiteHeader() {
   }, []);
 
   useEffect(() => {
-    document.body.classList.toggle("has-mobile-nav", !isProductDetail);
+    document.body.classList.add("has-mobile-nav");
     return () => document.body.classList.remove("has-mobile-nav");
-  }, [isProductDetail]);
+  }, []);
 
   return (
     <>
@@ -96,11 +96,10 @@ export default function SiteHeader() {
         </header>
       )}
 
-      {!isProductDetail && (
-        <nav
-          aria-label="Mobile navigation"
-          className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-paper/15 bg-wine-deep pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-8px_24px_rgba(0,0,0,0.28)] md:hidden"
-        >
+      <nav
+        aria-label="Mobile navigation"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-paper/15 bg-wine-deep pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-8px_24px_rgba(0,0,0,0.28)] md:hidden"
+      >
           {NAV_LINKS.map((link) => {
             const active =
               link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
@@ -133,8 +132,7 @@ export default function SiteHeader() {
               </Link>
             );
           })}
-        </nav>
-      )}
+      </nav>
     </>
   );
 }
