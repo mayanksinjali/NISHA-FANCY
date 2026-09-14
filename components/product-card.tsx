@@ -63,16 +63,24 @@ export default function ProductCard({
         )}
       </Link>
 
-      <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-line pt-3">
-        <h3 className="min-w-0 flex-1 font-display text-[14px] leading-[1.15] md:text-[15px]">
+      <div className="mt-4 flex items-start justify-between gap-3 border-t border-line pt-3">
+        <h3 className="min-w-0 flex-1 pr-2">
           <Link
             href={`/shop/${product.id}`}
-            className="line-clamp-2 block hover:text-terracotta"
+            className="block overflow-hidden text-[12px] leading-[1.15] tracking-[-0.02em] text-ink md:text-[13px] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] hover:text-terracotta"
+            style={{
+              display: "-webkit-box",
+              WebkitBoxOrient: "vertical",
+              WebkitLineClamp: 2,
+              overflow: "hidden",
+            }}
           >
             {product.name}
           </Link>
         </h3>
-        <p className="shrink-0 text-sm tabular-nums">{formatRs(product.price)}</p>
+        <p className="shrink-0 text-[12px] tabular-nums md:text-sm">
+          {formatRs(product.price)}
+        </p>
       </div>
 
       {product.category && (
