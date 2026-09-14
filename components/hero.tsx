@@ -21,14 +21,24 @@ export default function Hero() {
         />
       </div>
 
-      <div className="flex gap-2 px-4 py-2 md:mx-auto md:w-full md:max-w-[1500px] md:px-10 md:py-3">
-          <Link href="/shop" className="btn btn-solid flex-1 px-3 py-2 text-[9px] sm:flex-none sm:px-4">
+      <div className="flex gap-1.5 px-4 py-1.5 md:mx-auto md:w-full md:max-w-[1500px] md:px-10 md:py-2">
+          <Link href="/shop" className="btn btn-solid flex-1 px-2 py-1.5 text-[8px] sm:flex-none sm:px-3">
             Shop the collection
           </Link>
-          <Link href="/#new-arrivals" className="btn btn-ghost-light flex-1 px-3 py-2 text-[9px] sm:flex-none sm:px-4">
+          <Link href="/#new-arrivals" className="btn btn-ghost-light flex-1 px-2 py-1.5 text-[8px] sm:flex-none sm:px-3">
             New arrivals
           </Link>
         </div>
+
+      <div className="relative border-t border-paper/20">
+        <dl className="mx-auto grid max-w-[1500px] grid-cols-3 divide-x divide-paper/20 px-3 text-paper/75 md:px-10">
+          {["Delivery", "Payment", "Orders"].map((term) => (
+            <div key={term} className="px-2 py-2 first:pl-0 last:pr-0 md:px-6 md:first:pl-0">
+              <dt className="eyebrow text-[9px] text-paper/55">{term}</dt>
+            </div>
+          ))}
+        </dl>
+      </div>
     </section>
   );
 }
