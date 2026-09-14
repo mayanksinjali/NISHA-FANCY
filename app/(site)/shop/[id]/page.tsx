@@ -42,20 +42,39 @@ export default async function ProductPage({ params }: Props) {
           <p className="eyebrow text-terracotta">
             {product.category ?? "Nisha Ghumti Fancy"}
           </p>
-          <h1 className="mt-4 max-w-xl font-display text-[clamp(1.7rem,3vw,2.8rem)] leading-[0.95] tracking-[-0.04em] [text-wrap:balance]">
-            {product.name}
-          </h1>
-          <p className="mt-5 text-lg tabular-nums">{formatRs(product.price)}</p>
 
-          <div className="mt-7 border-y border-line py-6">
+          <div className="mt-4 flex items-end justify-between gap-4">
+            <h1 className="max-w-xl font-display text-[clamp(1.7rem,3vw,2.8rem)] leading-[0.95] tracking-[-0.04em] [text-wrap:balance]">
+              {product.name}
+            </h1>
+            <p className="shrink-0 text-xl font-medium tabular-nums md:text-2xl">
+              {formatRs(product.price)}
+            </p>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+            {[
+              "Cash on delivery",
+              "Fast WhatsApp reply",
+              "Size help available",
+            ].map((label) => (
+              <span
+                key={label}
+                className="border border-line px-2 py-1.5 text-[10px]"
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+
+          <div className="mt-6 border-y border-line py-5">
             <p className={`eyebrow ${soldOut ? "text-terracotta" : "text-ink-soft"}`}>
               {soldOut ? "Currently unavailable" : "In stock"}
             </p>
-            {product.description && (
-              <p className="mt-4 whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">
-                {product.description}
-              </p>
-            )}
+            <p className="mt-3 text-xs leading-relaxed text-ink-soft">
+              Delivery within Nepal. Message us on WhatsApp for size guidance and
+              availability before ordering.
+            </p>
           </div>
 
           {soldOut ? (
@@ -76,6 +95,15 @@ export default async function ProductPage({ params }: Props) {
             >
               Order this piece on WhatsApp
             </a>
+          )}
+
+          {product.description && (
+            <div className="mt-6 rounded-none border border-line bg-bone/30 p-4">
+              <p className="eyebrow text-ink-soft">Details</p>
+              <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-ink-soft">
+                {product.description}
+              </p>
+            </div>
           )}
 
           <p className="mt-4 text-xs leading-relaxed text-ink-soft">
