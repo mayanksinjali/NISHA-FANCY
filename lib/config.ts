@@ -34,7 +34,7 @@ export const STORE = {
       label: "TikTok",
       href:
         process.env.NEXT_PUBLIC_TIKTOK_URL ||
-        "https://www.tiktok.com/@nisha_fancy_7?_r=1&_t=ZS-99hMaEGXHq0",
+        "https://www.tiktok.com/@nisha.fancy8?_r=1&_t=ZS-99jAkM0M4Wq",
     },
   ].filter((social) => Boolean(social.href)),
 } as const;
