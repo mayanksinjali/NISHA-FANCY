@@ -72,7 +72,7 @@ export default async function ShopPage({ searchParams }: Props) {
       </div>
 
       <div className="mt-6">
-        <CategoryFilter categories={categories} active={active} />
+        <CategoryFilter categories={categories} active={active} search={search} />
       </div>
 
       <p className="mt-5 eyebrow text-ink-soft">
@@ -96,6 +96,7 @@ export default async function ShopPage({ searchParams }: Props) {
           </div>
         ) : (
           <LoadMoreProducts
+            key={`${active ?? "all"}:${search ?? ""}`}
             initialProducts={initialProducts}
             category={active}
             search={search}
