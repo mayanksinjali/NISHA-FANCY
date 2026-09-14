@@ -40,21 +40,8 @@ export default async function ShopPage({ searchParams }: Props) {
   const hasMore = products.length > initialProducts.length;
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 pt-12 md:px-10 md:pt-20">
-      {/* Page head */}
-      <header className="border-b border-ink pb-8">
-        <p className="eyebrow text-terracotta">The collection</p>
-        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-          <h1 className="font-display text-[clamp(2.5rem,9vw,6.5rem)] leading-[0.88] uppercase">
-            {active ?? "Shop all"}
-          </h1>
-          <p className="eyebrow text-ink-soft md:pb-3">
-            {catalogError ? "Catalog unavailable" : `${initialProducts.length}${hasMore ? "+" : ""} pieces`}
-          </p>
-        </div>
-      </header>
-
-      <div className="mt-8">
+    <div className="mx-auto max-w-[1500px] px-5 pt-7 md:px-10 md:pt-12">
+      <div>
         <form action="/shop" method="get" className="flex gap-2">
           {active && <input type="hidden" name="category" value={active} />}
           <label htmlFor="shop-search" className="sr-only">Search products</label>
@@ -75,6 +62,10 @@ export default async function ShopPage({ searchParams }: Props) {
       <div className="mt-6">
         <CategoryFilter categories={categories} active={active} />
       </div>
+
+      <p className="mt-5 eyebrow text-ink-soft">
+        {catalogError ? "Catalog unavailable" : `${initialProducts.length}${hasMore ? "+" : ""} pieces`}
+      </p>
 
       {!isSupabaseConfigured() && (
         <p className="mt-8 border border-terracotta/40 bg-terracotta/5 px-4 py-3 text-[13px] leading-relaxed text-terracotta-deep">

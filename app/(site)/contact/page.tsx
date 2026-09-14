@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import { EDITORIAL_IMAGES, STORE } from "@/lib/config";
+import { STORE } from "@/lib/config";
 import { whatsappGeneralUrl } from "@/lib/whatsapp";
 
 export const metadata: Metadata = {
@@ -17,15 +16,8 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 pt-12 md:px-10 md:pt-20">
-      <header className="border-b border-ink pb-8">
-        <p className="eyebrow text-terracotta">Say hello</p>
-        <h1 className="mt-4 font-display text-[clamp(2.5rem,9vw,6.5rem)] leading-[0.88] uppercase">
-          Contact
-        </h1>
-      </header>
-
-      <div className="max-w-3xl py-14 md:py-20">
+    <div className="mx-auto max-w-[1500px] px-5 pt-7 md:px-10 md:pt-12">
+      <div className="max-w-3xl py-6 md:py-10">
         <p className="max-w-md font-display text-2xl leading-snug italic">
           Questions on sizing, fabric or delivery? Message us — we reply the
           same day.
