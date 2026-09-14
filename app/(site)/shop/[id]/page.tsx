@@ -42,7 +42,7 @@ export default async function ProductPage({ params }: Props) {
           <p className="eyebrow text-terracotta">
             {product.category ?? "Nisha Ghumti Fancy"}
           </p>
-          <h1 className="mt-4 font-display text-[clamp(2.5rem,6vw,5rem)] leading-[0.9]">
+          <h1 className="mt-4 max-w-xl font-display text-[clamp(1.7rem,3vw,2.8rem)] leading-[0.95] tracking-[-0.04em] [text-wrap:balance]">
             {product.name}
           </h1>
           <p className="mt-5 text-lg tabular-nums">{formatRs(product.price)}</p>

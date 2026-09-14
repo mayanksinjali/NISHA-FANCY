@@ -64,8 +64,11 @@ export default function ProductCard({
       </Link>
 
       <div className="mt-4 flex items-baseline justify-between gap-4 border-t border-line pt-3">
-        <h3 className="font-display text-[17px] leading-snug md:text-lg">
-          <Link href={`/shop/${product.id}`} className="hover:text-terracotta">
+        <h3 className="min-w-0 flex-1 font-display text-[14px] leading-[1.15] md:text-[15px]">
+          <Link
+            href={`/shop/${product.id}`}
+            className="line-clamp-2 block hover:text-terracotta"
+          >
             {product.name}
           </Link>
         </h3>
