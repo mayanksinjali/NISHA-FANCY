@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function ProductGallery({ productName, images }: Props) {
-  const [activeImage, setActiveImage] = useState<string | null>(images[0] ?? null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   if (!images.length) {
     return (
@@ -21,41 +21,45 @@ export default function ProductGallery({ productName, images }: Props) {
     );
   }
 
-  const activeIndex = images.findIndex((image) => image === activeImage);
-  const safeIndex = activeIndex >= 0 ? activeIndex : 0;
+  const displayedImage = images[0];
 
   return (
     <>
       <div className="w-full max-w-[560px]">
-        <div className="relative overflow-hidden rounded-md bg-bone">
+        <button
+          type="button"
+          onClick={() => setSelectedImage(displayedImage)}
+          aria-label={`View ${productName} photo enlarged`}
+          className="relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-bone text-left"
+        >
           <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[4/5]">
             <Image
-              src={images[safeIndex]}
-              alt={`${productName} ${safeIndex + 1}`}
+              src={displayedImage}
+              alt={`${productName} 1`}
               fill
-              priority={safeIndex === 0}
+              priority
               sizes="(min-width: 768px) 46vw, 100vw"
-              className="object-cover"
+              className="object-contain"
             />
           </div>
 
           <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-paper">
-            {safeIndex + 1}/{images.length}
+            1/{images.length}
           </div>
-        </div>
+        </button>
       </div>
 
-      {activeImage && (
+      {selectedImage && (
         <div
           className="fixed inset-0 z-[80] flex items-center justify-center bg-wine-deep/90 p-4"
           role="dialog"
           aria-modal="true"
           aria-label={`${productName} enlarged photo`}
-          onClick={() => setActiveImage(null)}
+          onClick={() => setSelectedImage(null)}
         >
           <button
             type="button"
-            onClick={() => setActiveImage(null)}
+            onClick={() => setSelectedImage(null)}
             aria-label="Close enlarged photo"
             className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-md border border-paper/40 text-2xl text-paper"
           >
@@ -66,7 +70,7 @@ export default function ProductGallery({ productName, images }: Props) {
             onClick={(event) => event.stopPropagation()}
           >
             <Image
-              src={activeImage}
+              src={selectedImage}
               alt={productName}
               fill
               sizes="92vw"
