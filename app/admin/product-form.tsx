@@ -213,6 +213,36 @@ export default function ProductForm({ product, knownCategories }: Props) {
           </select>
         </div>
 
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="sizes" className="eyebrow text-ink-soft">
+              Sizes
+            </label>
+            <input
+              id="sizes"
+              name="sizes"
+              defaultValue={product?.sizes?.join(", ") ?? ""}
+              placeholder="S, M, L, XL"
+              className="field mt-2"
+            />
+            <p className="mt-1 text-xs text-ink-soft">Separate with commas.</p>
+          </div>
+
+          <div>
+            <label htmlFor="colors" className="eyebrow text-ink-soft">
+              Colors
+            </label>
+            <input
+              id="colors"
+              name="colors"
+              defaultValue={product?.colors?.join(", ") ?? ""}
+              placeholder="Black, White"
+              className="field mt-2"
+            />
+            <p className="mt-1 text-xs text-ink-soft">Separate with commas.</p>
+          </div>
+        </div>
+
         <div>
           <label htmlFor="description" className="eyebrow text-ink-soft">
             Description

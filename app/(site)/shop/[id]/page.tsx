@@ -92,6 +92,8 @@ export default async function ProductPage({ params }: Props) {
         <div className="md:col-span-5 md:pt-1">
           <p className="eyebrow text-terracotta">
             {product.category ?? "Nisha Ghumti Fancy"}
+            {product.sizes?.length ? ` · ${product.sizes.join(" · ")}` : ""}
+            {product.colors?.length ? ` · ${product.colors.join(" · ")}` : ""}
           </p>
 
           <h1 className="mt-2 max-w-lg font-sans text-lg font-semibold leading-tight tracking-normal md:text-xl [text-wrap:balance]">

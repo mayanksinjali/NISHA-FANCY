@@ -66,6 +66,8 @@ type ParsedProduct = {
   name: string;
   price: number;
   category: string | null;
+  sizes: string[];
+  colors: string[];
   description: string | null;
   in_stock: boolean;
 };
@@ -77,6 +79,8 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
   const name = String(formData.get("name") ?? "").trim();
   const rawPrice = String(formData.get("price") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
+  const sizes = parseList(formData.get("sizes"));
+  const colors = parseList(formData.get("colors"));
   const description = String(formData.get("description") ?? "").trim();
 
   if (!name) return { error: "Product name is required." };
@@ -91,10 +95,21 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
     name,
     price,
     category: category || null,
+    sizes,
+    colors,
     description: description || null,
     // Unchecked checkboxes are absent from FormData entirely.
     in_stock: formData.get("in_stock") === "on",
   };
+}
+
+function parseList(value: FormDataEntryValue | null): string[] {
+  return String(value ?? "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .filter((item, index, all) => all.indexOf(item) === index)
+    .slice(0, 12);
 }
 
 /** Uploads to the product-images bucket and returns the public URL. */
