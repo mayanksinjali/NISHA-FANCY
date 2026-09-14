@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { STORE } from "@/lib/config";
-import { whatsappGeneralUrl } from "@/lib/whatsapp";
 
 /** Dark editorial footer — contact, nav, socials, all placeholders swappable via env. */
 export default function SiteFooter() {
@@ -18,14 +17,6 @@ export default function SiteFooter() {
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/60">
               {STORE.tagline}
             </p>
-            <a
-              href={whatsappGeneralUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-ghost-light mt-5 px-4 py-3"
-            >
-              Order on WhatsApp
-            </a>
           </div>
 
           {/* Contact */}

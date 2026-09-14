@@ -28,12 +28,12 @@ export default async function ProductPage({ params }: Props) {
   const soldOut = !product.in_stock;
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 py-8 md:px-10 md:py-14">
+    <div className="mx-auto max-w-[1500px] px-5 py-5 md:px-10 md:py-10">
       <Link href="/shop" className="eyebrow link-rule text-ink-soft">
         ← Back to shop
       </Link>
 
-      <div className="mt-8 grid gap-8 md:grid-cols-12 md:gap-12">
+      <div className="mt-4 grid gap-5 md:mt-8 md:grid-cols-12 md:gap-10">
         <div className="md:col-span-7">
           <div className="relative">
             <span
@@ -47,24 +47,24 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="md:col-span-5 md:pt-2">
+        <div className="md:col-span-5 md:pt-1">
           <p className="eyebrow text-terracotta">
             {product.category ?? "Nisha Ghumti Fancy"}
           </p>
 
-          <h1 className="mt-3 max-w-lg font-display text-[clamp(1.5rem,2.6vw,2.4rem)] leading-[0.96] tracking-[-0.04em] [text-wrap:balance]">
+          <h1 className="mt-2 max-w-lg font-sans text-lg font-semibold leading-tight tracking-normal md:text-xl [text-wrap:balance]">
             {product.name}
           </h1>
 
-          <p className="mt-4 text-2xl font-medium tabular-nums">
+          <p className="mt-2 text-xl font-medium tabular-nums">
             {formatRs(product.price)}
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+          <div className="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
             {["COD available", "Fast reply", "Size help"].map((label) => (
               <span
                 key={label}
-                className="border border-line px-2 py-1.5 text-[10px]"
+                className="border border-line px-2 py-1 text-[10px]"
               >
                 {label}
               </span>
@@ -85,7 +85,7 @@ export default async function ProductPage({ params }: Props) {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-solid mt-6 w-full"
+              className="btn btn-solid mt-4 w-full"
             >
               Order this piece on WhatsApp
             </a>

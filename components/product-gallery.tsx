@@ -28,7 +28,7 @@ export default function ProductGallery({ productName, images }: Props) {
     <>
       <div className="w-full max-w-[560px]">
         <div className="relative overflow-hidden rounded-md bg-bone">
-          <div className="relative aspect-[4/5] w-full overflow-hidden">
+          <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[4/5]">
             <Image
               src={images[safeIndex]}
               alt={`${productName} ${safeIndex + 1}`}
