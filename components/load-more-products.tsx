@@ -7,12 +7,14 @@ import ProductGrid from "./product-grid";
 type Props = {
   initialProducts: Product[];
   category: string | null;
+  search: string | null;
   hasMore: boolean;
 };
 
 export default function LoadMoreProducts({
   initialProducts,
   category,
+  search,
   hasMore: initialHasMore,
 }: Props) {
   const [products, setProducts] = useState(initialProducts);
@@ -29,6 +31,7 @@ export default function LoadMoreProducts({
         limit: "6",
       });
       if (category) params.set("category", category);
+      if (search) params.set("q", search);
       const response = await fetch(`/api/products?${params}`, { cache: "no-store" });
       const result = (await response.json()) as {
         products?: Product[];

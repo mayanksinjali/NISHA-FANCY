@@ -14,12 +14,13 @@ export const metadata: Metadata = {
 export const revalidate = 0;
 
 type Props = {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; q?: string }>;
 };
 
 export default async function ShopPage({ searchParams }: Props) {
-  const { category } = await searchParams;
+  const { category, q } = await searchParams;
   const active = category?.trim() || null;
+  const search = q?.trim().slice(0, 80) || null;
 
   // One round trip each; they don't depend on one another.
   let products: Product[] = [];
@@ -27,7 +28,7 @@ export default async function ShopPage({ searchParams }: Props) {
   let catalogError = false;
   try {
     [products, categories] = await Promise.all([
-      getProducts({ category: active, limit: 7 }),
+      getProducts({ category: active, search, limit: 7 }),
       getCategories(),
     ]);
   } catch (error) {
@@ -54,6 +55,24 @@ export default async function ShopPage({ searchParams }: Props) {
       </header>
 
       <div className="mt-8">
+        <form action="/shop" method="get" className="flex gap-2">
+          {active && <input type="hidden" name="category" value={active} />}
+          <label htmlFor="shop-search" className="sr-only">Search products</label>
+          <input
+            id="shop-search"
+            name="q"
+            type="search"
+            defaultValue={search ?? ""}
+            placeholder="Search products"
+            className="min-w-0 flex-1 border border-line bg-transparent px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-soft focus:border-terracotta"
+          />
+          <button type="submit" className="btn btn-solid px-5 py-3">
+            Search
+          </button>
+        </form>
+      </div>
+
+      <div className="mt-6">
         <CategoryFilter categories={categories} active={active} />
       </div>
 
@@ -73,7 +92,12 @@ export default async function ShopPage({ searchParams }: Props) {
             <p className="mt-3 text-sm text-ink-soft">Please try again in a moment.</p>
           </div>
         ) : (
-          <LoadMoreProducts initialProducts={initialProducts} category={active} hasMore={hasMore} />
+          <LoadMoreProducts
+            initialProducts={initialProducts}
+            category={active}
+            search={search}
+            hasMore={hasMore}
+          />
         )}
       </div>
     </div>

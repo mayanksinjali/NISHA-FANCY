@@ -34,6 +34,7 @@ const LEGACY_COLUMNS =
 export async function getProducts(options?: {
   limit?: number;
   category?: string | null;
+  search?: string | null;
 }): Promise<Product[]> {
   const supabase = getSupabase();
   if (!supabase) return [];
@@ -44,6 +45,10 @@ export async function getProducts(options?: {
     .order("created_at", { ascending: false });
 
   if (options?.category) query = query.eq("category", options.category);
+  if (options?.search) {
+    const search = options.search.trim().slice(0, 80).replace(/[%_]/g, " ");
+    if (search) query = query.ilike("name", `%${search}%`);
+  }
   if (options?.limit) query = query.limit(options.limit);
 
   let { data, error } = await query;
@@ -53,6 +58,10 @@ export async function getProducts(options?: {
       .select(LEGACY_COLUMNS)
       .order("created_at", { ascending: false });
     if (options?.category) legacyQuery = legacyQuery.eq("category", options.category);
+    if (options?.search) {
+      const search = options.search.trim().slice(0, 80).replace(/[%_]/g, " ");
+      if (search) legacyQuery = legacyQuery.ilike("name", `%${search}%`);
+    }
     if (options?.limit) legacyQuery = legacyQuery.limit(options.limit);
     const legacyResult = await legacyQuery;
     data = legacyResult.data as typeof data;

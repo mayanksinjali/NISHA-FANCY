@@ -6,6 +6,7 @@ const MAX_LIMIT = 12;
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category")?.trim() || null;
+  const search = searchParams.get("q")?.trim().slice(0, 80) || null;
   const offset = Math.max(0, Number(searchParams.get("offset") ?? 0) || 0);
   const limit = Math.min(
     MAX_LIMIT,
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
   );
 
   try {
-    const products = await getProducts({ category, limit: offset + limit + 1 });
+    const products = await getProducts({ category, search, limit: offset + limit + 1 });
     const page = products.slice(offset, offset + limit);
     return NextResponse.json({
       products: page,
