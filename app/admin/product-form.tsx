@@ -203,7 +203,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
             className="field mt-2"
           >
             <option value="">Choose a category</option>
-            {["Men", "Women", "Children", ...knownCategories]
+            {["Men", "Women", "Both", "Children", ...knownCategories]
               .filter((category, index, all) => all.indexOf(category) === index)
               .map((category) => (
                 <option key={category} value={category}>
