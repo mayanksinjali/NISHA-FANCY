@@ -26,7 +26,7 @@ export default function ProductGallery({ productName, images }: Props) {
 
   return (
     <>
-      <div className="w-full max-w-[620px]">
+      <div className="w-full max-w-[560px]">
         <div className="relative overflow-hidden rounded-md bg-bone">
           <div className="relative aspect-[4/5] w-full overflow-hidden">
             <Image
@@ -34,39 +34,14 @@ export default function ProductGallery({ productName, images }: Props) {
               alt={`${productName} ${safeIndex + 1}`}
               fill
               priority={safeIndex === 0}
-              sizes="(min-width: 768px) 52vw, 100vw"
+              sizes="(min-width: 768px) 46vw, 100vw"
               className="object-cover"
             />
           </div>
 
-          <div className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium tracking-[0.12em] text-paper uppercase">
+          <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-paper">
             {safeIndex + 1}/{images.length}
           </div>
-        </div>
-
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {images.map((image, index) => {
-            const isActive = image === images[safeIndex];
-            return (
-              <button
-                key={image}
-                type="button"
-                onClick={() => setActiveImage(image)}
-                aria-label={`View ${productName} photo ${index + 1}`}
-                className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-md border bg-bone sm:h-24 sm:w-24 ${
-                  isActive ? "border-ink" : "border-line"
-                }`}
-              >
-                <Image
-                  src={image}
-                  alt={`${productName} ${index + 1}`}
-                  fill
-                  sizes="96px"
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-              </button>
-            );
-          })}
         </div>
       </div>
 

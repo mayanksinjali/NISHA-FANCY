@@ -30,13 +30,16 @@ export default function SiteHeader() {
     };
   }, []);
 
+  const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
+
   return (
     <>
-      <header
-        className={`relative z-50 border-b border-line bg-bone/92 backdrop-blur-sm transition-[opacity,transform] duration-300 md:sticky md:top-0 ${
-          scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
-        }`}
-      >
+      {!isProductDetail && (
+        <header
+          className={`relative z-50 border-b border-line bg-bone/92 backdrop-blur-sm transition-[opacity,transform] duration-300 md:sticky md:top-0 ${
+            scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
+          }`}
+        >
       <div className="mx-auto flex h-14 max-w-[1500px] items-center justify-between px-4 md:h-20 md:px-10">
         {/* Wordmark */}
         <Link
@@ -86,7 +89,8 @@ export default function SiteHeader() {
         </nav>
 
       </div>
-      </header>
+        </header>
+      )}
 
       <nav
       aria-label="Mobile navigation"
