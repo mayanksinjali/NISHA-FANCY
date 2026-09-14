@@ -42,7 +42,11 @@ export default async function ShopPage({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-[1500px] px-5 pt-7 md:px-10 md:pt-12">
       <div>
-        <form action="/shop" method="get" className="flex gap-2">
+        <form
+          action="/shop"
+          method="get"
+          className="flex w-full max-w-xl items-center rounded-full border border-line bg-black/10 p-1 transition-colors focus-within:border-terracotta"
+        >
           {active && <input type="hidden" name="category" value={active} />}
           <label htmlFor="shop-search" className="sr-only">Search products</label>
           <input
@@ -50,11 +54,19 @@ export default async function ShopPage({ searchParams }: Props) {
             name="q"
             type="search"
             defaultValue={search ?? ""}
-            placeholder="Search products"
-            className="min-w-0 flex-1 border border-line bg-transparent px-4 py-3 text-sm text-ink outline-none placeholder:text-ink-soft focus:border-terracotta"
+            placeholder="Search products..."
+            className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none placeholder:text-ink-soft"
           />
-          <button type="submit" className="btn btn-solid px-5 py-3">
-            Search
+          <button
+            type="submit"
+            aria-label="Search products"
+            title="Search products"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-terracotta text-wine-deep transition-colors hover:bg-terracotta-deep"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden>
+              <circle cx="11" cy="11" r="6.5" />
+              <path d="m16 16 5 5" />
+            </svg>
           </button>
         </form>
       </div>
