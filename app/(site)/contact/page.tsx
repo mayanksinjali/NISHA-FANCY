@@ -16,21 +16,21 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 pt-7 md:px-10 md:pt-12">
-      <div className="max-w-3xl py-6 md:py-10">
-        <p className="max-w-md font-display text-2xl leading-snug italic">
+    <div className="mx-auto max-w-[1500px] px-5 pt-5 md:px-10 md:pt-10">
+      <div className="max-w-3xl py-3 md:py-6">
+        <p className="max-w-md text-lg leading-snug text-ink-soft md:text-xl">
           Questions on sizing, fabric or delivery? Message us — we reply the
           same day.
         </p>
 
-        <dl className="mt-10">
+        <dl className="mt-6">
           {details.map((item) => (
             <div
               key={item.label}
-              className="border-t border-line py-5 first:border-t-ink"
+              className="border-t border-line py-3 first:border-t-ink"
             >
               <dt className="eyebrow text-ink-soft">{item.label}</dt>
-              <dd className="mt-2 text-lg">
+              <dd className="mt-1 text-base">
                 {item.href ? (
                   <a
                     href={item.href}
@@ -52,9 +52,9 @@ export default function ContactPage() {
           ))}
         </dl>
 
-        <div className="mt-10 border-t border-line pt-8">
+        <div className="mt-6 border-t border-line pt-5">
           <p className="eyebrow text-ink-soft">Follow</p>
-          <ul className="mt-4 flex flex-wrap gap-x-8 gap-y-2">
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
             {STORE.social.map((s) => (
               <li key={s.label}>
                 <a
@@ -74,7 +74,7 @@ export default function ContactPage() {
           href={whatsappGeneralUrl()}
           target="_blank"
           rel="noopener noreferrer"
-          className="btn btn-solid mt-10 w-full sm:w-auto"
+          className="btn btn-solid mt-6 w-full sm:w-auto"
         >
           Message us on WhatsApp
         </a>
