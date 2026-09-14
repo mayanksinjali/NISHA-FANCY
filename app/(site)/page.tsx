@@ -16,7 +16,7 @@ export default async function HomePage() {
     <>
       <Hero />
 
-      <section className="mx-auto max-w-[1500px] px-5 pt-14 md:px-10 md:pt-24">
+      <section className="mx-auto max-w-[1500px] px-5 pt-8 md:px-10 md:pt-14">
         <SectionHeading
           id="new-arrivals"
           eyebrow="Just landed"

@@ -20,11 +20,11 @@ export default function SectionHeading({
   return (
     <div
       id={id}
-      className="flex flex-col gap-6 border-t border-ink pt-5 md:flex-row md:items-end md:justify-between"
+      className="flex flex-col gap-3 border-t border-ink pt-3 md:flex-row md:items-end md:justify-between"
     >
       <div>
-        <p className="eyebrow text-terracotta">{eyebrow}</p>
-        <h2 className="mt-4 font-display text-[clamp(2rem,6vw,4rem)] leading-[0.95] uppercase">
+        <p className="eyebrow text-[9px] text-terracotta">{eyebrow}</p>
+        <h2 className="mt-2 font-display text-[clamp(1.8rem,5vw,3.5rem)] leading-[0.95] uppercase">
           {title}
         </h2>
         {lede && (
