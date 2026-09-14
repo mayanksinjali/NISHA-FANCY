@@ -8,17 +8,7 @@ export default function SiteFooter() {
   return (
     <footer className="mt-16 bg-wine-deep text-paper md:mt-24">
       <div className="mx-auto max-w-[1500px] px-4 py-12 md:px-10 md:py-20">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-12 md:gap-12">
-          {/* Wordmark + tagline */}
-          <div className="col-span-2 md:col-span-5">
-            <p className="font-display text-2xl tracking-[0.14em] uppercase md:text-4xl">
-              {STORE.name}
-            </p>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-paper/60">
-              {STORE.tagline}
-            </p>
-          </div>
-
+        <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-4 md:gap-12">
           {/* Contact */}
           <div className="md:col-span-2">
             <h2 className="eyebrow text-paper/40">Contact</h2>
