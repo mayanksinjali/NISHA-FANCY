@@ -90,14 +90,19 @@ export default async function ProductPage({ params }: Props) {
         </div>
 
         <div className="md:col-span-5 md:pt-1">
-          <p className="eyebrow text-terracotta">
-            {product.category ?? "Nisha Ghumti Fancy"}
-            {product.sizes?.length ? ` · ${product.sizes.join(" · ")}` : ""}
-            {product.colors?.length ? ` · ${product.colors.join(" · ")}` : ""}
-          </p>
+          {product.category && (
+            <p className="eyebrow text-terracotta">{product.category}</p>
+          )}
 
           <h1 className="mt-2 max-w-lg font-sans text-lg font-semibold leading-tight tracking-normal md:text-xl [text-wrap:balance]">
             {product.name}
+            {(product.sizes?.length || product.colors?.length) && (
+              <span className="ml-2 align-middle text-[10px] font-normal uppercase tracking-[0.08em] text-ink-soft">
+                {product.sizes?.length ? `Size: ${product.sizes.join("/")}` : ""}
+                {product.sizes?.length && product.colors?.length ? " · " : ""}
+                {product.colors?.length ? `Color: ${product.colors.join("/")}` : ""}
+              </span>
+            )}
           </h1>
 
           <p className="mt-2 text-xl font-medium tabular-nums">
