@@ -53,7 +53,10 @@ export default function ProductForm({ product, knownCategories }: Props) {
 
     setWorking(true);
     try {
-      const remaining = 4 - selectedFilesRef.current.length;
+      const remaining = Math.max(
+        0,
+        4 - existingImages.length - selectedFilesRef.current.length,
+      );
       const filesToAdd = files.slice(0, remaining);
       const transfer = new DataTransfer();
       const compressedFiles: File[] = [...selectedFilesRef.current];

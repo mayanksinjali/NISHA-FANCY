@@ -296,13 +296,20 @@ export async function updateProductAction(
       return { error: "The photos are too large together. Choose smaller images and try again." };
     }
     newImageUrls = await uploadImages(files);
+    const retainedImageUrls = [previousUrl, ...previousImageUrls]
+      .filter((url): url is string => Boolean(url))
+      .filter((url, index, all) => all.indexOf(url) === index);
+    const combinedImageUrls = [...retainedImageUrls, ...newImageUrls].slice(
+      0,
+      MAX_PRODUCT_IMAGES,
+    );
 
     const { error } = await getSupabaseAdmin()
       .from("products")
       .update({
         ...parsed,
         ...(newImageUrls.length
-          ? { image_url: newImageUrls[0], image_urls: newImageUrls }
+          ? { image_url: combinedImageUrls[0], image_urls: combinedImageUrls }
           : {}),
       })
       .eq("id", id);
@@ -315,7 +322,17 @@ export async function updateProductAction(
 
   // Row is saved — now it's safe to bin the old photo.
   if (newImageUrls.length) {
-    for (const url of [previousUrl, ...previousImageUrls]) {
+    const retainedImageUrls = [previousUrl, ...previousImageUrls]
+      .filter((url): url is string => Boolean(url))
+      .filter((url, index, all) => all.indexOf(url) === index);
+    const combinedImageUrls = [...retainedImageUrls, ...newImageUrls].slice(
+      0,
+      MAX_PRODUCT_IMAGES,
+    );
+    const removedImageUrls = retainedImageUrls.filter(
+      (url) => !combinedImageUrls.includes(url),
+    );
+    for (const url of removedImageUrls) {
       await removeStoredImage(url);
     }
   }

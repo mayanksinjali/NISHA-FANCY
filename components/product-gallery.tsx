@@ -12,6 +12,7 @@ export default function ProductGallery({ productName, images }: Props) {
   const [displayedIndex, setDisplayedIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const touchStartX = useRef<number | null>(null);
+  const didSwipe = useRef(false);
 
   if (!images.length) {
     return (
@@ -27,6 +28,7 @@ export default function ProductGallery({ productName, images }: Props) {
 
   function handleTouchStart(event: React.TouchEvent<HTMLButtonElement>) {
     touchStartX.current = event.touches[0]?.clientX ?? null;
+    didSwipe.current = false;
   }
 
   function handleTouchEnd(event: React.TouchEvent<HTMLButtonElement>) {
@@ -34,6 +36,7 @@ export default function ProductGallery({ productName, images }: Props) {
     const endX = event.changedTouches[0]?.clientX;
     touchStartX.current = null;
     if (startX === null || endX === undefined || Math.abs(endX - startX) < 40) return;
+    didSwipe.current = true;
     setDisplayedIndex((current) =>
       endX < startX
         ? (current + 1) % images.length
@@ -46,21 +49,33 @@ export default function ProductGallery({ productName, images }: Props) {
       <div className="w-full max-w-[560px]">
         <button
           type="button"
-          onClick={() => setSelectedImage(displayedImage)}
+          onClick={() => {
+            if (!didSwipe.current) setSelectedImage(displayedImage);
+            didSwipe.current = false;
+          }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           aria-label={`View ${productName} photo enlarged`}
           className="relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-bone text-left"
         >
           <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[4/5]">
-            <Image
-              src={displayedImage}
-              alt={`${productName} 1`}
-              fill
-              priority
-              sizes="(min-width: 768px) 46vw, 100vw"
-              className="object-contain"
-            />
+            <div
+              className="flex h-full transition-transform duration-500 ease-out will-change-transform"
+              style={{ transform: `translate3d(-${displayedIndex * 100}%, 0, 0)` }}
+            >
+              {images.map((image, index) => (
+                <div key={image} className="relative h-full min-w-full shrink-0">
+                  <Image
+                    src={image}
+                    alt={`${productName} ${index + 1}`}
+                    fill
+                    priority={index === 0}
+                    sizes="(min-width: 768px) 46vw, 100vw"
+                    className="object-contain"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-paper">
