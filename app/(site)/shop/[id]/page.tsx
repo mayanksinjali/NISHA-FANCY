@@ -13,7 +13,28 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const product = await getProduct(id);
-  return { title: product?.name ?? "Product" };
+  if (!product) return { title: "Product" };
+
+  const description = product.description || `Shop ${product.name} from Nisha Ghumti Fancy.`;
+  return {
+    title: product.name,
+    description,
+    alternates: {
+      canonical: `/shop/${product.id}`,
+    },
+    openGraph: {
+      title: product.name,
+      description,
+      type: "website",
+      images: product.image_url ? [{ url: product.image_url, alt: product.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: product.image_url ? [product.image_url] : undefined,
+    },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -26,9 +47,30 @@ export default async function ProductPage({ params }: Props) {
     ...(product.image_urls ?? []),
   ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
   const soldOut = !product.in_stock;
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description || undefined,
+    image: images,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "NPR",
+      price: product.price,
+      availability: soldOut
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+    },
+  };
 
   return (
     <div className="mx-auto max-w-[1500px] px-5 py-5 md:px-10 md:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <Link href="/shop" className="eyebrow link-rule text-ink-soft">
         ← Back to shop
       </Link>

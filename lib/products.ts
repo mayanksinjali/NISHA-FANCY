@@ -14,6 +14,13 @@ export type Product = {
   created_at: string | null;
 };
 
+export class ProductCatalogError extends Error {
+  constructor() {
+    super("Product catalog unavailable");
+    this.name = "ProductCatalogError";
+  }
+}
+
 const COLUMNS =
   "id,name,price,category,description,image_url,image_urls,in_stock,created_at";
 const LEGACY_COLUMNS =
@@ -53,7 +60,7 @@ export async function getProducts(options?: {
   }
   if (error) {
     console.error("[products] getProducts failed:", error.message);
-    return [];
+    throw new ProductCatalogError();
   }
   return (data ?? []) as Product[];
 }

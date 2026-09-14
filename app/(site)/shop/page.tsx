@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import CategoryFilter from "@/components/category-filter";
-import ProductGrid from "@/components/product-grid";
-import { getCategories, getProducts } from "@/lib/products";
+import LoadMoreProducts from "@/components/load-more-products";
+import { getCategories, getProducts, type Product } from "@/lib/products";
+import { ProductCatalogError } from "@/lib/products";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 export const metadata: Metadata = {
@@ -21,10 +22,21 @@ export default async function ShopPage({ searchParams }: Props) {
   const active = category?.trim() || null;
 
   // One round trip each; they don't depend on one another.
-  const [products, categories] = await Promise.all([
-    getProducts({ category: active }),
-    getCategories(),
-  ]);
+  let products: Product[] = [];
+  let categories: string[] = [];
+  let catalogError = false;
+  try {
+    [products, categories] = await Promise.all([
+      getProducts({ category: active, limit: 7 }),
+      getCategories(),
+    ]);
+  } catch (error) {
+    if (!(error instanceof ProductCatalogError)) throw error;
+    catalogError = true;
+    products = [];
+  }
+  const initialProducts = products.slice(0, 6);
+  const hasMore = products.length > initialProducts.length;
 
   return (
     <div className="mx-auto max-w-[1500px] px-5 pt-12 md:px-10 md:pt-20">
@@ -36,7 +48,7 @@ export default async function ShopPage({ searchParams }: Props) {
             {active ?? "Shop all"}
           </h1>
           <p className="eyebrow text-ink-soft md:pb-3">
-            {products.length} {products.length === 1 ? "piece" : "pieces"}
+            {catalogError ? "Catalog unavailable" : `${initialProducts.length}${hasMore ? "+" : ""} pieces`}
           </p>
         </div>
       </header>
@@ -55,14 +67,14 @@ export default async function ShopPage({ searchParams }: Props) {
       )}
 
       <div className="mt-12 pb-8 md:mt-16">
-        <ProductGrid
-          products={products}
-          emptyMessage={
-            active
-              ? `Nothing in ${active} right now.`
-              : "No pieces on the rail yet."
-          }
-        />
+        {catalogError ? (
+          <div className="border border-terracotta/40 bg-terracotta/5 px-5 py-12 text-center">
+            <p className="font-display text-2xl text-terracotta">The catalog is temporarily unavailable.</p>
+            <p className="mt-3 text-sm text-ink-soft">Please try again in a moment.</p>
+          </div>
+        ) : (
+          <LoadMoreProducts initialProducts={initialProducts} category={active} hasMore={hasMore} />
+        )}
       </div>
     </div>
   );

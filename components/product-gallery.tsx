@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type Props = {
   productName: string;
@@ -9,7 +9,9 @@ type Props = {
 };
 
 export default function ProductGallery({ productName, images }: Props) {
+  const [displayedIndex, setDisplayedIndex] = useState(0);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   if (!images.length) {
     return (
@@ -21,7 +23,23 @@ export default function ProductGallery({ productName, images }: Props) {
     );
   }
 
-  const displayedImage = images[0];
+  const displayedImage = images[displayedIndex];
+
+  function handleTouchStart(event: React.TouchEvent<HTMLButtonElement>) {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+  }
+
+  function handleTouchEnd(event: React.TouchEvent<HTMLButtonElement>) {
+    const startX = touchStartX.current;
+    const endX = event.changedTouches[0]?.clientX;
+    touchStartX.current = null;
+    if (startX === null || endX === undefined || Math.abs(endX - startX) < 40) return;
+    setDisplayedIndex((current) =>
+      endX < startX
+        ? (current + 1) % images.length
+        : (current - 1 + images.length) % images.length,
+    );
+  }
 
   return (
     <>
@@ -29,6 +47,8 @@ export default function ProductGallery({ productName, images }: Props) {
         <button
           type="button"
           onClick={() => setSelectedImage(displayedImage)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           aria-label={`View ${productName} photo enlarged`}
           className="relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-bone text-left"
         >
@@ -44,7 +64,7 @@ export default function ProductGallery({ productName, images }: Props) {
           </div>
 
           <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-paper">
-            1/{images.length}
+            {displayedIndex + 1}/{images.length}
           </div>
         </button>
       </div>
