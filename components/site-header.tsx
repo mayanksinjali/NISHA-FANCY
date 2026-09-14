@@ -15,6 +15,7 @@ import { whatsappGeneralUrl } from "@/lib/whatsapp";
 export default function SiteHeader() {
   const pathname = usePathname();
   const [scrollingDown, setScrollingDown] = useState(false);
+  const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
 
   // Keep the compact mobile masthead out of the way while reading the page.
   useEffect(() => {
@@ -30,7 +31,10 @@ export default function SiteHeader() {
     };
   }, []);
 
-  const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
+  useEffect(() => {
+    document.body.classList.toggle("has-mobile-nav", !isProductDetail);
+    return () => document.body.classList.remove("has-mobile-nav");
+  }, [isProductDetail]);
 
   return (
     <>
@@ -92,39 +96,45 @@ export default function SiteHeader() {
         </header>
       )}
 
-      <nav
-      aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-line bg-bone/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(23,21,15,0.08)] backdrop-blur-md md:hidden"
-    >
-      {NAV_LINKS.map((link) => {
-        const active =
-          link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            data-active={active}
-            className="flex min-h-14 flex-col items-center justify-center gap-1 border-r border-line px-1 text-[10px] uppercase tracking-[0.12em] text-ink-soft last:border-r-0 data-[active=true]:text-terracotta"
-          >
-            <span className="text-base leading-none" aria-hidden>
-              {link.href === "/" ? "⌂" : link.href === "/shop" ? "◫" : "✉"}
-            </span>
-            {link.label}
-          </Link>
-        );
-      })}
-      <a
-        href={whatsappGeneralUrl()}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-[10px] uppercase tracking-[0.12em] text-terracotta"
-      >
-        <span className="text-base leading-none" aria-hidden>
-          ◉
-        </span>
-        WhatsApp
-      </a>
-      </nav>
+      {!isProductDetail && (
+        <nav
+          aria-label="Mobile navigation"
+          className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-paper/15 bg-wine-deep pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-8px_24px_rgba(0,0,0,0.28)] md:hidden"
+        >
+          {NAV_LINKS.map((link) => {
+            const active =
+              link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                data-active={active}
+                className="flex h-14 flex-col items-center justify-center gap-1 border-r border-paper/10 text-[9px] font-medium uppercase tracking-[0.16em] text-paper/60 transition-colors last:border-r-0 data-[active=true]:text-terracotta"
+              >
+                <span aria-hidden className="flex h-5 w-5 items-center justify-center">
+                  {link.href === "/" ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                      <path d="m3 10 9-7 9 7" />
+                      <path d="M5 9v11h14V9M9 20v-6h6v6" />
+                    </svg>
+                  ) : link.href === "/shop" ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                      <path d="M4 9h16l-1 11H5L4 9Z" />
+                      <path d="M8 9a4 4 0 0 1 8 0" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                      <rect x="3" y="5" width="18" height="14" rx="2" />
+                      <path d="m3 7 9 6 9-6" />
+                    </svg>
+                  )}
+                </span>
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
     </>
   );
 }

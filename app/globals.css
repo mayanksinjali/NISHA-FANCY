@@ -59,7 +59,7 @@ body {
     background-color: rgba(0, 0, 0, 0.2);
   }
 
-  body {
+  body.has-mobile-nav {
     padding-bottom: calc(3.5rem + env(safe-area-inset-bottom));
   }
 }
