@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function ProductGallery({ productName, images }: Props) {
-  const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [activeImage, setActiveImage] = useState<string | null>(images[0] ?? null);
 
   if (!images.length) {
     return (
@@ -21,27 +21,53 @@ export default function ProductGallery({ productName, images }: Props) {
     );
   }
 
+  const activeIndex = images.findIndex((image) => image === activeImage);
+  const safeIndex = activeIndex >= 0 ? activeIndex : 0;
+
   return (
     <>
-      <div className="grid max-w-md grid-cols-4 gap-2 sm:max-w-lg">
-        {images.map((image, index) => (
-          <button
-            key={image}
-            type="button"
-            onClick={() => setActiveImage(image)}
-            aria-label={`View ${productName} photo ${index + 1}`}
-            className="group relative aspect-square overflow-hidden rounded-md bg-bone text-left"
-          >
+      <div className="w-full max-w-[620px]">
+        <div className="relative overflow-hidden rounded-md bg-bone">
+          <div className="relative aspect-[4/5] w-full overflow-hidden">
             <Image
-              src={image}
-              alt={`${productName} ${index + 1}`}
+              src={images[safeIndex]}
+              alt={`${productName} ${safeIndex + 1}`}
               fill
-              priority={index === 0}
-              sizes="(min-width: 768px) 140px, 25vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-110"
+              priority={safeIndex === 0}
+              sizes="(min-width: 768px) 52vw, 100vw"
+              className="object-cover"
             />
-          </button>
-        ))}
+          </div>
+
+          <div className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2 py-1 text-[10px] font-medium tracking-[0.12em] text-paper uppercase">
+            {safeIndex + 1}/{images.length}
+          </div>
+        </div>
+
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {images.map((image, index) => {
+            const isActive = image === images[safeIndex];
+            return (
+              <button
+                key={image}
+                type="button"
+                onClick={() => setActiveImage(image)}
+                aria-label={`View ${productName} photo ${index + 1}`}
+                className={`group relative h-20 w-20 shrink-0 overflow-hidden rounded-md border bg-bone sm:h-24 sm:w-24 ${
+                  isActive ? "border-ink" : "border-line"
+                }`}
+              >
+                <Image
+                  src={image}
+                  alt={`${productName} ${index + 1}`}
+                  fill
+                  sizes="96px"
+                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                />
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {activeImage && (

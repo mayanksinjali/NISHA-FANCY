@@ -33,31 +33,35 @@ export default async function ProductPage({ params }: Props) {
         ← Back to shop
       </Link>
 
-      <div className="mt-8 grid gap-10 md:grid-cols-12 md:gap-14">
+      <div className="mt-8 grid gap-8 md:grid-cols-12 md:gap-12">
         <div className="md:col-span-7">
-          <ProductGallery productName={product.name} images={images} />
+          <div className="relative">
+            <span
+              className={`absolute top-3 right-3 z-10 rounded-full px-2 py-1 text-[9px] font-medium uppercase tracking-[0.14em] ${
+                soldOut ? "bg-terracotta text-paper" : "bg-black/60 text-paper"
+              }`}
+            >
+              {soldOut ? "Sold out" : "In stock"}
+            </span>
+            <ProductGallery productName={product.name} images={images} />
+          </div>
         </div>
 
-        <div className="md:col-span-5 md:pt-5">
+        <div className="md:col-span-5 md:pt-2">
           <p className="eyebrow text-terracotta">
             {product.category ?? "Nisha Ghumti Fancy"}
           </p>
 
-          <div className="mt-4 flex items-end justify-between gap-4">
-            <h1 className="max-w-xl font-display text-[clamp(1.7rem,3vw,2.8rem)] leading-[0.95] tracking-[-0.04em] [text-wrap:balance]">
-              {product.name}
-            </h1>
-            <p className="shrink-0 text-xl font-medium tabular-nums md:text-2xl">
-              {formatRs(product.price)}
-            </p>
-          </div>
+          <h1 className="mt-3 max-w-lg font-display text-[clamp(1.5rem,2.6vw,2.4rem)] leading-[0.96] tracking-[-0.04em] [text-wrap:balance]">
+            {product.name}
+          </h1>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
-            {[
-              "Cash on delivery",
-              "Fast WhatsApp reply",
-              "Size help available",
-            ].map((label) => (
+          <p className="mt-4 text-2xl font-medium tabular-nums">
+            {formatRs(product.price)}
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+            {["COD available", "Fast reply", "Size help"].map((label) => (
               <span
                 key={label}
                 className="border border-line px-2 py-1.5 text-[10px]"
@@ -67,18 +71,8 @@ export default async function ProductPage({ params }: Props) {
             ))}
           </div>
 
-          <div className="mt-6 border-y border-line py-5">
-            <p className={`eyebrow ${soldOut ? "text-terracotta" : "text-ink-soft"}`}>
-              {soldOut ? "Currently unavailable" : "In stock"}
-            </p>
-            <p className="mt-3 text-xs leading-relaxed text-ink-soft">
-              Delivery within Nepal. Message us on WhatsApp for size guidance and
-              availability before ordering.
-            </p>
-          </div>
-
           {soldOut ? (
-            <p className="eyebrow mt-7 border border-line px-4 py-4 text-center text-ink-soft">
+            <p className="eyebrow mt-6 border border-line px-4 py-4 text-center text-ink-soft">
               This piece is currently unavailable.
             </p>
           ) : (
@@ -91,11 +85,15 @@ export default async function ProductPage({ params }: Props) {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-solid mt-7 w-full"
+              className="btn btn-solid mt-6 w-full"
             >
               Order this piece on WhatsApp
             </a>
           )}
+
+          <p className="mt-3 text-xs leading-relaxed text-ink-soft">
+            Need help with size or availability? Message us before ordering.
+          </p>
 
           {product.description && (
             <div className="mt-6 rounded-none border border-line bg-bone/30 p-4">
@@ -105,11 +103,6 @@ export default async function ProductPage({ params }: Props) {
               </p>
             </div>
           )}
-
-          <p className="mt-4 text-xs leading-relaxed text-ink-soft">
-            Cash on delivery in the Butwal Metropolitan Area. We will confirm
-            size, availability, and delivery details in WhatsApp.
-          </p>
         </div>
       </div>
     </div>
