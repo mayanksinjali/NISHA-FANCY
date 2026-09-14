@@ -22,7 +22,7 @@ export default async function HomePage() {
           eyebrow="Just landed"
           title="New arrivals"
           lede="Pick your piece, see the price, and order straight on WhatsApp."
-          action={{ label: "View all", href: "/shop" }}
+          action={{ label: "See all products", href: "/shop" }}
         />
 
         <div className="mt-10 md:mt-14">

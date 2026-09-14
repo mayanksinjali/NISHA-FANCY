@@ -37,9 +37,9 @@ export default function SectionHeading({
       {action && (
         <Link
           href={action.href}
-          className="eyebrow link-rule shrink-0 text-ink md:mb-2"
+          className="btn btn-outline shrink-0 px-4 py-3 text-[10px] md:mb-2"
         >
-          {action.label} →
+          {action.label}
         </Link>
       )}
     </div>
