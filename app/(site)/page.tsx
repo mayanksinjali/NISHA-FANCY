@@ -19,7 +19,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-[1500px] px-5 pt-8 md:px-10 md:pt-14">
         <SectionHeading
           id="new-arrivals"
-          eyebrow="Just landed"
+          eyebrow=""
           title="New arrivals"
           lede="Pick your piece, see the price, and order straight on WhatsApp."
           action={{ label: "See all products", href: "/shop" }}

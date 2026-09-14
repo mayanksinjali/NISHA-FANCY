@@ -23,7 +23,7 @@ export default function SectionHeading({
       className="flex flex-col gap-3 border-t border-ink pt-3 md:flex-row md:items-end md:justify-between"
     >
       <div>
-        <p className="eyebrow text-terracotta">{eyebrow}</p>
+        {eyebrow && <p className="eyebrow text-terracotta">{eyebrow}</p>}
         <h2 className="mt-2 font-display text-[clamp(1.8rem,5vw,3.5rem)] leading-[0.95] uppercase">
           {title}
         </h2>
