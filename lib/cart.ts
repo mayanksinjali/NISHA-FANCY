@@ -8,12 +8,18 @@ export type CartItem = {
   imageUrl: string | null;
   sizes: string[];
   colors: string[];
+  selectedSize: string | null;
+  selectedColor: string | null;
   quantity: number;
 };
 
 export const CART_STORAGE_KEY = "nisha-fancy-cart";
 
-export function cartItemFromProduct(product: Product): CartItem {
+export function cartItemFromProduct(
+  product: Product,
+  selectedSize: string | null = null,
+  selectedColor: string | null = null,
+): CartItem {
   return {
     id: product.id,
     name: product.name,
@@ -22,6 +28,8 @@ export function cartItemFromProduct(product: Product): CartItem {
     imageUrl: product.image_url,
     sizes: product.sizes ?? [],
     colors: product.colors ?? [],
+    selectedSize,
+    selectedColor,
     quantity: 1,
   };
 }
@@ -32,8 +40,8 @@ export function cartMessage(items: CartItem[]): string {
       `${index + 1}. ${item.name}${
         item.category ? `\n   Category: ${item.category}` : ""
       }\n   Quantity: ${item.quantity}\n   Price: Rs. ${item.price * item.quantity}${
-        item.sizes.length ? `\n   Sizes: ${item.sizes.join(", ")}` : ""
-      }${item.colors.length ? `\n   Colors: ${item.colors.join(", ")}` : ""}${
+        item.selectedSize ? `\n   Size: ${item.selectedSize}` : ""
+      }${item.selectedColor ? `\n   Color: ${item.selectedColor}` : ""}${
         item.imageUrl ? `\n   Photo: ${item.imageUrl}` : ""
       }`,
   );

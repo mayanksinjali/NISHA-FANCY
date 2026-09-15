@@ -8,26 +8,64 @@ type Props = { product: Product; className?: string };
 
 export default function AddToCartButton({ product, className = "" }: Props) {
   const [added, setAdded] = useState(false);
+  const [choosing, setChoosing] = useState(false);
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
+
+  const needsChoice = Boolean(product.sizes?.length || product.colors?.length);
 
   function addToCart() {
+    if (needsChoice && (!selectedSize && product.sizes?.length || !selectedColor && product.colors?.length)) {
+      setChoosing(true);
+      return;
+    }
     const current = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]") as CartItem[];
-    const existing = current.find((item) => item.id === product.id);
+    const existing = current.find(
+      (item) =>
+        item.id === product.id &&
+        item.selectedSize === (selectedSize || null) &&
+        item.selectedColor === (selectedColor || null),
+    );
     const next = existing
       ? current.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item,
+          item === existing ? { ...item, quantity: item.quantity + 1 } : item,
         )
-      : [...current, cartItemFromProduct(product)];
+      : [...current, cartItemFromProduct(product, selectedSize || null, selectedColor || null)];
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event("cart-updated"));
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2000);
+    setChoosing(false);
   }
 
   return (
     <>
-      <button type="button" onClick={addToCart} className={`btn btn-outline w-full ${className}`}>
+      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className={`btn btn-outline w-full ${className}`}>
         Add to cart
       </button>
+      {choosing && (
+        <div className="mt-2 grid gap-2 border border-line bg-bone/30 p-3">
+          {product.sizes?.length ? (
+            <label className="text-xs text-ink-soft">
+              Choose size
+              <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)} className="field mt-1 py-2 text-sm">
+                <option value="">Select size</option>
+                {product.sizes.map((size) => <option key={size} value={size}>{size}</option>)}
+              </select>
+            </label>
+          ) : null}
+          {product.colors?.length ? (
+            <label className="text-xs text-ink-soft">
+              Choose color
+              <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)} className="field mt-1 py-2 text-sm">
+                <option value="">Select color</option>
+                {product.colors.map((color) => <option key={color} value={color}>{color}</option>)}
+              </select>
+            </label>
+          ) : null}
+          <button type="button" onClick={addToCart} className="btn btn-solid px-3 py-2 text-[10px]">Add selected item</button>
+        </div>
+      )}
       {added && (
         <div className="fixed inset-x-4 bottom-20 z-[70] text-center md:bottom-6">
           <span className="inline-block rounded-full bg-wine-deep px-4 py-2 text-xs font-medium text-paper shadow-lg">

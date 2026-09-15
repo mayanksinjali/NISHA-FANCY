@@ -39,7 +39,7 @@ export default function CartPage() {
         <>
           <div className="mt-8 grid grid-cols-2 gap-3">
             {items.map((item) => (
-              <div key={item.id} className="overflow-hidden border border-line bg-bone/20">
+              <div key={`${item.id}-${item.selectedSize ?? ""}-${item.selectedColor ?? ""}`} className="overflow-hidden border border-line bg-bone/20">
                 <Link href={`/shop/${item.id}`} aria-label={`View ${item.name}`} className="block">
                   <div className="relative aspect-[4/3] bg-bone">
                     {item.imageUrl ? (
@@ -52,6 +52,11 @@ export default function CartPage() {
                 <div className="p-3">
                   <p className="truncate text-sm font-medium">{item.name}</p>
                   <p className="mt-1 text-xs text-ink-soft">{formatRs(item.price)} · {item.quantity}x</p>
+                  {(item.selectedSize || item.selectedColor) && (
+                    <p className="mt-1 truncate text-[10px] uppercase tracking-[0.08em] text-ink-soft">
+                      {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedColor && `Color: ${item.selectedColor}`].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
                   <button type="button" onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="mt-3 rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700">Remove</button>
                 </div>
               </div>
