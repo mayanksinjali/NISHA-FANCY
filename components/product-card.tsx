@@ -91,12 +91,6 @@ export default function ProductCard({
         )}
       </p>
 
-      {product.description && (
-        <p className="mt-2 line-clamp-1 text-[13px] leading-relaxed text-ink-soft md:line-clamp-2">
-          {product.description}
-        </p>
-      )}
-
       {soldOut ? (
         <p className="eyebrow mt-auto border border-line px-4 py-3.5 pt-7 text-center text-ink-soft">
           Currently unavailable
