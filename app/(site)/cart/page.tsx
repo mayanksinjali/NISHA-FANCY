@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { CART_STORAGE_KEY, cartMessage, type CartItem } from "@/lib/cart";
 import { STORE } from "@/lib/config";
@@ -36,14 +37,21 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-          <div className="mt-8 divide-y divide-line border-y border-line">
+          <div className="mt-8 grid grid-cols-2 gap-3">
             {items.map((item) => (
-              <div key={item.id} className="flex items-center gap-4 py-4">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium">{item.name}</p>
-                  <p className="mt-1 text-sm text-ink-soft">{formatRs(item.price)} · {item.quantity} item</p>
+              <div key={item.id} className="overflow-hidden border border-line bg-bone/20">
+                <div className="relative aspect-[4/3] bg-bone">
+                  {item.imageUrl ? (
+                    <Image src={item.imageUrl} alt={item.name} fill sizes="(min-width: 768px) 260px, 45vw" className="object-contain" />
+                  ) : (
+                    <span className="flex h-full items-center justify-center font-display text-4xl text-ink/20">{item.name.slice(0, 1)}</span>
+                  )}
                 </div>
-                <button type="button" onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="text-xs text-terracotta underline">Remove</button>
+                <div className="p-3">
+                  <p className="truncate text-sm font-medium">{item.name}</p>
+                  <p className="mt-1 text-xs text-ink-soft">{formatRs(item.price)} · {item.quantity}x</p>
+                  <button type="button" onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-terracotta underline">Remove</button>
+                </div>
               </div>
             ))}
           </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CART_STORAGE_KEY, type CartItem } from "@/lib/cart";
 import { NAV_LINKS, STORE } from "@/lib/config";
 import { whatsappGeneralUrl } from "@/lib/whatsapp";
 
@@ -15,6 +16,7 @@ import { whatsappGeneralUrl } from "@/lib/whatsapp";
 export default function SiteHeader() {
   const pathname = usePathname();
   const [scrollingDown, setScrollingDown] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
 
   // Keep the compact mobile masthead out of the way while reading the page.
@@ -28,6 +30,20 @@ export default function SiteHeader() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const items = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]") as CartItem[];
+      setCartCount(items.reduce((total, item) => total + item.quantity, 0));
+    };
+    updateCartCount();
+    window.addEventListener("cart-updated", updateCartCount);
+    window.addEventListener("storage", updateCartCount);
+    return () => {
+      window.removeEventListener("cart-updated", updateCartCount);
+      window.removeEventListener("storage", updateCartCount);
     };
   }, []);
 
@@ -98,7 +114,7 @@ export default function SiteHeader() {
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-3 border-t border-paper/15 bg-wine-deep pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-8px_24px_rgba(0,0,0,0.28)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-paper/15 bg-wine-deep pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-8px_24px_rgba(0,0,0,0.28)] md:hidden"
       >
           {NAV_LINKS.map((link) => {
             const active =
@@ -132,6 +148,25 @@ export default function SiteHeader() {
               </Link>
             );
           })}
+          <Link
+            href="/cart"
+            data-active={pathname.startsWith("/cart")}
+            className="relative flex h-14 flex-col items-center justify-center gap-1 text-[9px] font-medium uppercase tracking-[0.16em] text-paper/60 transition-colors data-[active=true]:text-terracotta"
+          >
+            <span aria-hidden className="flex h-5 w-5 items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
+                <path d="M4 5h2l1.5 10h10L20 8H7" />
+                <circle cx="10" cy="19" r="1" />
+                <circle cx="17" cy="19" r="1" />
+              </svg>
+            </span>
+            Cart
+            {cartCount > 0 && (
+              <span className="absolute top-1 right-[calc(50%-18px)] flex h-4 min-w-4 items-center justify-center rounded-full bg-terracotta px-1 text-[9px] font-bold text-wine-deep">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
+          </Link>
       </nav>
     </>
   );
