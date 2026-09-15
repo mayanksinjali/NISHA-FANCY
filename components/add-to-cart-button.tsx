@@ -39,33 +39,35 @@ export default function AddToCartButton({ product, className = "" }: Props) {
   }
 
   return (
-    <>
+    <div className="relative w-full">
+      {choosing && (
+        <div className="absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] rounded-md border border-line bg-wine-deep p-2.5 shadow-xl">
+          <div className="grid grid-cols-2 gap-2">
+            {product.sizes?.length ? (
+              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-paper/70">
+                Size
+                <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded border border-paper/20 bg-wine-deep px-2 text-xs normal-case tracking-normal text-paper outline-none">
+                  <option value="">Choose</option>
+                  {product.sizes.map((size) => <option key={size} value={size}>{size}</option>)}
+                </select>
+              </label>
+            ) : null}
+            {product.colors?.length ? (
+              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-paper/70">
+                Color
+                <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded border border-paper/20 bg-wine-deep px-2 text-xs normal-case tracking-normal text-paper outline-none">
+                  <option value="">Choose</option>
+                  {product.colors.map((color) => <option key={color} value={color}>{color}</option>)}
+                </select>
+              </label>
+            ) : null}
+          </div>
+          <button type="button" onClick={addToCart} className="btn btn-solid mt-2 w-full px-3 py-2 text-[9px]">Add selected item</button>
+        </div>
+      )}
       <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className={`btn btn-outline w-full ${className}`}>
         Add to cart
       </button>
-      {choosing && (
-        <div className="mt-2 grid gap-2 border border-line bg-bone/30 p-3">
-          {product.sizes?.length ? (
-            <label className="text-xs text-ink-soft">
-              Choose size
-              <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)} className="field mt-1 py-2 text-sm">
-                <option value="">Select size</option>
-                {product.sizes.map((size) => <option key={size} value={size}>{size}</option>)}
-              </select>
-            </label>
-          ) : null}
-          {product.colors?.length ? (
-            <label className="text-xs text-ink-soft">
-              Choose color
-              <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)} className="field mt-1 py-2 text-sm">
-                <option value="">Select color</option>
-                {product.colors.map((color) => <option key={color} value={color}>{color}</option>)}
-              </select>
-            </label>
-          ) : null}
-          <button type="button" onClick={addToCart} className="btn btn-solid px-3 py-2 text-[10px]">Add selected item</button>
-        </div>
-      )}
       {added && (
         <div className="fixed inset-x-4 bottom-20 z-[70] text-center md:bottom-6">
           <span className="inline-block rounded-full bg-wine-deep px-4 py-2 text-xs font-medium text-paper shadow-lg">
@@ -73,6 +75,6 @@ export default function AddToCartButton({ product, className = "" }: Props) {
           </span>
         </div>
       )}
-    </>
+    </div>
   );
 }
