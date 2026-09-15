@@ -83,8 +83,12 @@ export default function ProductCard({
         </p>
       </div>
 
-      <p className="eyebrow mt-1.5 min-h-3 text-ink-soft">
-        {product.category || "\u00a0"}
+      <p className="eyebrow mt-1.5 flex min-h-5 items-center text-ink-soft">
+        {product.category ? (
+          <span className="border border-line px-1.5 py-1">{product.category}</span>
+        ) : (
+          "\u00a0"
+        )}
       </p>
 
       {product.description && (
@@ -98,7 +102,7 @@ export default function ProductCard({
           Currently unavailable
         </p>
       ) : (
-        <AddToCartButton product={product} className="mt-auto px-2 py-2.5 text-[9px] md:px-4 md:py-3 md:text-[10px]" />
+        <AddToCartButton product={product} className="mt-auto" />
       )}
     </article>
   );

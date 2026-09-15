@@ -39,7 +39,7 @@ export default function AddToCartButton({ product, className = "" }: Props) {
   }
 
   return (
-    <div className="relative w-full">
+    <div className={`relative w-full ${className}`}>
       {choosing && (
         <div className="absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] rounded-md border border-line bg-wine-deep p-2.5 shadow-xl">
           <div className="grid grid-cols-2 gap-2">
@@ -65,7 +65,7 @@ export default function AddToCartButton({ product, className = "" }: Props) {
           <button type="button" onClick={addToCart} className="btn btn-solid mt-2 w-full px-3 py-2 text-[9px]">Add selected item</button>
         </div>
       )}
-      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className={`btn btn-outline w-full ${className}`}>
+      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className="btn btn-outline w-full px-2 py-2.5 text-[9px] md:px-4 md:py-3 md:text-[10px]">
         Add to cart
       </button>
       {added && (
