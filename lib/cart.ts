@@ -29,9 +29,13 @@ export function cartItemFromProduct(product: Product): CartItem {
 export function cartMessage(items: CartItem[]): string {
   const lines = items.map(
     (item, index) =>
-      `${index + 1}. ${item.name}\n   Quantity: ${item.quantity}\n   Price: Rs. ${item.price * item.quantity}${
+      `${index + 1}. ${item.name}${
+        item.category ? `\n   Category: ${item.category}` : ""
+      }\n   Quantity: ${item.quantity}\n   Price: Rs. ${item.price * item.quantity}${
         item.sizes.length ? `\n   Sizes: ${item.sizes.join(", ")}` : ""
-      }${item.colors.length ? `\n   Colors: ${item.colors.join(", ")}` : ""}`,
+      }${item.colors.length ? `\n   Colors: ${item.colors.join(", ")}` : ""}${
+        item.imageUrl ? `\n   Photo: ${item.imageUrl}` : ""
+      }`,
   );
   return `Hi, I'd like to order:\n\n${lines.join("\n\n")}\n\nPlease confirm availability and delivery details.`;
 }
