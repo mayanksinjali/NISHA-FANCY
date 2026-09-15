@@ -83,9 +83,9 @@ export default function ProductCard({
         </p>
       </div>
 
-      {product.category && (
-        <p className="eyebrow mt-1.5 text-ink-soft">{product.category}</p>
-      )}
+      <p className="eyebrow mt-1.5 min-h-3 text-ink-soft">
+        {product.category || "\u00a0"}
+      </p>
 
       {product.description && (
         <p className="mt-2 line-clamp-1 text-[13px] leading-relaxed text-ink-soft md:line-clamp-2">

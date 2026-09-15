@@ -72,7 +72,7 @@ export default async function ProductPage({ params }: Props) {
           __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <Link href="/shop" className="eyebrow link-rule text-ink-soft">
+      <Link href="/shop" className="btn btn-outline inline-flex px-4 py-2.5 text-[10px]">
         ← Back to shop
       </Link>
 
