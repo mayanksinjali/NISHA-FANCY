@@ -5,6 +5,7 @@ import { formatRs } from "@/lib/format";
 import { getProduct } from "@/lib/products";
 import { whatsappOrderUrl } from "@/lib/whatsapp";
 import ProductGallery from "@/components/product-gallery";
+import AddToCartButton from "@/components/add-to-cart-button";
 
 export const revalidate = 0;
 
@@ -125,19 +126,17 @@ export default async function ProductPage({ params }: Props) {
               This piece is currently unavailable.
             </p>
           ) : (
-            <a
-              href={whatsappOrderUrl(
-                product.name,
-                product.price,
-                product.category,
-                images[0] ?? null,
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-solid mt-4 w-full"
-            >
-              Order this piece on WhatsApp
-            </a>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              <AddToCartButton product={product} />
+              <a
+                href={whatsappOrderUrl(product.name, product.price, product.category, images[0] ?? null)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-solid w-full"
+              >
+                Buy now
+              </a>
+            </div>
           )}
 
           <p className="mt-3 text-xs leading-relaxed text-ink-soft">

@@ -1,8 +1,8 @@
 import Image from "next/image";
 import type { Product } from "@/lib/products";
 import { formatRs, indexLabel } from "@/lib/format";
-import { whatsappOrderUrl } from "@/lib/whatsapp";
 import Link from "next/link";
+import AddToCartButton from "./add-to-cart-button";
 
 type Props = {
   product: Product;
@@ -98,19 +98,7 @@ export default function ProductCard({
           Currently unavailable
         </p>
       ) : (
-        <a
-          href={whatsappOrderUrl(
-            product.name,
-            product.price,
-            product.category,
-            product.image_url,
-          )}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-outline mt-auto w-full px-2 py-2.5 text-[9px] leading-tight md:px-4 md:py-3 md:text-[10px]"
-        >
-          Order on WhatsApp
-        </a>
+        <AddToCartButton product={product} className="mt-auto px-2 py-2.5 text-[9px] md:px-4 md:py-3 md:text-[10px]" />
       )}
     </article>
   );
