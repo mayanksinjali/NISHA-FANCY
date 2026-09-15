@@ -85,7 +85,7 @@ export default function ProductCard({
 
       <p className="eyebrow mt-1.5 flex min-h-5 items-center text-ink-soft">
         {product.category ? (
-          <span className="border border-line px-1.5 py-1">{product.category}</span>
+          <span>{product.category}</span>
         ) : (
           "\u00a0"
         )}
