@@ -45,7 +45,7 @@ export default async function ShopPage({ searchParams }: Props) {
         <form
           action="/shop"
           method="get"
-          className="flex w-full max-w-xl items-center rounded-full border border-line bg-black/10 p-1 transition-colors focus-within:border-terracotta"
+          className="flex w-full max-w-xl items-center rounded-full border border-line bg-black/10 p-1 focus-within:border-line focus-within:outline-none"
         >
           {active && <input type="hidden" name="category" value={active} />}
           <label htmlFor="shop-search" className="sr-only">Search products</label>
@@ -55,7 +55,7 @@ export default async function ShopPage({ searchParams }: Props) {
             type="search"
             defaultValue={search ?? ""}
             placeholder="Search products..."
-            className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none placeholder:text-ink-soft"
+            className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none ring-0 placeholder:text-ink-soft focus:outline-none focus:ring-0 focus-visible:outline-none"
           />
           <button
             type="submit"
