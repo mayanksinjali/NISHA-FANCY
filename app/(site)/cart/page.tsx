@@ -40,17 +40,19 @@ export default function CartPage() {
           <div className="mt-8 grid grid-cols-2 gap-3">
             {items.map((item) => (
               <div key={item.id} className="overflow-hidden border border-line bg-bone/20">
-                <div className="relative aspect-[4/3] bg-bone">
-                  {item.imageUrl ? (
-                    <Image src={item.imageUrl} alt={item.name} fill sizes="(min-width: 768px) 260px, 45vw" className="object-contain" />
-                  ) : (
-                    <span className="flex h-full items-center justify-center font-display text-4xl text-ink/20">{item.name.slice(0, 1)}</span>
-                  )}
-                </div>
+                <Link href={`/shop/${item.id}`} aria-label={`View ${item.name}`} className="block">
+                  <div className="relative aspect-[4/3] bg-bone">
+                    {item.imageUrl ? (
+                      <Image src={item.imageUrl} alt={item.name} fill sizes="(min-width: 768px) 260px, 45vw" className="object-contain" />
+                    ) : (
+                      <span className="flex h-full items-center justify-center font-display text-4xl text-ink/20">{item.name.slice(0, 1)}</span>
+                    )}
+                  </div>
+                </Link>
                 <div className="p-3">
                   <p className="truncate text-sm font-medium">{item.name}</p>
                   <p className="mt-1 text-xs text-ink-soft">{formatRs(item.price)} · {item.quantity}x</p>
-                  <button type="button" onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="mt-3 text-[10px] font-medium uppercase tracking-[0.12em] text-terracotta underline">Remove</button>
+                  <button type="button" onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="mt-3 rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700">Remove</button>
                 </div>
               </div>
             ))}

@@ -55,7 +55,7 @@ export default async function ShopPage({ searchParams }: Props) {
             type="search"
             defaultValue={search ?? ""}
             placeholder="Search products..."
-            className="min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none ring-0 placeholder:text-ink-soft focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className="shop-search-input min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none ring-0 placeholder:text-ink-soft focus:outline-none focus:ring-0 focus-visible:outline-none"
           />
           <button
             type="submit"

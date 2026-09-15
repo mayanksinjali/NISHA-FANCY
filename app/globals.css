@@ -74,6 +74,12 @@ body {
   outline-offset: 2px;
 }
 
+.shop-search-input:focus,
+.shop-search-input:focus-visible {
+  outline: none !important;
+  box-shadow: none;
+}
+
 /* ---------------------------------------------------------------------------
    Small set of repeated editorial primitives
    --------------------------------------------------------------------------- */
