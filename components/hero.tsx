@@ -8,8 +8,8 @@ import Link from "next/link";
  */
 export default function Hero() {
   return (
-    <section className="mx-auto max-w-[1280px] px-4 pt-3 md:px-8 md:pt-5">
-      <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-bone md:aspect-[16/8.5]">
+    <section className="relative left-1/2 w-screen -translate-x-1/2 pt-0">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-bone md:aspect-[16/8.5]">
         <Image
           src="/hero-gemini.jpeg"
           alt="New clothing collection from Nisha Ghumti Fancy"

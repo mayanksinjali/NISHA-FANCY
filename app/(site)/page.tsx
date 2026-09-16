@@ -18,7 +18,7 @@ export default async function HomePage() {
       <Hero />
       <CategoryShowcase />
 
-      <section className="mx-auto max-w-[1280px] px-4 pt-14 md:px-8 md:pt-20">
+      <section className="mx-auto max-w-[1280px] px-4 pt-5 md:px-8 md:pt-8">
         <SectionHeading
           id="new-arrivals"
           eyebrow=""
@@ -27,7 +27,7 @@ export default async function HomePage() {
           action={{ label: "See all products", href: "/shop" }}
         />
 
-        <div className="mt-8 md:mt-12">
+        <div className="mt-3 md:mt-5">
           <ProductGrid
             products={newArrivals}
             variant="grid"

@@ -40,15 +40,8 @@ export default async function ShopPage({ searchParams }: Props) {
   const hasMore = products.length > initialProducts.length;
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 pt-6 md:px-8 md:pt-10">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-terracotta">Nisha Fancy</p>
-          <h1 className="mt-2 font-display text-4xl tracking-[-0.04em] md:text-6xl">Shop</h1>
-        </div>
-        <p className="hidden text-sm text-ink-soft sm:block">Browse the full collection</p>
-      </div>
-      <div className="mt-6">
+    <div className="mx-auto max-w-[1280px] px-4 pt-4 md:px-8 md:pt-6">
+      <div>
         <form
           action="/shop"
           method="get"
@@ -78,11 +71,11 @@ export default async function ShopPage({ searchParams }: Props) {
         </form>
       </div>
 
-      <div className="mt-5">
+      <div className="mt-3">
         <CategoryFilter categories={categories} active={active} search={search} />
       </div>
 
-      <p className="mt-5 eyebrow text-ink-soft">
+      <p className="mt-3 eyebrow text-ink-soft">
         {catalogError ? "Catalog unavailable" : `${initialProducts.length}${hasMore ? "+" : ""} pieces`}
       </p>
 
@@ -95,7 +88,7 @@ export default async function ShopPage({ searchParams }: Props) {
         </p>
       )}
 
-      <div className="mt-8 pb-8 md:mt-12">
+      <div className="mt-5 pb-8 md:mt-8">
         {catalogError ? (
           <div className="border border-terracotta/40 bg-terracotta/5 px-5 py-12 text-center">
             <p className="font-display text-2xl text-terracotta">The catalog is temporarily unavailable.</p>
