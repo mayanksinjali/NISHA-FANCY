@@ -78,9 +78,15 @@ export const FEATURED_CATEGORIES = [
       "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=80",
   },
   {
-    slug: "Accessories",
-    label: "Accessories",
+    slug: "Both",
+    label: "Both",
     image:
       "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    slug: "Children",
+    label: "Children",
+    image:
+      "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=900&q=80",
   },
 ] as const;

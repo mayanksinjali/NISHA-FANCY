@@ -12,7 +12,7 @@ export default function CategoryShowcase() {
         </div>
         <Link href="/shop" className="hidden text-sm font-medium text-ink-soft hover:text-ink sm:block">View all products →</Link>
       </div>
-      <div className="mt-6 grid grid-cols-3 gap-2 md:gap-5">
+      <div className="mt-6 grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-5">
         {FEATURED_CATEGORIES.map((category) => (
           <Link
             key={category.slug}
