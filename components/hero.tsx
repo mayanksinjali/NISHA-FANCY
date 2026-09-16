@@ -19,12 +19,12 @@ export default function Hero() {
           sizes="(min-width: 768px) 58vw, 100vw"
           className="object-cover object-center"
         />
-        <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 bg-gradient-to-t from-black/65 to-transparent px-3 pb-3 pt-14 md:px-6 md:pb-5">
-          <div className="flex gap-2">
-            <Link href="/shop" className="btn btn-solid px-4 py-2.5 text-[10px]">Shop now</Link>
-            <Link href="/#new-arrivals" className="btn btn-ghost-light px-4 py-2.5 text-[10px]">New arrivals</Link>
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-2 pt-16 md:px-5 md:pb-4">
+          <div className="flex gap-1.5">
+            <Link href="/shop" className="btn btn-solid px-3 py-2 text-[9px]">Shop now</Link>
+            <Link href="/#new-arrivals" className="btn btn-ghost-light px-3 py-2 text-[9px]">New arrivals</Link>
           </div>
-          <div className="grid grid-cols-3 divide-x divide-white/30 text-[8px] text-white/85 md:text-[10px]">
+          <div className="mt-2 grid w-full grid-cols-3 divide-x divide-white/30 border-t border-white/25 pt-2 text-[8px] text-white/85 md:text-[10px]">
             <span className="px-2 first:pl-0"><strong className="block text-white">Delivery</strong>Butwal area</span>
             <span className="px-2"><strong className="block text-white">Payment</strong>Cash on delivery</span>
             <span className="px-2 last:pr-0"><strong className="block text-white">Orders</strong>Over WhatsApp</span>

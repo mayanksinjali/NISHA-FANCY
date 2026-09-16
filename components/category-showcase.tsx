@@ -12,12 +12,12 @@ export default function CategoryShowcase() {
         </div>
         <Link href="/shop" className="hidden text-sm font-medium text-ink-soft hover:text-ink sm:block">View all products →</Link>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+      <div className="mt-3 grid grid-cols-4 gap-1.5 md:gap-3">
         {FEATURED_CATEGORIES.map((category) => (
           <Link
             key={category.slug}
             href={`/shop?category=${encodeURIComponent(category.slug)}`}
-            className="group relative aspect-[1.15] overflow-hidden rounded-xl bg-bone"
+            className="group relative aspect-square overflow-hidden rounded-lg bg-bone"
           >
             <Image
               src={category.image}
@@ -26,7 +26,7 @@ export default function CategoryShowcase() {
               sizes="(min-width: 768px) 30vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <span className="absolute inset-x-1.5 bottom-1.5 rounded-full bg-white/92 px-1.5 py-1.5 text-center text-[8px] font-semibold uppercase tracking-[0.08em] text-ink md:inset-x-2 md:bottom-2 md:px-2 md:py-2 md:text-[11px]">
+            <span className="absolute inset-x-1 bottom-1 rounded-full bg-white/92 px-1 py-1 text-center text-[7px] font-semibold uppercase tracking-[0.04em] text-ink md:inset-x-2 md:bottom-2 md:px-2 md:py-1.5 md:text-[11px]">
               {category.label}
             </span>
           </Link>
