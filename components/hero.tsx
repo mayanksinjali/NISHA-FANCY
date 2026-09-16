@@ -17,7 +17,7 @@ export default function Hero() {
           priority
           quality={95}
           sizes="(min-width: 768px) 58vw, 100vw"
-          className="object-contain object-center"
+          className="object-cover object-center"
         />
         <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-3 bg-gradient-to-t from-black/65 to-transparent px-3 pb-3 pt-14 md:px-6 md:pb-5">
           <div className="flex gap-2">
