@@ -24,6 +24,9 @@ export default function ProductCard({
   sizes = "(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw",
 }: Props) {
   const soldOut = !product.in_stock;
+  const discountPercent = product.sale_price
+    ? Math.round(((product.price - product.sale_price) / product.price) * 100)
+    : 0;
 
   return (
     <article className="group flex h-full flex-col">
@@ -62,8 +65,8 @@ export default function ProductCard({
           </span>
         )}
         {product.sale_price && !soldOut && (
-          <span className="absolute top-3 right-3 rounded-full bg-terracotta px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white">
-            Sale
+          <span className="absolute top-3 right-3 rounded-full bg-terracotta px-3 py-2 text-[9px] font-bold uppercase tracking-[0.1em] text-white shadow-md">
+            Sale · {discountPercent}% off
           </span>
         )}
       </Link>

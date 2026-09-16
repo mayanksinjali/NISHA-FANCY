@@ -48,6 +48,9 @@ export default async function ProductPage({ params }: Props) {
     ...(product.image_urls ?? []),
   ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
   const soldOut = !product.in_stock;
+  const discountPercent = product.sale_price
+    ? Math.round(((product.price - product.sale_price) / product.price) * 100)
+    : 0;
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -87,8 +90,8 @@ export default async function ProductPage({ params }: Props) {
               {soldOut ? "Sold out" : "In stock"}
             </span>
             {product.sale_price && !soldOut && (
-              <span className="absolute top-3 left-3 z-10 rounded-full bg-terracotta px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white">
-                Sale
+              <span className="absolute top-3 left-3 z-10 rounded-full bg-terracotta px-3 py-2 text-[9px] font-bold uppercase tracking-[0.1em] text-white shadow-md">
+                Sale · {discountPercent}% off
               </span>
             )}
             <ProductGallery productName={product.name} images={images} />
