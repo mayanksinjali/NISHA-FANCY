@@ -41,21 +41,21 @@ export default function AddToCartButton({ product, className = "" }: Props) {
   return (
     <div className={`relative w-full ${className}`}>
       {choosing && (
-        <div className="absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] rounded-md border border-line bg-wine-deep p-2.5 shadow-xl">
+        <div className="absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] rounded-2xl border border-line bg-paper p-2.5 text-ink shadow-xl">
           <div className="grid grid-cols-2 gap-2">
             {product.sizes?.length ? (
-              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-paper/70">
+              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
                 Size
-                <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded border border-paper/20 bg-wine-deep px-2 text-xs normal-case tracking-normal text-paper outline-none">
+                <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded-lg border border-line bg-paper px-2 text-xs normal-case tracking-normal text-ink outline-none">
                   <option value="">Choose</option>
                   {product.sizes.map((size) => <option key={size} value={size}>{size}</option>)}
                 </select>
               </label>
             ) : null}
             {product.colors?.length ? (
-              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-paper/70">
+              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
                 Color
-                <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded border border-paper/20 bg-wine-deep px-2 text-xs normal-case tracking-normal text-paper outline-none">
+                <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded-lg border border-line bg-paper px-2 text-xs normal-case tracking-normal text-ink outline-none">
                   <option value="">Choose</option>
                   {product.colors.map((color) => <option key={color} value={color}>{color}</option>)}
                 </select>

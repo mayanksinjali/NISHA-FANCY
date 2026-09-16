@@ -40,12 +40,12 @@ export default async function ShopPage({ searchParams }: Props) {
   const hasMore = products.length > initialProducts.length;
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 pt-7 md:px-10 md:pt-12">
+    <div className="mx-auto max-w-[1280px] px-4 pt-6 md:px-8 md:pt-10">
       <div>
         <form
           action="/shop"
           method="get"
-          className="flex w-full max-w-xl items-center rounded-full border border-line bg-black/10 p-1 focus-within:border-line focus-within:outline-none"
+          className="flex w-full max-w-2xl items-center rounded-full border border-line bg-bone p-1.5 focus-within:border-ink focus-within:outline-none"
         >
           {active && <input type="hidden" name="category" value={active} />}
           <label htmlFor="shop-search" className="sr-only">Search products</label>
@@ -55,13 +55,13 @@ export default async function ShopPage({ searchParams }: Props) {
             type="search"
             defaultValue={search ?? ""}
             placeholder="Search products..."
-            className="shop-search-input min-w-0 flex-1 bg-transparent px-4 py-2 text-sm text-ink outline-none ring-0 placeholder:text-ink-soft focus:outline-none focus:ring-0 focus-visible:outline-none"
+            className="shop-search-input min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-ink outline-none ring-0 placeholder:text-ink-soft focus:outline-none focus:ring-0 focus-visible:outline-none"
           />
           <button
             type="submit"
             aria-label="Search products"
             title="Search products"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-terracotta text-wine-deep transition-colors hover:bg-terracotta-deep"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-white transition-colors hover:bg-terracotta"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden>
               <circle cx="11" cy="11" r="6.5" />
@@ -88,7 +88,7 @@ export default async function ShopPage({ searchParams }: Props) {
         </p>
       )}
 
-      <div className="mt-12 pb-8 md:mt-16">
+      <div className="mt-8 pb-8 md:mt-12">
         {catalogError ? (
           <div className="border border-terracotta/40 bg-terracotta/5 px-5 py-12 text-center">
             <p className="font-display text-2xl text-terracotta">The catalog is temporarily unavailable.</p>

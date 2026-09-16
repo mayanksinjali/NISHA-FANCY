@@ -27,9 +27,9 @@ export default function CartPage() {
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="mx-auto max-w-2xl px-5 py-8 md:px-10 md:py-14">
-      <Link href="/shop" className="eyebrow link-rule text-ink-soft">← Add more items</Link>
-      <h1 className="mt-6 font-display text-4xl uppercase">Your items</h1>
+    <div className="mx-auto max-w-[1000px] px-4 py-7 md:px-8 md:py-12">
+      <Link href="/shop" className="btn btn-outline px-4 py-2.5 text-[10px]">← Add more items</Link>
+      <h1 className="mt-7 font-display text-4xl tracking-[-0.03em] md:text-5xl">Your items</h1>
       {!items.length ? (
         <div className="border-t border-line py-14 text-center">
           <p className="text-ink-soft">No items selected yet.</p>
@@ -37,9 +37,9 @@ export default function CartPage() {
         </div>
       ) : (
         <>
-          <div className="mt-8 grid grid-cols-2 gap-3">
+          <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3">
             {items.map((item) => (
-              <div key={`${item.id}-${item.selectedSize ?? ""}-${item.selectedColor ?? ""}`} className="overflow-hidden border border-line bg-bone/20">
+              <div key={`${item.id}-${item.selectedSize ?? ""}-${item.selectedColor ?? ""}`} className="overflow-hidden rounded-2xl border border-line bg-paper shadow-sm">
                 <Link href={`/shop/${item.id}`} aria-label={`View ${item.name}`} className="block">
                   <div className="relative aspect-[4/3] bg-bone">
                     {item.imageUrl ? (

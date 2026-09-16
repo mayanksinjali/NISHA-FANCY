@@ -65,7 +65,7 @@ export default async function ProductPage({ params }: Props) {
   };
 
   return (
-    <div className="mx-auto max-w-[1500px] px-5 py-5 md:px-10 md:py-10">
+    <div className="mx-auto max-w-[1280px] px-4 py-5 md:px-8 md:py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -76,7 +76,7 @@ export default async function ProductPage({ params }: Props) {
         ← Back to shop
       </Link>
 
-      <div className="mt-4 grid gap-5 md:mt-8 md:grid-cols-12 md:gap-10">
+      <div className="mt-5 grid gap-8 md:mt-8 md:grid-cols-12 md:gap-12">
         <div className="md:col-span-7">
           <div className="relative">
             <span
@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="md:col-span-5 md:pt-1">
+        <div className="rounded-3xl bg-bone p-5 md:col-span-5 md:p-8">
           {product.category && (
             <p className="eyebrow text-terracotta">{product.category}</p>
           )}
@@ -106,11 +106,11 @@ export default async function ProductPage({ params }: Props) {
             )}
           </h1>
 
-          <p className="mt-2 text-xl font-medium tabular-nums">
+          <p className="mt-3 text-2xl font-semibold tabular-nums">
             {formatRs(product.price)}
           </p>
 
-          <div className="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+          <div className="mt-5 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
             {["COD available", "Fast reply", "Size help"].map((label) => (
               <span
                 key={label}
@@ -126,7 +126,7 @@ export default async function ProductPage({ params }: Props) {
               This piece is currently unavailable.
             </p>
           ) : (
-            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <AddToCartButton product={product} />
               <a
                 href={whatsappOrderUrl(product.name, product.price, product.category, images[0] ?? null)}

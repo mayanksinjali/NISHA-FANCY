@@ -30,7 +30,7 @@ export default function ProductCard({
       <Link
         href={`/shop/${product.id}`}
         aria-label={`View ${product.name}`}
-        className="relative block aspect-[3/4] overflow-hidden bg-surface"
+        className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-bone"
       >
         {product.image_url ? (
           <Image
@@ -45,7 +45,7 @@ export default function ProductCard({
           />
         ) : (
           // Graceful placeholder for rows added without a photo yet.
-          <div className="flex h-full w-full items-center justify-center">
+          <div className="flex h-full w-full items-center justify-center text-ink-soft">
             <span className="font-display text-5xl text-ink/15">
               {product.name.slice(0, 1).toUpperCase()}
             </span>
@@ -63,11 +63,11 @@ export default function ProductCard({
         )}
       </Link>
 
-      <div className="mt-4 flex items-start justify-between gap-3 border-t border-line pt-3">
+      <div className="mt-3 flex items-start justify-between gap-3">
         <h3 className="min-w-0 flex-1 pr-2">
           <Link
             href={`/shop/${product.id}`}
-            className="block overflow-hidden text-[12px] leading-[1.15] tracking-[-0.02em] text-ink md:text-[13px] [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] hover:text-terracotta"
+            className="block overflow-hidden text-[13px] font-medium leading-[1.2] text-ink md:text-sm [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] hover:text-terracotta"
             style={{
               display: "-webkit-box",
               WebkitBoxOrient: "vertical",
@@ -78,12 +78,12 @@ export default function ProductCard({
             {product.name}
           </Link>
         </h3>
-        <p className="shrink-0 text-[12px] tabular-nums md:text-sm">
+        <p className="shrink-0 text-sm font-medium tabular-nums">
           {formatRs(product.price)}
         </p>
       </div>
 
-      <p className="eyebrow mt-1.5 flex min-h-5 items-center text-ink-soft">
+      <p className="mt-1.5 flex min-h-5 items-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-soft">
         {product.category ? (
           <span>{product.category}</span>
         ) : (
@@ -92,7 +92,7 @@ export default function ProductCard({
       </p>
 
       {soldOut ? (
-        <p className="eyebrow mt-auto border border-line px-4 py-3.5 pt-7 text-center text-ink-soft">
+        <p className="mt-auto rounded-full border border-line px-4 py-3 text-center text-xs text-ink-soft">
           Currently unavailable
         </p>
       ) : (

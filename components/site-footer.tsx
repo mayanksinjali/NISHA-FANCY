@@ -7,12 +7,12 @@ export default function SiteFooter() {
 
   return (
     <footer className="mt-16 bg-wine-deep text-paper md:mt-24">
-      <div className="mx-auto max-w-[1500px] px-4 py-12 md:px-10 md:py-20">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-9 md:grid-cols-4 md:gap-12">
+      <div className="mx-auto max-w-[1280px] px-4 py-12 md:px-8 md:py-16">
+        <div className="grid gap-10 md:grid-cols-[1.2fr_0.8fr] md:gap-20">
           {/* Contact */}
-          <div className="md:col-span-2">
+          <div>
             <h2 className="eyebrow text-paper/40">Contact</h2>
-            <ul className="mt-4 space-y-2 text-sm text-paper/80">
+            <ul className="mt-4 space-y-3 text-sm text-paper/75">
               <li>{STORE.address}</li>
               <li>
                 <a
@@ -35,9 +35,9 @@ export default function SiteFooter() {
           </div>
 
           {/* Social */}
-          <div className="md:col-span-2">
+          <div>
             <h2 className="eyebrow text-paper/40">Follow</h2>
-            <ul className="mt-4 space-y-2 text-sm text-paper/80">
+            <ul className="mt-4 grid grid-cols-2 gap-3 text-sm text-paper/75">
               {STORE.social.map((s) => (
                 <li key={s.label}>
                   <a

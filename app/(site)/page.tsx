@@ -1,4 +1,5 @@
 import Hero from "@/components/hero";
+import CategoryShowcase from "@/components/category-showcase";
 import ProductGrid from "@/components/product-grid";
 import SectionHeading from "@/components/section-heading";
 import { getProducts } from "@/lib/products";
@@ -15,8 +16,9 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+      <CategoryShowcase />
 
-      <section className="mx-auto max-w-[1500px] px-5 pt-8 md:px-10 md:pt-14">
+      <section className="mx-auto max-w-[1280px] px-4 pt-14 md:px-8 md:pt-20">
         <SectionHeading
           id="new-arrivals"
           eyebrow=""
@@ -25,10 +27,10 @@ export default async function HomePage() {
           action={{ label: "See all products", href: "/shop" }}
         />
 
-        <div className="mt-10 md:mt-14">
+        <div className="mt-8 md:mt-12">
           <ProductGrid
             products={newArrivals}
-            variant="lookbook"
+            variant="grid"
             emptyMessage="The first drop is being photographed."
           />
         </div>

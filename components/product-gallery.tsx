@@ -56,7 +56,7 @@ export default function ProductGallery({ productName, images }: Props) {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           aria-label={`View ${productName} photo enlarged`}
-          className="relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-bone text-left"
+          className="relative block w-full cursor-zoom-in overflow-hidden rounded-3xl bg-bone text-left"
         >
           <div className="relative aspect-[4/3] w-full overflow-hidden md:aspect-[4/5]">
             <div

@@ -10,15 +10,15 @@
   Palette: black charcoal, warm cream, and muted gold accents.
   --------------------------------------------------------------------------- */
 @theme {
-  --color-bone: rgba(0, 0, 0, 0.2);
-  --color-paper: #f0e4d4;
-  --color-surface: rgba(0, 0, 0, 0.2);
-  --color-ink: #f0e4d4;
-  --color-ink-soft: #b9ad96;
-  --color-line: rgba(243, 234, 216, 0.14);
-  --color-terracotta: #d6ae57;
-  --color-terracotta-deep: #b88d3c;
-  --color-wine-deep: #0d0d0c;
+  --color-bone: #f5f5f0;
+  --color-paper: #ffffff;
+  --color-surface: #ffffff;
+  --color-ink: #171717;
+  --color-ink-soft: #727272;
+  --color-line: #e6e6e0;
+  --color-terracotta: #ff6548;
+  --color-terracotta-deep: #df4d32;
+  --color-wine-deep: #171717;
 
   --font-display: var(--font-bodoni), "Didot", Georgia, serif;
   --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
@@ -33,13 +33,12 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
   min-height: 100%;
-  background: linear-gradient(135deg, #0d0d0c 0%, #171713 48%, #29251d 100%);
+  background: #ffffff;
 }
 
 body {
   min-height: 100%;
-  background: linear-gradient(135deg, #0d0d0c 0%, #171713 48%, #29251d 100%);
-  background-attachment: fixed;
+  background: #ffffff;
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
@@ -56,7 +55,7 @@ body {
 /* Keep the mobile drawer opaque even when it sits over the photographic hero. */
 @media (max-width: 767px) {
   header {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.96);
   }
 
   body.has-mobile-nav {
@@ -103,7 +102,7 @@ body {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   border: 1px solid transparent;
-  border-radius: 0.375rem;
+  border-radius: 999px;
   transition:
     background-color 180ms ease,
     color 180ms ease,
@@ -112,7 +111,7 @@ body {
 
 @utility btn-solid {
   background-color: var(--color-terracotta);
-  color: var(--color-paper);
+  color: #ffffff;
   &:hover {
     background-color: var(--color-terracotta-deep);
   }

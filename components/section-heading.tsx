@@ -20,15 +20,15 @@ export default function SectionHeading({
   return (
     <div
       id={id}
-      className="flex flex-col gap-3 border-t border-ink pt-3 md:flex-row md:items-end md:justify-between"
+      className="flex flex-col gap-4 border-t border-line pt-4 md:flex-row md:items-end md:justify-between"
     >
       <div>
         {eyebrow && <p className="eyebrow text-terracotta">{eyebrow}</p>}
-        <h2 className="mt-2 font-display text-[clamp(1.8rem,5vw,3.5rem)] leading-[0.95] uppercase">
+        <h2 className="mt-2 font-display text-[clamp(2rem,5vw,3.8rem)] leading-none tracking-[-0.03em]">
           {title}
         </h2>
         {lede && (
-          <p className="mt-3 max-w-lg font-display text-lg text-ink-soft italic">
+          <p className="mt-3 max-w-lg text-sm leading-6 text-ink-soft md:text-base">
             {lede}
           </p>
         )}

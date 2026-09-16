@@ -17,7 +17,7 @@ export default function CategoryFilter({ categories, active, search }: Props) {
   return (
     <nav
       aria-label="Filter by category"
-      className="flex flex-wrap items-center gap-x-6 gap-y-3 border-y border-line py-4"
+      className="flex flex-wrap items-center gap-2 border-y border-line py-3"
     >
       {options.map((option) => {
         const isActive = (option.value ?? null) === active;
@@ -30,8 +30,8 @@ export default function CategoryFilter({ categories, active, search }: Props) {
             href={params.toString() ? `/shop?${params.toString()}` : "/shop"}
             data-active={isActive}
             aria-current={isActive ? "page" : undefined}
-            className={`eyebrow link-rule py-1 transition-colors ${
-              isActive ? "text-terracotta" : "text-ink-soft hover:text-ink"
+            className={`rounded-full px-3 py-2 text-xs font-medium transition-colors ${
+              isActive ? "bg-ink text-white" : "bg-bone text-ink-soft hover:text-ink"
             }`}
           >
             {option.label}

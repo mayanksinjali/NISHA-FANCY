@@ -56,16 +56,16 @@ export default function SiteHeader() {
     <>
       {!isProductDetail && (
         <header
-          className={`relative z-50 border-b border-line bg-bone/92 backdrop-blur-sm transition-[opacity,transform] duration-300 md:sticky md:top-0 ${
+          className={`relative z-50 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 ${
             scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
           }`}
         >
-      <div className="mx-auto flex h-14 max-w-[1500px] items-center justify-between px-4 md:h-20 md:px-10">
+      <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 md:h-20 md:px-8">
         {/* Wordmark */}
         <Link
           href="/"
           aria-label={STORE.name}
-          className="flex items-center gap-3"
+          className="flex items-center gap-2.5"
         >
           <Image
             src="/logo.jpeg"
@@ -73,15 +73,15 @@ export default function SiteHeader() {
             width={48}
             height={48}
             priority
-            className="h-9 w-9 rounded-full object-cover md:h-12 md:w-12"
+            className="h-9 w-9 rounded-full object-cover ring-1 ring-line md:h-10 md:w-10"
           />
-          <span className="font-display text-sm leading-none tracking-[0.12em] uppercase md:text-xl">
+          <span className="font-sans text-sm font-bold leading-none tracking-[-0.02em] md:text-base">
             {STORE.name}
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-7 md:flex">
           {NAV_LINKS.map((link) => {
             const active =
               link.href === "/"
@@ -92,7 +92,7 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 data-active={active}
-                className="eyebrow link-rule text-ink-soft transition-colors hover:text-ink data-[active=true]:text-ink"
+                className="text-xs font-medium text-ink-soft transition-colors hover:text-ink data-[active=true]:text-ink"
               >
                 {link.label}
               </Link>
@@ -102,7 +102,7 @@ export default function SiteHeader() {
             href={whatsappGeneralUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="eyebrow text-terracotta link-rule"
+            className="rounded-full bg-terracotta px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-terracotta-deep"
           >
             WhatsApp
           </a>
@@ -114,7 +114,7 @@ export default function SiteHeader() {
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-paper/15 bg-wine-deep pb-[env(safe-area-inset-bottom)] text-paper shadow-[0_-8px_24px_rgba(0,0,0,0.28)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] text-ink shadow-[0_-8px_24px_rgba(23,23,23,0.08)] md:hidden"
       >
           {NAV_LINKS.map((link) => {
             const active =
@@ -124,7 +124,7 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 data-active={active}
-                className="flex h-14 flex-col items-center justify-center gap-1 border-r border-paper/10 text-[9px] font-medium uppercase tracking-[0.16em] text-paper/60 transition-colors last:border-r-0 data-[active=true]:text-terracotta"
+                className="flex h-14 flex-col items-center justify-center gap-1 border-r border-line text-[9px] font-medium uppercase tracking-[0.12em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-terracotta"
               >
                 <span aria-hidden className="flex h-5 w-5 items-center justify-center">
                   {link.href === "/" ? (
@@ -151,7 +151,7 @@ export default function SiteHeader() {
           <Link
             href="/cart"
             data-active={pathname.startsWith("/cart")}
-            className="relative flex h-14 flex-col items-center justify-center gap-1 text-[9px] font-medium uppercase tracking-[0.16em] text-paper/60 transition-colors data-[active=true]:text-terracotta"
+            className="relative flex h-14 flex-col items-center justify-center gap-1 text-[9px] font-medium uppercase tracking-[0.12em] text-ink-soft transition-colors data-[active=true]:text-terracotta"
           >
             <span aria-hidden className="flex h-5 w-5 items-center justify-center">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">
@@ -162,7 +162,7 @@ export default function SiteHeader() {
             </span>
             Cart
             {cartCount > 0 && (
-              <span className="absolute top-1 right-[calc(50%-18px)] flex h-4 min-w-4 items-center justify-center rounded-full bg-terracotta px-1 text-[9px] font-bold text-wine-deep">
+              <span className="absolute top-1 right-[calc(50%-18px)] flex h-4 min-w-4 items-center justify-center rounded-full bg-terracotta px-1 text-[9px] font-bold text-white">
                 {cartCount > 9 ? "9+" : cartCount}
               </span>
             )}

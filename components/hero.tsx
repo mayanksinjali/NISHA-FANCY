@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { STORE } from "@/lib/config";
 
 /**
  * Hero: full-bleed clothing photograph, ink scrim weighted to the left so the
@@ -8,41 +9,42 @@ import Link from "next/link";
  */
 export default function Hero() {
   return (
-    <section className="relative isolate flex flex-col overflow-hidden bg-wine-deep">
-      <div className="relative aspect-[16/9] w-full">
-        <Image
-          src="/hero-gemini.jpeg"
-          alt="Nisha Ghumti Fancy fashion campaign"
-          fill
-          priority
-          quality={95}
-          sizes="100vw"
-          className="object-contain object-center"
-        />
-      </div>
-
-      <div className="flex gap-1.5 px-4 py-1.5 md:mx-auto md:w-full md:max-w-[1500px] md:px-10 md:py-2">
-          <Link href="/shop" className="btn btn-solid flex-1 px-2 py-1.5 text-[8px] sm:flex-none sm:px-3">
-            Shop the collection
+    <section className="mx-auto grid max-w-[1280px] gap-5 px-4 pt-4 md:grid-cols-[0.82fr_1.18fr] md:gap-8 md:px-8 md:pt-8">
+      <div className="flex flex-col justify-center rounded-3xl bg-bone px-6 py-10 md:px-12 md:py-16">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terracotta">
+          Everyday essentials
+        </p>
+        <h1 className="mt-5 max-w-md font-display text-5xl leading-[0.92] tracking-[-0.04em] text-ink md:text-7xl">
+          Style that feels like you.
+        </h1>
+        <p className="mt-5 max-w-sm text-sm leading-6 text-ink-soft md:text-base">
+          {STORE.tagline} Find your next favorite piece and order directly on WhatsApp.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Link href="/shop" className="btn btn-solid px-5 py-3 text-[10px]">
+            Shop now
           </Link>
-          <Link href="/#new-arrivals" className="btn btn-ghost-light flex-1 px-2 py-1.5 text-[8px] sm:flex-none sm:px-3">
+          <Link href="/#new-arrivals" className="btn btn-outline px-5 py-3 text-[10px]">
             New arrivals
           </Link>
         </div>
+        <div className="mt-10 grid max-w-sm grid-cols-3 gap-3 border-t border-line pt-4 text-[10px] text-ink-soft">
+          <span><strong className="block text-ink">Local</strong>Butwal delivery</span>
+          <span><strong className="block text-ink">Simple</strong>Cash on delivery</span>
+          <span><strong className="block text-ink">Direct</strong>WhatsApp orders</span>
+        </div>
+      </div>
 
-      <div className="relative border-t border-paper/20">
-        <dl className="mx-auto grid max-w-[1500px] grid-cols-3 divide-x divide-paper/20 px-3 text-paper/75 md:px-10">
-          {[
-            ["Delivery", "Butwal area"],
-            ["Payment", "Cash on delivery"],
-            ["Orders", "Over WhatsApp"],
-          ].map(([term, detail]) => (
-            <div key={term} className="px-2 py-2 first:pl-0 last:pr-0 md:px-6 md:first:pl-0">
-              <dt className="eyebrow text-[9px] text-paper/55">{term}</dt>
-              <dd className="mt-0.5 text-[9px] leading-tight text-paper/70 md:text-[11px]">{detail}</dd>
-            </div>
-          ))}
-        </dl>
+      <div className="relative min-h-[420px] overflow-hidden rounded-3xl bg-wine-deep md:min-h-[620px]">
+        <Image
+          src="/hero-gemini.jpeg"
+          alt="New clothing collection from Nisha Ghumti Fancy"
+          fill
+          priority
+          quality={95}
+          sizes="(min-width: 768px) 58vw, 100vw"
+          className="object-cover object-center"
+        />
       </div>
     </section>
   );
