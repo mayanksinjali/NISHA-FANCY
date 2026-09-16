@@ -86,6 +86,11 @@ export default async function ProductPage({ params }: Props) {
             >
               {soldOut ? "Sold out" : "In stock"}
             </span>
+            {product.sale_price && !soldOut && (
+              <span className="absolute top-3 left-3 z-10 rounded-full bg-terracotta px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-white">
+                Sale
+              </span>
+            )}
             <ProductGallery productName={product.name} images={images} />
           </div>
         </div>
@@ -107,7 +112,9 @@ export default async function ProductPage({ params }: Props) {
           </h1>
 
           <p className="mt-3 text-2xl font-semibold tabular-nums">
-            {formatRs(product.price)}
+            {product.sale_price ? (
+              <><span className="text-terracotta">{formatRs(product.sale_price)}</span> <span className="text-base text-ink-soft line-through">{formatRs(product.price)}</span></>
+            ) : formatRs(product.price)}
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
@@ -129,7 +136,7 @@ export default async function ProductPage({ params }: Props) {
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
               <AddToCartButton product={product} />
               <a
-                href={whatsappOrderUrl(product.name, product.price, product.category, images[0] ?? null)}
+                href={whatsappOrderUrl(product.name, product.sale_price ?? product.price, product.category, images[0] ?? null)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-solid w-full"

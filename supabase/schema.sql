@@ -7,6 +7,7 @@ create table if not exists products (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   price numeric not null,
+  sale_price numeric,
   category text,
   sizes jsonb default '[]'::jsonb,
   colors jsonb default '[]'::jsonb,
@@ -19,6 +20,7 @@ create table if not exists products (
 
 -- Safe migration for projects created from an earlier version of this file.
 alter table products add column if not exists image_urls jsonb default '[]'::jsonb;
+alter table products add column if not exists sale_price numeric;
 alter table products add column if not exists sizes jsonb default '[]'::jsonb;
 alter table products add column if not exists colors jsonb default '[]'::jsonb;
 

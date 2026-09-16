@@ -23,7 +23,7 @@ export function cartItemFromProduct(
   return {
     id: product.id,
     name: product.name,
-    price: product.price,
+    price: product.sale_price ?? product.price,
     category: product.category,
     imageUrl: product.image_url,
     sizes: product.sizes ?? [],

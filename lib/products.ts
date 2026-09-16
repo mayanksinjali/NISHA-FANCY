@@ -6,6 +6,7 @@ export type Product = {
   id: string;
   name: string;
   price: number;
+  sale_price: number | null;
   category: string | null;
   sizes: string[] | null;
   colors: string[] | null;
@@ -24,7 +25,7 @@ export class ProductCatalogError extends Error {
 }
 
 const COLUMNS =
-  "id,name,price,category,sizes,colors,description,image_url,image_urls,in_stock,created_at";
+  "id,name,price,sale_price,category,sizes,colors,description,image_url,image_urls,in_stock,created_at";
 const LEGACY_COLUMNS =
   "id,name,price,category,description,image_url,in_stock,created_at";
 
@@ -54,7 +55,7 @@ export async function getProducts(options?: {
   if (options?.limit) query = query.limit(options.limit);
 
   let { data, error } = await query;
-  if (error?.message.includes("image_urls") || error?.message.includes("sizes")) {
+  if (error?.message.includes("sale_price") || error?.message.includes("image_urls") || error?.message.includes("sizes")) {
     let legacyQuery = supabase
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -110,7 +111,7 @@ export async function getAllProductsForAdmin(): Promise<Product[]> {
     .select(COLUMNS)
     .order("created_at", { ascending: false });
 
-  if (error?.message.includes("sizes")) {
+  if (error?.message.includes("sale_price") || error?.message.includes("sizes")) {
     const legacyResult = await getSupabaseAdmin()
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -130,7 +131,7 @@ export async function getProductForAdmin(id: string): Promise<Product | null> {
     .eq("id", id)
     .maybeSingle();
 
-  if (error?.message.includes("sizes")) {
+  if (error?.message.includes("sale_price") || error?.message.includes("sizes")) {
     const legacyResult = await getSupabaseAdmin()
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -153,7 +154,7 @@ export async function getProduct(id: string): Promise<Product | null> {
     .eq("id", id)
     .maybeSingle();
 
-  if (error?.message.includes("image_urls") || error?.message.includes("sizes")) {
+  if (error?.message.includes("sale_price") || error?.message.includes("image_urls") || error?.message.includes("sizes")) {
     const legacyResult = await supabase
       .from("products")
       .select(LEGACY_COLUMNS)

@@ -65,6 +65,7 @@ export async function logoutAction(): Promise<void> {
 type ParsedProduct = {
   name: string;
   price: number;
+  sale_price: number | null;
   category: string | null;
   sizes: string[];
   colors: string[];
@@ -78,6 +79,7 @@ const MAX_IMAGE_UPLOAD_BYTES = 14 * 1024 * 1024;
 function parseProductForm(formData: FormData): ParsedProduct | { error: string } {
   const name = String(formData.get("name") ?? "").trim();
   const rawPrice = String(formData.get("price") ?? "").trim();
+  const rawSalePrice = String(formData.get("sale_price") ?? "").trim();
   const category = String(formData.get("category") ?? "").trim();
   const sizes = parseList(formData.get("sizes"));
   const colors = parseList(formData.get("colors"));
@@ -90,10 +92,15 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
   if (!rawPrice || !Number.isFinite(price) || price < 0) {
     return { error: "Enter a valid price in rupees." };
   }
+  const salePrice = rawSalePrice ? Number(rawSalePrice) : null;
+  if (salePrice !== null && (!Number.isFinite(salePrice) || salePrice < 0 || salePrice >= price)) {
+    return { error: "Sale price must be lower than the regular price." };
+  }
 
   return {
     name,
     price,
+    sale_price: salePrice,
     category: category || null,
     sizes,
     colors,

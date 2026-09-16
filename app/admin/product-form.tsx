@@ -196,6 +196,23 @@ export default function ProductForm({ product, knownCategories }: Props) {
         </div>
 
         <div>
+          <label htmlFor="sale_price" className="eyebrow text-ink-soft">
+            Sale price <span className="normal-case tracking-normal">(optional)</span>
+          </label>
+          <input
+            id="sale_price"
+            name="sale_price"
+            type="number"
+            inputMode="decimal"
+            min="0"
+            step="1"
+            defaultValue={product?.sale_price ?? ""}
+            placeholder="Leave blank for regular price"
+            className="field mt-2"
+          />
+        </div>
+
+        <div>
           <label htmlFor="category" className="eyebrow text-ink-soft">
             Category
           </label>

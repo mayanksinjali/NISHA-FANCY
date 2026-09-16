@@ -61,6 +61,11 @@ export default function ProductCard({
             Sold out
           </span>
         )}
+        {product.sale_price && !soldOut && (
+          <span className="absolute top-3 right-3 rounded-full bg-terracotta px-2.5 py-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white">
+            Sale
+          </span>
+        )}
       </Link>
 
       <div className="mt-3 flex items-start justify-between gap-3">
@@ -79,7 +84,9 @@ export default function ProductCard({
           </Link>
         </h3>
         <p className="shrink-0 text-sm font-medium tabular-nums">
-          {formatRs(product.price)}
+          {product.sale_price ? (
+            <><span className="text-terracotta">{formatRs(product.sale_price)}</span> <span className="text-xs text-ink-soft line-through">{formatRs(product.price)}</span></>
+          ) : formatRs(product.price)}
         </p>
       </div>
 

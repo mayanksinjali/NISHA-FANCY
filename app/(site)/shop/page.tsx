@@ -41,7 +41,14 @@ export default async function ShopPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 pt-6 md:px-8 md:pt-10">
-      <div>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-terracotta">Nisha Fancy</p>
+          <h1 className="mt-2 font-display text-4xl tracking-[-0.04em] md:text-6xl">Shop</h1>
+        </div>
+        <p className="hidden text-sm text-ink-soft sm:block">Browse the full collection</p>
+      </div>
+      <div className="mt-6">
         <form
           action="/shop"
           method="get"
@@ -71,7 +78,7 @@ export default async function ShopPage({ searchParams }: Props) {
         </form>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-5">
         <CategoryFilter categories={categories} active={active} search={search} />
       </div>
 
