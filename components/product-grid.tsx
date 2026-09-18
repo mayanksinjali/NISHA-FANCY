@@ -40,7 +40,7 @@ export default function ProductGrid({
             variant === "lookbook" && i % 3 === 1 ? "md:mt-16" : undefined
           }
         >
-          <ProductCard product={product} index={i} priority={i < 2} />
+          <ProductCard product={product} priority={i < 2} />
         </div>
       ))}
     </div>

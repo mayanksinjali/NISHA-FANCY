@@ -102,7 +102,7 @@ export default function SiteHeader() {
             href={whatsappGeneralUrl()}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-full bg-terracotta px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-terracotta-deep"
+            className="btn btn-solid px-4 py-2 text-xs"
           >
             WhatsApp
           </a>
@@ -124,7 +124,7 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 data-active={active}
-                className="flex h-14 flex-col items-center justify-center gap-1 border-r border-line text-[9px] font-medium uppercase tracking-[0.12em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-terracotta"
+                className="flex h-14 flex-col items-center justify-center gap-1 border-r border-line text-[9px] font-medium uppercase tracking-[0.12em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-ink data-[active=true]:[&>span]:[&>svg]:stroke-[2.4]"
               >
                 <span aria-hidden className="flex h-5 w-5 items-center justify-center">
                   {link.href === "/" ? (
@@ -151,7 +151,7 @@ export default function SiteHeader() {
           <Link
             href="/cart"
             data-active={pathname.startsWith("/cart")}
-            className="relative flex h-14 flex-col items-center justify-center gap-1 text-[9px] font-medium uppercase tracking-[0.12em] text-ink-soft transition-colors data-[active=true]:text-terracotta"
+            className="relative flex h-14 flex-col items-center justify-center gap-1 text-[9px] font-medium uppercase tracking-[0.12em] text-ink-soft transition-colors data-[active=true]:text-ink data-[active=true]:[&>span>svg]:stroke-[2.4]"
           >
             <span aria-hidden className="flex h-5 w-5 items-center justify-center">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-5 w-5">

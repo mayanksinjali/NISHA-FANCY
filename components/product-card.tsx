@@ -1,13 +1,11 @@
 import Image from "next/image";
 import type { Product } from "@/lib/products";
-import { formatRs, indexLabel } from "@/lib/format";
+import { formatRs } from "@/lib/format";
 import Link from "next/link";
 import AddToCartButton from "./add-to-cart-button";
 
 type Props = {
   product: Product;
-  /** Position in the grid — printed as a lookbook index (01, 02, …). */
-  index?: number;
   /** First couple of cards on a page get priority loading. */
   priority?: boolean;
   sizes?: string;
@@ -19,7 +17,6 @@ type Props = {
  */
 export default function ProductCard({
   product,
-  index = 0,
   priority = false,
   sizes = "(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw",
 }: Props) {
@@ -55,10 +52,6 @@ export default function ProductCard({
           </div>
         )}
 
-        <span className="eyebrow absolute top-3 left-3 text-paper mix-blend-difference">
-          {indexLabel(index)}
-        </span>
-
         {soldOut && (
           <span className="eyebrow absolute top-3 right-3 bg-wine-deep px-2.5 py-1.5 text-paper">
             Sold out
@@ -75,7 +68,7 @@ export default function ProductCard({
         <h3 className="min-w-0 flex-1 pr-2">
           <Link
             href={`/shop/${product.id}`}
-            className="block overflow-hidden text-[13px] font-medium leading-[1.2] text-ink md:text-sm [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] hover:text-terracotta"
+            className="block overflow-hidden text-[13px] font-medium leading-[1.2] text-ink md:text-sm [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] hover:underline underline-offset-2"
             style={{
               display: "-webkit-box",
               WebkitBoxOrient: "vertical",

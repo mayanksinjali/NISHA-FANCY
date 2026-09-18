@@ -24,10 +24,10 @@ export default function Hero() {
             <Link href="/shop" className="btn btn-solid px-3 py-2 text-[9px]">Shop now</Link>
             <Link href="/#new-arrivals" className="btn btn-ghost-light px-3 py-2 text-[9px]">New arrivals</Link>
           </div>
-          <div className="mt-2 grid w-full grid-cols-3 divide-x divide-white/30 border-t border-white/25 pt-2 text-[8px] text-white/85 md:text-[10px]">
-            <span className="px-2 first:pl-0"><strong className="block text-white">Delivery</strong>Butwal area</span>
-            <span className="px-2"><strong className="block text-white">Payment</strong>Cash on delivery</span>
-            <span className="px-2 last:pr-0"><strong className="block text-white">Orders</strong>Over WhatsApp</span>
+          <div className="mt-2 grid w-full grid-cols-3 divide-x divide-white/30 border-t border-white/25 pt-2 text-[10px] leading-snug text-white/85 md:text-xs">
+            <span className="px-2 first:pl-0"><strong className="block text-[10px] text-white md:text-xs">Delivery</strong>Butwal area</span>
+            <span className="px-2"><strong className="block text-[10px] text-white md:text-xs">Payment</strong>Cash on delivery</span>
+            <span className="px-2 last:pr-0"><strong className="block text-[10px] text-white md:text-xs">Orders</strong>Over WhatsApp</span>
           </div>
         </div>
       </div>

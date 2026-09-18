@@ -110,28 +110,28 @@ body {
 }
 
 @utility btn-solid {
-  background-color: var(--color-terracotta);
+  background-color: var(--color-ink);
   color: #ffffff;
   &:hover {
-    background-color: var(--color-terracotta-deep);
+    background-color: #000000;
   }
 }
 
 @utility btn-outline {
-  border-color: var(--color-terracotta);
+  border-color: var(--color-ink);
   color: var(--color-ink);
   &:hover {
-    background-color: var(--color-terracotta);
-    color: var(--color-wine-deep);
+    background-color: var(--color-ink);
+    color: #ffffff;
   }
 }
 
 @utility btn-ghost-light {
-  border-color: rgba(240, 228, 212, 0.45);
+  border-color: rgba(255, 255, 255, 0.55);
   color: var(--color-paper);
   &:hover {
-    background-color: var(--color-terracotta);
-    color: var(--color-wine-deep);
+    background-color: var(--color-paper);
+    color: var(--color-ink);
   }
 }
 

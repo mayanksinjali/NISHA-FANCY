@@ -120,12 +120,15 @@ export default async function ProductPage({ params }: Props) {
             ) : formatRs(product.price)}
           </p>
 
-          <div className="mt-5 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.12em] text-ink-soft">
+          <div className="mt-5 flex flex-wrap gap-2">
             {["COD available", "Fast reply", "Size help"].map((label) => (
               <span
                 key={label}
-                className="border border-line px-2 py-1 text-[10px]"
+                className="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-3 py-1.5 text-[11px] font-medium text-green-700"
               >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3 w-3" aria-hidden>
+                  <path d="m5 13 4 4L19 7" />
+                </svg>
                 {label}
               </span>
             ))}
@@ -137,12 +140,12 @@ export default async function ProductPage({ params }: Props) {
             </p>
           ) : (
             <div className="mt-5 grid gap-2 sm:grid-cols-2">
-              <AddToCartButton product={product} />
+              <AddToCartButton product={product} inline />
               <a
                 href={whatsappOrderUrl(product.name, product.sale_price ?? product.price, product.category, images[0] ?? null)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-solid w-full"
+                className="btn btn-solid w-full self-start"
               >
                 Buy now
               </a>

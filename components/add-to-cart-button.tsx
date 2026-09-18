@@ -4,9 +4,7 @@ import type { Product } from "@/lib/products";
 import { cartItemFromProduct, CART_STORAGE_KEY, type CartItem } from "@/lib/cart";
 import { useState } from "react";
 
-type Props = { product: Product; className?: string };
-
-export default function AddToCartButton({ product, className = "" }: Props) {
+type Props = { product: Product; className?: string; /** Render the variant chooser inline (detail page) instead of as a floating popover (cards). */ inline?: boolean };export default function AddToCartButton({ product, className = "", inline = false }: Props) {
   const [added, setAdded] = useState(false);
   const [choosing, setChoosing] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
@@ -39,9 +37,13 @@ export default function AddToCartButton({ product, className = "" }: Props) {
   }
 
   return (
-    <div className={`relative w-full ${className}`}>
+    <div className={`w-full ${inline ? "" : "relative"} ${className}`}>
       {choosing && (
-        <div className="absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] rounded-2xl border border-line bg-paper p-2.5 text-ink shadow-xl">
+        <div
+          className={`rounded-2xl border border-line bg-paper p-2.5 text-ink ${
+            inline ? "mb-2" : "absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] shadow-xl"
+          }`}
+        >
           <div className="grid grid-cols-2 gap-2">
             {product.sizes?.length ? (
               <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
@@ -65,7 +67,7 @@ export default function AddToCartButton({ product, className = "" }: Props) {
           <button type="button" onClick={addToCart} className="btn btn-solid mt-2 w-full px-3 py-2 text-[9px]">Add selected item</button>
         </div>
       )}
-      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className="btn btn-outline w-full px-2 py-2.5 text-[9px] md:px-4 md:py-3 md:text-[10px]">
+      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className="btn btn-outline w-full px-2 py-2.5 text-[10px] md:px-4 md:py-3">
         Add to cart
       </button>
       {added && (
