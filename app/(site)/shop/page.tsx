@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import CategoryFilter from "@/components/category-filter";
 import LoadMoreProducts from "@/components/load-more-products";
-import { getCategories, getProducts, type Product } from "@/lib/products";
+import { countProducts, getCategories, getProducts, type Product } from "@/lib/products";
 import { ProductCatalogError } from "@/lib/products";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
@@ -25,16 +25,19 @@ export default async function ShopPage({ searchParams }: Props) {
   // One round trip each; they don't depend on one another.
   let products: Product[] = [];
   let categories: string[] = [];
+  let totalCount = 0;
   let catalogError = false;
   try {
-    [products, categories] = await Promise.all([
+    [products, categories, totalCount] = await Promise.all([
       getProducts({ category: active, search, limit: 7 }),
       getCategories(),
+      countProducts({ category: active, search }),
     ]);
   } catch (error) {
     if (!(error instanceof ProductCatalogError)) throw error;
     catalogError = true;
     products = [];
+    totalCount = 0;
   }
   const initialProducts = products.slice(0, 6);
   const hasMore = products.length > initialProducts.length;
@@ -76,7 +79,11 @@ export default async function ShopPage({ searchParams }: Props) {
       </div>
 
       <p className="mt-3 eyebrow text-ink-soft">
-        {catalogError ? "Catalog unavailable" : `${initialProducts.length}${hasMore ? "+" : ""} pieces`}
+        {catalogError
+          ? "Catalog unavailable"
+          : totalCount === 0
+            ? "No pieces found"
+            : `${totalCount} ${totalCount === 1 ? "piece" : "pieces"}${hasMore ? " — scroll for more" : ""}`}
       </p>
 
       {!isSupabaseConfigured() && (

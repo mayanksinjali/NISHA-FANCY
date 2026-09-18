@@ -77,6 +77,35 @@ export async function getProducts(options?: {
   return (data ?? []) as Product[];
 }
 
+/**
+ * Total matching products for the shop header count — same filters as
+ * getProducts (category + search), but no limit/fetch, server-side count.
+ */
+export async function countProducts(options?: {
+  category?: string | null;
+  search?: string | null;
+}): Promise<number> {
+  const supabase = getSupabase();
+  if (!supabase) return 0;
+
+  let query = supabase
+    .from("products")
+    .select("id", { count: "exact", head: true });
+
+  if (options?.category) query = query.eq("category", options.category);
+  if (options?.search) {
+    const search = options.search.trim().slice(0, 80).replace(/[%_]/g, " ");
+    if (search) query = query.ilike("name", `%${search}%`);
+  }
+
+  const { count, error } = await query;
+  if (error) {
+    console.error("[products] countProducts failed:", error.message);
+    return 0;
+  }
+  return count ?? 0;
+}
+
 /** Distinct category values currently in use, for the shop filter. */
 export async function getCategories(): Promise<string[]> {
   const supabase = getSupabase();
