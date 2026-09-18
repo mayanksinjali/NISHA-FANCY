@@ -80,7 +80,14 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
   const name = String(formData.get("name") ?? "").trim();
   const rawPrice = String(formData.get("price") ?? "").trim();
   const rawSalePrice = String(formData.get("sale_price") ?? "").trim();
-  const category = String(formData.get("category") ?? "").trim();
+  const categoryRaw = String(formData.get("category") ?? "").trim();
+  // Capitalize each word ("men" -> "Men", "summer kurti" -> "Summer Kurti")
+  // so the shop filter never shows duplicate chips from casing differences.
+  const categoryNormalized = categoryRaw
+    .toLowerCase()
+    .split(/\s+/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
   const sizes = parseList(formData.get("sizes"));
   const colors = parseList(formData.get("colors"));
   const description = String(formData.get("description") ?? "").trim();
@@ -101,7 +108,7 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
     name,
     price,
     sale_price: salePrice,
-    category: category || null,
+    category: categoryNormalized || null,
     sizes,
     colors,
     description: description || null,

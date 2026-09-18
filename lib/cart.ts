@@ -45,5 +45,6 @@ export function cartMessage(items: CartItem[]): string {
         item.imageUrl ? `\n   Photo: ${item.imageUrl}` : ""
       }`,
   );
-  return `Hi, I'd like to order:\n\n${lines.join("\n\n")}\n\nPlease confirm availability and delivery details.`;
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return `Hi, I'd like to order:\n\n${lines.join("\n\n")}\n\nTotal: Rs. ${total}\n\nPlease confirm availability and delivery details.`;
 }

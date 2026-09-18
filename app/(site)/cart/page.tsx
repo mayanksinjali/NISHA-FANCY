@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CART_STORAGE_KEY, cartMessage, type CartItem } from "@/lib/cart";
 import { STORE } from "@/lib/config";
@@ -31,13 +31,12 @@ export default function CartPage() {
     return a.id === b.id && a.selectedSize === b.selectedSize && a.selectedColor === b.selectedColor;
   }
 
-  /** Remove ONE piece of that exact line; other variants/quantities stay. */
-  function removeOne(target: CartItem) {
+  function changeQuantity(target: CartItem, delta: number) {
     save(
       items
         .map((entry) =>
           sameLine(entry, target)
-            ? { ...entry, quantity: entry.quantity - 1 }
+            ? { ...entry, quantity: Math.max(0, entry.quantity + delta) }
             : entry,
         )
         .filter((entry) => entry.quantity > 0),
@@ -69,13 +68,43 @@ export default function CartPage() {
                 </Link>
                 <div className="p-3">
                   <p className="truncate text-sm font-medium">{item.name}</p>
-                  <p className="mt-1 text-xs text-ink-soft">{formatRs(item.price)} · {item.quantity}x</p>
+                  <p className="mt-1 text-xs text-ink-soft">{formatRs(item.price)}{item.quantity > 1 ? ` × ${item.quantity}` : ""}</p>
                   {(item.selectedSize || item.selectedColor) && (
                     <p className="mt-1 truncate text-[10px] uppercase tracking-[0.08em] text-ink-soft">
                       {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedColor && `Color: ${item.selectedColor}`].filter(Boolean).join(" · ")}
                     </p>
                   )}
-                  <button type="button" onClick={() => removeOne(item)} className="mt-3 rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700">Remove</button>
+
+                  {/* Quantity stepper + remove */}
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <div className="flex items-center rounded-lg border border-line">
+                      <button
+                        type="button"
+                        aria-label={`Remove one ${item.name}`}
+                        onClick={() => changeQuantity(item, -1)}
+                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-ink transition-colors hover:bg-bone"
+                      >
+                        −
+                      </button>
+                      <span className="min-w-6 text-center text-sm font-medium tabular-nums">{item.quantity}</span>
+                      <button
+                        type="button"
+                        aria-label={`Add one more ${item.name}`}
+                        onClick={() => changeQuantity(item, 1)}
+                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-ink transition-colors hover:bg-bone"
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={`Remove ${item.name} from cart`}
+                      onClick={() => changeQuantity(item, -item.quantity)}
+                      className="rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

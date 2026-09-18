@@ -6,6 +6,8 @@ import { getProduct } from "@/lib/products";
 import { whatsappOrderUrl } from "@/lib/whatsapp";
 import ProductGallery from "@/components/product-gallery";
 import AddToCartButton from "@/components/add-to-cart-button";
+import ProductCard from "@/components/product-card";
+import { getProducts } from "@/lib/products";
 
 export const revalidate = 0;
 
@@ -42,6 +44,13 @@ export default async function ProductPage({ params }: Props) {
   const { id } = await params;
   const product = await getProduct(id);
   if (!product) notFound();
+
+  // Other pieces from the same category, shown below the buy box.
+  const related = product.category
+    ? (await getProducts({ category: product.category, limit: 5 }))
+        .filter((entry) => entry.id !== product.id)
+        .slice(0, 4)
+    : [];
 
   const images = [
     ...(product.image_url ? [product.image_url] : []),
@@ -166,6 +175,17 @@ export default async function ProductPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      {related.length > 0 && (
+        <section className="mt-12 border-t border-line pt-8 md:mt-16">
+          <h2 className="font-display text-2xl tracking-[-0.02em] md:text-3xl">You may also like</h2>
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {related.map((entry) => (
+              <ProductCard key={entry.id} product={entry} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
