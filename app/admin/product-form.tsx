@@ -89,7 +89,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
   const busy = pending || working;
 
   return (
-    <form action={formAction} className="pb-28">
+    <form action={formAction} className="pb-28 pt-2">
       {product && <input type="hidden" name="id" value={product.id} />}
       {product?.image_url && (
         <input
@@ -107,11 +107,11 @@ export default function ProductForm({ product, knownCategories }: Props) {
       )}
 
       {/* ---------- Photo ---------- */}
-      <section className="border-b border-line px-5 py-6">
+      <section className="admin-card mx-5 mt-5 px-5 py-6">
         <h2 className="eyebrow text-ink-soft">Photo</h2>
 
         <div className="mt-4 flex items-start gap-4">
-          <div className="flex h-28 w-24 shrink-0 gap-1 overflow-hidden bg-bone">
+          <div className="flex h-28 w-24 shrink-0 gap-1 overflow-hidden rounded-lg bg-gray-50">
             {previews.length ? (
               previews.slice(0, 3).map((image) => (
               // Blob previews aren't known to next/image, so use a plain img.
@@ -133,7 +133,7 @@ export default function ProductForm({ product, knownCategories }: Props) {
           <div className="flex-1">
             <label
               htmlFor="image"
-              className="btn btn-outline w-full cursor-pointer"
+              className="w-full cursor-pointer rounded-full border border-gray-200 py-3 text-center text-xs font-semibold text-ink transition-colors hover:border-ink"
             >
               {selectedFiles.length >= 4
                 ? "4 photos selected"
@@ -161,9 +161,9 @@ export default function ProductForm({ product, knownCategories }: Props) {
       </section>
 
       {/* ---------- Details ---------- */}
-      <section className="space-y-5 px-5 py-6">
+      <section className="admin-card mx-5 mt-4 space-y-5 px-5 py-6">
         <div>
-          <label htmlFor="name" className="eyebrow text-ink-soft">
+          <label htmlFor="name" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
             Product name *
           </label>
           <input
@@ -173,12 +173,12 @@ export default function ProductForm({ product, knownCategories }: Props) {
             maxLength={120}
             defaultValue={product?.name ?? ""}
             placeholder="Oversized linen shirt"
-            className="field mt-2"
+            className="admin-field mt-2"
           />
         </div>
 
         <div>
-          <label htmlFor="price" className="eyebrow text-ink-soft">
+          <label htmlFor="price" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
             Price (Rs.) *
           </label>
           <input
@@ -191,12 +191,12 @@ export default function ProductForm({ product, knownCategories }: Props) {
             step="1"
             defaultValue={product?.price ?? ""}
             placeholder="2450"
-            className="field mt-2"
+            className="admin-field mt-2"
           />
         </div>
 
         <div>
-          <label htmlFor="sale_price" className="eyebrow text-ink-soft">
+          <label htmlFor="sale_price" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
             Sale price <span className="normal-case tracking-normal">(optional)</span>
           </label>
           <input
@@ -208,34 +208,38 @@ export default function ProductForm({ product, knownCategories }: Props) {
             step="1"
             defaultValue={product?.sale_price ?? ""}
             placeholder="Leave blank for regular price"
-            className="field mt-2"
+            className="admin-field mt-2"
           />
         </div>
 
         <div>
-          <label htmlFor="category" className="eyebrow text-ink-soft">
-            Category
+          <label htmlFor="category" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            Category <span className="normal-case tracking-normal">— type any category you want</span>
           </label>
-          <select
+          <input
             id="category"
             name="category"
+            type="text"
+            maxLength={40}
             defaultValue={product?.category ?? ""}
-            className="field mt-2"
-          >
-            <option value="">Choose a category</option>
-            {["Men", "Women", "Both", "Children", ...knownCategories]
-              .filter((category, index, all) => all.indexOf(category) === index)
-              .map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-          </select>
+            placeholder="Men, Women, Kurti, Saree, anything…"
+            className="admin-field mt-2"
+            list="known-categories"
+            autoComplete="off"
+          />
+          <datalist id="known-categories">
+            {knownCategories.map((category) => (
+              <option key={category} value={category} />
+            ))}
+          </datalist>
+          <p className="mt-1 text-xs text-ink-soft">
+            Free text — the shop shows a filter for every category you use here.
+          </p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label htmlFor="sizes" className="eyebrow text-ink-soft">
+            <label htmlFor="sizes" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
               Sizes
             </label>
             <input
@@ -243,13 +247,13 @@ export default function ProductForm({ product, knownCategories }: Props) {
               name="sizes"
               defaultValue={product?.sizes?.join(", ") ?? ""}
               placeholder="S, M, L, XL"
-              className="field mt-2"
+              className="admin-field mt-2"
             />
             <p className="mt-1 text-xs text-ink-soft">Separate with commas.</p>
           </div>
 
           <div>
-            <label htmlFor="colors" className="eyebrow text-ink-soft">
+            <label htmlFor="colors" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
               Colors
             </label>
             <input
@@ -257,14 +261,14 @@ export default function ProductForm({ product, knownCategories }: Props) {
               name="colors"
               defaultValue={product?.colors?.join(", ") ?? ""}
               placeholder="Black, White"
-              className="field mt-2"
+              className="admin-field mt-2"
             />
             <p className="mt-1 text-xs text-ink-soft">Separate with commas.</p>
           </div>
         </div>
 
         <div>
-          <label htmlFor="description" className="eyebrow text-ink-soft">
+          <label htmlFor="description" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
             Description
           </label>
           <textarea
@@ -273,29 +277,29 @@ export default function ProductForm({ product, knownCategories }: Props) {
             rows={4}
             defaultValue={product?.description ?? ""}
             placeholder="Fabric, fit, sizes available…"
-            className="field mt-2 resize-y"
+            className="admin-field mt-2 resize-y"
           />
         </div>
 
-        <label className="flex items-center justify-between border border-line bg-bone px-4 py-4">
+        <label className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-4 py-4">
           <span>
             <span className="block text-[15px] font-medium">In stock</span>
             <span className="block text-xs text-ink-soft">
-              Off = shown as sold out, no order button
+              Off = hidden from the shop as sold out
             </span>
           </span>
           <input
             type="checkbox"
             name="in_stock"
             defaultChecked={product ? product.in_stock : true}
-            className="h-6 w-6 shrink-0 accent-[#d4af6e]"
+            className="h-6 w-6 shrink-0 accent-blue-600"
           />
         </label>
 
         {state?.error && (
           <p
             role="alert"
-            className="border border-terracotta/40 bg-terracotta/5 px-3 py-2.5 text-sm text-terracotta-deep"
+            className="rounded-xl border border-terracotta/40 bg-terracotta/5 px-3 py-2.5 text-sm text-terracotta-deep"
           >
             {state.error}
           </p>
@@ -303,14 +307,17 @@ export default function ProductForm({ product, knownCategories }: Props) {
       </section>
 
       {/* ---------- Sticky save bar ---------- */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-line bg-surface/95 px-5 py-4 backdrop-blur-sm">
-        <Link href="/admin/products" className="btn btn-outline flex-1">
+      <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-gray-100 bg-white/95 px-5 py-4 backdrop-blur-sm">
+        <Link
+          href="/admin/products"
+          className="flex-1 rounded-full border border-gray-200 py-3 text-center text-xs font-semibold text-ink transition-colors hover:border-ink"
+        >
           Cancel
         </Link>
         <button
           type="submit"
           disabled={busy}
-          className="btn btn-solid flex-[2] disabled:opacity-60"
+          className="flex-[2] rounded-full bg-blue-600 py-3 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
         >
           {busy
             ? "Saving…"

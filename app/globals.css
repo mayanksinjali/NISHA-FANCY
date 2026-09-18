@@ -156,6 +156,48 @@ body {
   }
 }
 
+/* ---------------------------------------------------------------------------
+   Admin panel primitives: white rounded cards + chips on a light gray canvas. */
+@utility admin-card {
+  border-radius: 1rem;
+  border: 1px solid var(--color-line);
+  background-color: var(--color-paper);
+}
+
+@utility admin-chip {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-line);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+@utility admin-field {
+  width: 100%;
+  background-color: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: 0.75rem;
+  padding: 0.85rem 0.9rem;
+  font-size: 1rem; /* 16px — stops iOS Safari zooming on focus */
+  color: var(--color-ink);
+  &:focus {
+    border-color: var(--color-terracotta);
+    outline: none;
+  }
+  &::placeholder {
+    color: color-mix(in srgb, var(--color-ink-soft) 55%, transparent);
+  }
+}
+
 /* Form controls for the admin panel: sharp, high-contrast, 48px+ touch targets. */
 @utility field {
   width: 100%;

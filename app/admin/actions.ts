@@ -377,6 +377,26 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   redirect("/admin/products?deleted=1");
 }
 
+/** Inline price edit from the inventory drawer. */
+export async function quickUpdateProductAction(
+  id: string,
+  price: number,
+): Promise<void> {
+  await requireAdmin();
+
+  if (!Number.isFinite(price) || price < 0) {
+    throw new Error("Enter a valid price.");
+  }
+
+  const { error } = await getSupabaseAdmin()
+    .from("products")
+    .update({ price })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidateStorefront();
+}
+
 /** One-tap in-stock switch from the product list. */
 export async function toggleStockAction(formData: FormData): Promise<void> {
   await requireAdmin();

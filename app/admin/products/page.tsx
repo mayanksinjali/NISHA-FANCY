@@ -1,8 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import AdminHeader from "../admin-header";
-import DeleteProductButton from "../delete-product-button";
-import StockToggle from "../stock-toggle";
+import InventoryList from "../inventory-list";
 import { formatRs } from "@/lib/format";
 import { getAllProductsForAdmin } from "@/lib/products";
 import { isAdminSupabaseConfigured } from "@/lib/supabase/admin";
@@ -25,21 +23,25 @@ export default async function AdminProductsPage({
 
   const configured = isAdminSupabaseConfigured();
   const products = configured ? await getAllProductsForAdmin() : [];
-  const soldOut = products.filter((p) => !p.in_stock).length;
+  const live = products.filter((p) => p.in_stock);
+  const soldOut = products.length - live.length;
+  const categories = [...new Set(products.map((p) => p.category).filter(Boolean))] as string[];
+  const catalogValue = live.reduce(
+    (total, p) => total + (p.sale_price ?? p.price),
+    0,
+  );
 
   return (
     <>
-      <AdminHeader title="Products" />
+      <AdminHeader title="Dashboard" />
 
-      <div className="px-5 py-6">
+      <div className="mx-auto max-w-xl px-5 py-6">
         {flash && (
-          <p className="mb-5 border border-ink bg-bone px-4 py-3 text-sm">
-            {FLASH[flash]}
-          </p>
+          <p className="admin-card mb-5 px-4 py-3 text-sm">{FLASH[flash]}</p>
         )}
 
         {!configured && (
-          <p className="mb-5 border border-terracotta/40 bg-terracotta/5 px-4 py-3 text-sm leading-relaxed text-terracotta-deep">
+          <p className="admin-card mb-5 px-4 py-3 text-sm leading-relaxed text-terracotta-deep">
             Supabase isn't configured. Set{" "}
             <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
             <code className="font-mono">SUPABASE_SERVICE_ROLE_KEY</code> to
@@ -47,78 +49,77 @@ export default async function AdminProductsPage({
           </p>
         )}
 
-        {/* Counts */}
-        <dl className="grid grid-cols-2 gap-3">
-          <div className="border border-line bg-bone px-4 py-3">
-            <dt className="eyebrow text-ink-soft">Products</dt>
-            <dd className="mt-1.5 font-display text-3xl">{products.length}</dd>
+        {/* ---------- Dark analytics card ---------- */}
+        <section className="rounded-2xl bg-[#0B1528] px-5 py-5 text-white">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
+            Store admin
+          </p>
+          <div className="mt-2 flex items-end justify-between gap-3">
+            <p className="font-display text-3xl leading-none tabular-nums">
+              {formatRs(catalogValue)}
+            </p>
+            <p className="rounded-full bg-green-500/15 px-2.5 py-1 text-[10px] font-semibold text-green-400">
+              {live.length} live
+            </p>
           </div>
-          <div className="border border-line bg-bone px-4 py-3">
-            <dt className="eyebrow text-ink-soft">Sold out</dt>
-            <dd className="mt-1.5 font-display text-3xl">{soldOut}</dd>
+          <p className="mt-1 text-xs text-white/50">
+            Total value of live items
+          </p>
+
+          <div className="mt-4 rounded-xl bg-white/5 px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
+              Active catalog
+            </p>
+            <p className="mt-1 text-lg font-semibold tabular-nums">
+              {live.length} <span className="text-white/40">/ {products.length} live</span>
+            </p>
+          </div>
+        </section>
+
+        {/* ---------- 3-column stat row ---------- */}
+        <dl className="mt-3 grid grid-cols-3 gap-2">
+          <div className="admin-card px-3 py-3.5">
+            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Listed</dt>
+            <dd className="mt-1 text-xl font-bold tabular-nums">{products.length}</dd>
+          </div>
+          <div className="admin-card px-3 py-3.5">
+            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Live</dt>
+            <dd className="mt-1 text-xl font-bold tabular-nums text-green-600">{live.length}</dd>
+          </div>
+          <div className="admin-card px-3 py-3.5">
+            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Hidden</dt>
+            <dd className="mt-1 text-xl font-bold tabular-nums text-red-500">{soldOut}</dd>
           </div>
         </dl>
 
-        <Link href="/admin/products/new" className="btn btn-solid mt-5 w-full">
-          + Add product
-        </Link>
-
+        {/* ---------- Primary action ---------- */}
         <Link
-          href="/"
-          target="_blank"
-          className="eyebrow link-rule mt-5 inline-block text-ink-soft"
+          href="/admin/products/new"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
         >
-          View live store ↗
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4" aria-hidden>
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Add product
         </Link>
 
-        {/* List */}
-        <ul className="mt-7 divide-y divide-line border-y border-line">
-          {products.map((product) => (
-            <li key={product.id} className="flex gap-4 py-4">
-              <div className="relative h-24 w-20 shrink-0 overflow-hidden bg-bone">
-                {product.image_url ? (
-                  <Image
-                    src={product.image_url}
-                    alt=""
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[11px] text-ink-soft">
-                    No photo
-                  </div>
-                )}
-              </div>
-
-              <div className="flex min-w-0 flex-1 flex-col">
-                <p className="truncate text-[15px] font-medium">{product.name}</p>
-                <p className="mt-0.5 text-sm tabular-nums text-ink-soft">
-                  {formatRs(product.price)}
-                  {product.category ? ` · ${product.category}` : ""}
-                </p>
-
-                <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
-                  <StockToggle id={product.id} inStock={product.in_stock} />
-                  <Link
-                    href={`/admin/products/${product.id}`}
-                    className="eyebrow border border-line px-3 py-2.5 transition-colors hover:border-ink"
-                  >
-                    Edit
-                  </Link>
-                  <DeleteProductButton id={product.id} name={product.name} />
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        {configured && products.length === 0 && (
-          <p className="py-12 text-center text-sm text-ink-soft">
-            No products yet. Tap “Add product” to put the first piece on the
-            rail.
+        <div className="mt-3 flex items-center justify-between">
+          <Link
+            href="/"
+            target="_blank"
+            className="text-xs font-medium text-gray-400 transition-colors hover:text-ink"
+          >
+            View live store ↗
+          </Link>
+          <p className="text-xs text-gray-400">
+            Tap a product to manage it
           </p>
-        )}
+        </div>
+
+        {/* ---------- Inventory ---------- */}
+        <div className="mt-5">
+          <InventoryList products={products} categories={categories} />
+        </div>
       </div>
     </>
   );

@@ -11,10 +11,13 @@ export default function LoginForm({ next }: { next: string }) {
   );
 
   return (
-    <form action={formAction} className="mt-10">
+    <form action={formAction}>
       <input type="hidden" name="next" value={next} />
 
-      <label htmlFor="password" className="eyebrow text-ink-soft">
+      <label
+        htmlFor="password"
+        className="text-[10px] font-semibold uppercase tracking-wide text-gray-400"
+      >
         Password
       </label>
       <input
@@ -25,13 +28,13 @@ export default function LoginForm({ next }: { next: string }) {
         autoFocus
         autoComplete="current-password"
         placeholder="••••••••"
-        className="field mt-3"
+        className="admin-field mt-3"
       />
 
       {state?.error && (
         <p
           role="alert"
-          className="mt-4 border border-terracotta/40 bg-terracotta/5 px-3 py-2.5 text-sm text-terracotta-deep"
+          className="mt-4 rounded-xl border border-terracotta/40 bg-terracotta/5 px-3 py-2.5 text-sm text-terracotta-deep"
         >
           {state.error}
         </p>
@@ -40,7 +43,7 @@ export default function LoginForm({ next }: { next: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="btn btn-solid mt-6 w-full disabled:opacity-60"
+        className="mt-6 w-full rounded-full bg-blue-600 py-3.5 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-blue-700 disabled:opacity-60"
       >
         {pending ? "Checking…" : "Sign in"}
       </button>

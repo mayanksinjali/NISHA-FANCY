@@ -7,11 +7,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * Admin shell. Deliberately plain and high-contrast: this is a tool used
- * one-handed on a phone, not a storefront page.
+ * Admin shell: light gray canvas with white rounded cards on top.
+ * Deliberately separate from the storefront chrome.
  */
 export default function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="min-h-dvh bg-surface">{children}</div>;
+  return <div className="min-h-dvh bg-gray-50 text-ink">{children}</div>;
 }
