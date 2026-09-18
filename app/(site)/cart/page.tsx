@@ -26,6 +26,24 @@ export default function CartPage() {
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
+  /** Same product + same chosen variant = same cart line. */
+  function sameLine(a: CartItem, b: CartItem): boolean {
+    return a.id === b.id && a.selectedSize === b.selectedSize && a.selectedColor === b.selectedColor;
+  }
+
+  /** Remove ONE piece of that exact line; other variants/quantities stay. */
+  function removeOne(target: CartItem) {
+    save(
+      items
+        .map((entry) =>
+          sameLine(entry, target)
+            ? { ...entry, quantity: entry.quantity - 1 }
+            : entry,
+        )
+        .filter((entry) => entry.quantity > 0),
+    );
+  }
+
   return (
     <div className="mx-auto max-w-[1000px] px-4 py-7 md:px-8 md:py-12">
       <Link href="/shop" className="btn btn-outline px-4 py-2.5 text-[10px]">← Add more items</Link>
@@ -57,7 +75,7 @@ export default function CartPage() {
                       {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedColor && `Color: ${item.selectedColor}`].filter(Boolean).join(" · ")}
                     </p>
                   )}
-                  <button type="button" onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="mt-3 rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700">Remove</button>
+                  <button type="button" onClick={() => removeOne(item)} className="mt-3 rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700">Remove</button>
                 </div>
               </div>
             ))}

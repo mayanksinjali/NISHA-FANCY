@@ -41,7 +41,9 @@ type Props = { product: Product; className?: string; /** Render the variant choo
       {choosing && (
         <div
           className={`rounded-2xl border border-line bg-paper p-2.5 text-ink ${
-            inline ? "mb-2" : "absolute bottom-full left-0 z-30 mb-2 w-full min-w-[240px] shadow-xl"
+            inline
+              ? "mb-2"
+              : "absolute bottom-full left-1/2 z-30 mb-2 w-[min(240px,calc(100vw-2.5rem))] -translate-x-1/2 shadow-xl"
           }`}
         >
           <div className="grid grid-cols-2 gap-2">
