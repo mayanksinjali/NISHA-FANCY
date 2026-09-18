@@ -43,10 +43,10 @@ type Props = { product: Product; className?: string; /** Render the variant choo
           className={`rounded-2xl border border-line bg-paper p-2.5 text-ink ${
             inline
               ? "mb-2"
-              : "absolute bottom-full left-1/2 z-30 mb-2 w-[min(240px,calc(100vw-2.5rem))] -translate-x-1/2 shadow-xl"
+              : "absolute bottom-full left-0 z-30 mb-2 w-full shadow-xl"
           }`}
         >
-          <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-2">
             {product.sizes?.length ? (
               <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
                 Size

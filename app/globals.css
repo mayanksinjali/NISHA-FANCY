@@ -34,6 +34,8 @@ html {
   scroll-behavior: smooth;
   min-height: 100%;
   background: #ffffff;
+  /* Popovers and full-bleed sections must never create sideways scroll. */
+  overflow-x: hidden;
 }
 
 body {
@@ -41,7 +43,6 @@ body {
   background: #ffffff;
   color: var(--color-ink);
   font-family: var(--font-sans);
-  /* Popovers/images must never widen the page into sideways scroll. */
   overflow-x: hidden;
 }
 
