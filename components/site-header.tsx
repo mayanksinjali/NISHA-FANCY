@@ -56,11 +56,11 @@ export default function SiteHeader() {
     <>
       {!isProductDetail && (
         <header
-          className={`relative z-50 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 ${
+          className={`relative z-50 h-14 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 md:h-16 ${
             scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
           }`}
         >
-      <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between px-4 md:h-16 md:px-8">
+      <div className="mx-auto flex h-full max-w-[1280px] items-center justify-between px-4 md:px-8">
         {/* Wordmark */}
         <Link
           href="/"
