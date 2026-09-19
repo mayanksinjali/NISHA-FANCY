@@ -219,23 +219,23 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
       className="block relative h-[230px] w-full overflow-hidden bg-bone md:h-full"
       aria-label={`View ${product.name}`}
     >
-      {product.image_url ? (
-        <Image
-          src={product.image_url}
-          alt={product.name}
-          fill
-          priority={index === 0}
-          sizes="100vw"
-          className="object-cover"
-          style={{ objectPosition: "center 30%" }}
-        />
-      ) : (
+      <div className="absolute inset-0 h-[120%] w-full -translate-y-10">
+        {product.image_url ? (
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            fill
+            priority={index === 0}
+            sizes="100vw"
+            className="object-cover"
+          />
+        ) : (
         <div className="flex h-full w-full items-center justify-center">
           <span className="font-display text-4xl text-ink/15">
             {product.name.slice(0, 1).toUpperCase()}
           </span>
-        </div>
-      )}
+        </div>        )}
+      </div>
 
       {/* Ink scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
