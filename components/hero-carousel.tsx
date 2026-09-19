@@ -223,15 +223,18 @@ function HeroSlide({ product }: { product: Product; index?: number }) {
       className="block relative h-[230px] w-full overflow-hidden bg-bone md:h-full"
       aria-label={`View ${product.name}`}
     >
+      {/* Image container - fills width, height auto to show full image */}
       {product.image_url ? (
-        <Image
-          src={product.image_url}
-          alt={product.name}
-          fill
-          priority={false}
-          sizes="100vw"
-          className="object-cover"
-        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            className="h-auto max-h-[230px] w-full object-contain"
+            priority={false}
+            sizes="100vw"
+            unoptimized
+          />
+        </div>
       ) : (
         <div className="flex h-full w-full items-center justify-center">
           <span className="font-display text-4xl text-ink/15">
@@ -240,8 +243,8 @@ function HeroSlide({ product }: { product: Product; index?: number }) {
         </div>
       )}
 
-      {/* Ink scrim */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
+      {/* Ink scrim - only at bottom so image is visible */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
 
       <div className="absolute inset-x-0 bottom-0 px-2 pb-1 md:px-8 md:pb-6">
         <div className="flex items-end justify-between gap-2">
