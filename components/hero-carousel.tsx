@@ -140,14 +140,14 @@ export default function HeroCarousel({ products }: Props) {
         <h1 className="sr-only">New arrivals</h1>
         <Link
           href={product ? `/shop/${product.id}` : "/shop"}
-          className="relative block aspect-[3/4] w-full overflow-hidden bg-bone md:aspect-[16/8.5] md:h-full"
+          className="relative block aspect-[2/3] w-full overflow-hidden bg-bone md:aspect-[16/8.5] md:h-full"
         >
           {product ? (
             <HeroSlide product={product} index={0} />
           ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-              <p className="font-display text-3xl text-ink/30">New arrivals</p>
-              <p className="text-sm text-ink-soft">The first drop is being photographed.</p>
+            <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+              <p className="font-display text-2xl text-ink/30">New arrivals</p>
+              <p className="text-xs text-ink-soft">The first drop is being photographed.</p>
             </div>
           )}
         </Link>
@@ -185,7 +185,7 @@ export default function HeroCarousel({ products }: Props) {
       </div>
 
       {/* Dots */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-14 z-10 flex justify-center gap-1.5 md:bottom-5">
+      <div className="pointer-events-none absolute inset-x-0 bottom-3 z-10 flex justify-center gap-1.5 md:bottom-5">
         {slides.map((product, index) => (
           <button
             key={product.id}
@@ -195,8 +195,8 @@ export default function HeroCarousel({ products }: Props) {
             }}
             aria-label={`Go to slide ${index + 1}`}
             aria-current={index === active ? "true" : undefined}
-            className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-              index === active ? "w-5 bg-white" : "w-1.5 bg-white/50"
+            className={`pointer-events-auto h-1 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
+              index === active ? "w-4 bg-white" : "w-1 bg-white/50"
             }`}
           />
         ))}
@@ -216,7 +216,7 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
   return (
     <Link
       href={`/shop/${product.id}`}
-      className="block relative aspect-[3/4] w-full overflow-hidden bg-bone md:aspect-[16/8.5]"
+      className="block relative aspect-[2/3] w-full overflow-hidden bg-bone md:aspect-[16/8.5]"
       aria-label={`View ${product.name}`}
     >
       {product.image_url ? (
@@ -230,7 +230,7 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center">
-          <span className="font-display text-8xl text-ink/15">
+          <span className="font-display text-6xl text-ink/15">
             {product.name.slice(0, 1).toUpperCase()}
           </span>
         </div>
@@ -239,24 +239,24 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
       {/* Ink scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-      <div className="absolute inset-x-0 bottom-0 px-4 pb-3 md:px-8 md:pb-6">
-        <div className="flex items-end justify-between gap-4">
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-2 md:px-8 md:pb-6">
+        <div className="flex items-end justify-between gap-3">
           <div className="min-w-0">
             <p className="eyebrow text-white/70">New arrival</p>
-            <h2 className="mt-1 truncate max-w-[70vw] font-display text-lg leading-tight text-white md:text-3xl">
+            <h2 className="mt-0.5 truncate max-w-[70vw] font-display text-base leading-tight text-white md:text-3xl">
               {product.name}
             </h2>
-            <p className="mt-1 text-sm font-semibold tabular-nums text-white md:text-lg">
+            <p className="mt-0.5 text-xs font-semibold tabular-nums text-white md:text-lg">
               {product.sale_price ? (
                 <>
                   <span className="text-terracotta">{formatRs(product.sale_price)}</span>{" "}
-                  <span className="text-sm text-white/60 line-through">{formatRs(product.price)}</span>
+                  <span className="text-xs text-white/60 line-through">{formatRs(product.price)}</span>
                 </>
               ) : (
                 formatRs(product.price)
               )}
               {discountPercent > 0 && (
-                <span className="ml-2 rounded-full bg-terracotta px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-white align-middle">
+                <span className="ml-1.5 rounded-full bg-terracotta px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.1em] text-white align-middle">
                   {discountPercent}% off
                 </span>
               )}
@@ -264,11 +264,11 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
           </div>
 
           {soldOut ? (
-            <span className="shrink-0 rounded-full border border-white/40 px-4 py-2 text-[10px] uppercase tracking-[0.2em] text-white/80">
+            <span className="shrink-0 rounded-full border border-white/40 px-3 py-1.5 text-[9px] uppercase tracking-[0.2em] text-white/80">
               Sold out
             </span>
           ) : (
-            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-4 py-2.5 text-[10px] text-ink hover:bg-white">
+            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-3 py-1.5 text-[9px] text-ink hover:bg-white">
               Shop now
             </span>
           )}
