@@ -56,7 +56,7 @@ export default function SiteHeader() {
     <>
       {!isProductDetail && (
         <header
-          className={`relative z-50 h-14 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 md:h-16 ${
+          className={`relative z-50 h-16 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 md:h-20 ${
             scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
           }`}
         >
@@ -73,9 +73,9 @@ export default function SiteHeader() {
             width={28}
             height={28}
             priority
-            className="h-9 w-9 rounded-full object-cover ring-1 ring-line md:h-10 md:w-10"
+            className="h-10 w-10 rounded-full object-cover ring-1 ring-line md:h-12 md:w-12"
           />
-          <span className="font-sans text-[11px] font-bold leading-none tracking-[-0.02em] md:text-xs">
+          <span className="font-sans text-sm font-bold leading-none tracking-[-0.02em] md:text-base">
             {STORE.name}
           </span>
         </Link>
