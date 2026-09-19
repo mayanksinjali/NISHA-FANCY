@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProducts, ProductCatalogError } from "@/lib/products";
+import { countProducts, getProducts, ProductCatalogError } from "@/lib/products";
 
 const MAX_LIMIT = 12;
 
@@ -14,11 +14,17 @@ export async function GET(request: Request) {
   );
 
   try {
-    const products = await getProducts({ category, search, limit: offset + limit + 1 });
+    // Both queries filter identically (including the internal `type` tag for
+    // search), so the count always matches the results shown.
+    const [products, total] = await Promise.all([
+      getProducts({ category, search, limit: offset + limit + 1 }),
+      countProducts({ category, search }),
+    ]);
     const page = products.slice(offset, offset + limit);
     return NextResponse.json({
       products: page,
       hasMore: products.length > offset + limit,
+      total,
     });
   } catch (error) {
     if (error instanceof ProductCatalogError) {

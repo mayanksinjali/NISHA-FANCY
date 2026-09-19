@@ -9,6 +9,11 @@ create table if not exists products (
   price numeric not null,
   sale_price numeric,
   category text,
+  -- Internal search tag ("kurtha", "saree", "lehenga", "t-shirt"...).
+  -- Staff-facing only: never rendered on the storefront, never selected by
+  -- storefront queries. Search matches against it so "kurtha" finds every
+  -- product tagged with that type even if the name doesn't say it.
+  type text,
   sizes jsonb default '[]'::jsonb,
   colors jsonb default '[]'::jsonb,
   description text,
@@ -23,6 +28,7 @@ alter table products add column if not exists image_urls jsonb default '[]'::jso
 alter table products add column if not exists sale_price numeric;
 alter table products add column if not exists sizes jsonb default '[]'::jsonb;
 alter table products add column if not exists colors jsonb default '[]'::jsonb;
+alter table products add column if not exists type text;
 
 -- The shop filters by category and always sorts newest-first.
 create index if not exists products_created_at_idx on products (created_at desc);

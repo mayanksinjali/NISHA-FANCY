@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import CategoryFilter from "@/components/category-filter";
 import LoadMoreProducts from "@/components/load-more-products";
+import ShopSearch from "@/components/shop-search";
 import { countProducts, getCategories, getProducts, type Product } from "@/lib/products";
 import { ProductCatalogError } from "@/lib/products";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
-/** Always fresh — admin edits appear on the next page load. */
-export const revalidate = 0;
+/**
+ * ISR: listing pages refresh from Supabase every 5 minutes. Admin edits show
+ * up right away anyway — every product mutation calls revalidateStorefront()
+ * (see app/admin/actions.ts), which purges this cache on demand.
+ */
+export const revalidate = 300;
 
 type Props = {
   searchParams: Promise<{ category?: string; q?: string }>;
@@ -79,33 +84,9 @@ export default async function ShopPage({ searchParams }: Props) {
         {active ? `${active}'s collection` : search ? `Search: ${search}` : "Shop"}
       </h1>
       <div>
-        <form
-          action="/shop"
-          method="get"
-          className="flex w-full max-w-2xl items-center rounded-full border border-line bg-bone p-1.5 focus-within:border-ink focus-within:outline-none"
-        >
-          {active && <input type="hidden" name="category" value={active} />}
-          <label htmlFor="shop-search" className="sr-only">Search products</label>
-          <input
-            id="shop-search"
-            name="q"
-            type="search"
-            defaultValue={search ?? ""}
-            placeholder="Search products..."
-            className="shop-search-input min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-ink outline-none ring-0 placeholder:text-ink-soft focus:outline-none focus:ring-0 focus-visible:outline-none"
-          />
-          <button
-            type="submit"
-            aria-label="Search products"
-            title="Search products"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ink text-white transition-colors hover:bg-terracotta"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4" aria-hidden>
-              <circle cx="11" cy="11" r="6.5" />
-              <path d="m16 16 5 5" />
-            </svg>
-          </button>
-        </form>
+        {/* Debounced live search (300ms, stale requests aborted) — falls back
+            to a plain form submit before JS loads. */}
+        <ShopSearch initialSearch={search ?? ""} category={active} />
       </div>
 
       <div className="mt-3">
@@ -137,7 +118,6 @@ export default async function ShopPage({ searchParams }: Props) {
           </div>
         ) : (
           <LoadMoreProducts
-            key={`${active ?? "all"}:${search ?? ""}`}
             initialProducts={initialProducts}
             category={active}
             search={search}

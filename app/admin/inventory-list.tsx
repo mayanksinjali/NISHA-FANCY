@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { formatRs } from "@/lib/format";
-import type { Product } from "@/lib/products";
+import type { AdminProduct } from "@/lib/products";
 import { deleteProductAction, quickUpdateProductAction, toggleStockAction } from "./actions";
 
 /* Category → solid square color. Unmapped categories pick from the palette by hash. */
@@ -24,12 +24,12 @@ function categoryColor(category: string | null): string {
   return FALLBACK_COLORS[Math.abs(hash) % FALLBACK_COLORS.length];
 }
 
-function quickId(product: Product, index: number): string {
+function quickId(product: AdminProduct, index: number): string {
   return `P${String(index + 1).padStart(3, "0")}`;
 }
 
 type Props = {
-  products: Product[];
+  products: AdminProduct[];
   categories: string[];
 };
 
@@ -51,7 +51,9 @@ export default function InventoryList({ products, categories }: Props) {
       if (!needle) return true;
       return (
         product.name.toLowerCase().includes(needle) ||
-        (product.category ?? "").toLowerCase().includes(needle)
+        (product.category ?? "").toLowerCase().includes(needle) ||
+        // Staff can find items by the internal garment-type tag too.
+        (product.type ?? "").toLowerCase().includes(needle)
       );
     });
   }, [products, query, category]);
@@ -70,7 +72,7 @@ export default function InventoryList({ products, categories }: Props) {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search items by name or category..."
+          placeholder="Search items by name, category or type..."
           className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-gray-400"
         />
       </div>
@@ -108,15 +110,14 @@ export default function InventoryList({ products, categories }: Props) {
                 className="flex w-full items-center gap-3 px-3.5 py-3.5 text-left"
               >
                 {product.image_url && !failedThumbs.has(product.id) ? (
-                  // Raw (unoptimized): the optimizer pipeline was dropping
-                  // some photos on the deployed site.
+                  // Admin list rows render far down the page — lazy load them.
                   <Image
                     src={product.image_url}
                     alt=""
                     width={44}
                     height={44}
                     sizes="44px"
-                    unoptimized
+                    loading="lazy"
                     onError={() => setFailedThumbs((current) => new Set(current).add(product.id))}
                     className="h-11 w-11 shrink-0 rounded-xl object-cover"
                   />
@@ -130,6 +131,11 @@ export default function InventoryList({ products, categories }: Props) {
                   <span className="flex items-center gap-2">
                     <span className="font-mono text-[10px] tracking-wide text-gray-400">{quickId(product, index)}</span>
                     {product.category && <span className="truncate text-[11px] text-gray-500">{product.category}</span>}
+                    {product.type && (
+                      <span className="shrink-0 rounded bg-gray-100 px-1.5 py-0.5 text-[9px] font-medium text-gray-500">
+                        {product.type}
+                      </span>
+                    )}
                     {soldOut && (
                       <span className="ml-auto shrink-0 rounded-full bg-red-100 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-red-600">
                         Hidden

@@ -67,6 +67,8 @@ type ParsedProduct = {
   price: number;
   sale_price: number | null;
   category: string | null;
+  /** Internal search tag ("kurtha", "saree"...). Never shown to customers. */
+  type: string | null;
   sizes: string[];
   colors: string[];
   description: string | null;
@@ -91,6 +93,9 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
   const sizes = parseList(formData.get("sizes"));
   const colors = parseList(formData.get("colors"));
   const description = String(formData.get("description") ?? "").trim();
+  // Free-text internal tag. Trimmed and capped, no casing normalization —
+  // search matches it case-insensitively anyway.
+  const type = String(formData.get("type") ?? "").trim().slice(0, 60) || null;
 
   if (!name) return { error: "Product name is required." };
   if (name.length > 120) return { error: "Product name is too long." };
@@ -109,6 +114,7 @@ function parseProductForm(formData: FormData): ParsedProduct | { error: string }
     price,
     sale_price: salePrice,
     category: categoryNormalized || null,
+    type,
     sizes,
     colors,
     description: description || null,

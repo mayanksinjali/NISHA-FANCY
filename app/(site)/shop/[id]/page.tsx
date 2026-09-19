@@ -11,7 +11,12 @@ import { getProducts } from "@/lib/products";
 import { productDescription, SITE_URL } from "@/lib/seo";
 import { STORE } from "@/lib/config";
 
-export const revalidate = 0;
+/**
+ * ISR: product pages refresh from Supabase every 5 minutes. Admin edits show
+ * up immediately regardless — revalidateStorefront() (app/admin/actions.ts)
+ * purges this cache on every product mutation.
+ */
+export const revalidate = 300;
 
 type Props = { params: Promise<{ id: string }> };
 

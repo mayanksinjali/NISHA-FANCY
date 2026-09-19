@@ -62,14 +62,13 @@ export default function CartPage() {
                 <Link href={`/shop/${item.id}`} aria-label={`View ${item.name}`} className="block">
                   <div className="relative aspect-[4/3] bg-bone">
                     {item.imageUrl && !failedImages.has(item.id) ? (
-                      // Raw (unoptimized): already-compressed photos, and the
-                      // image optimizer was dropping some of them.
+                      // Cart items render below the fold — lazy load them.
                       <Image
                         src={item.imageUrl}
                         alt={item.name}
                         fill
                         sizes="(min-width: 768px) 260px, 45vw"
-                        unoptimized
+                        loading="lazy"
                         onError={() => setFailedImages((current) => new Set(current).add(item.id))}
                         className="object-contain"
                       />

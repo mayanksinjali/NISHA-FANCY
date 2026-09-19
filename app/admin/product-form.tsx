@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { compressImage } from "@/lib/compress-image";
-import type { Product } from "@/lib/products";
+import type { AdminProduct } from "@/lib/products";
 import {
   createProductAction,
   updateProductAction,
@@ -13,7 +13,7 @@ import {
 
 type Props = {
   /** Existing row when editing; omitted when adding. */
-  product?: Product;
+  product?: AdminProduct;
   /** Category suggestions from products already in the database. */
   knownCategories: string[];
 };
@@ -234,6 +234,25 @@ export default function ProductForm({ product, knownCategories }: Props) {
           </datalist>
           <p className="mt-1 text-xs text-ink-soft">
             Free text — the shop shows a filter for every category you use here.
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="type" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            Garment type <span className="normal-case tracking-normal">— internal search tag (customers never see this)</span>
+          </label>
+          <input
+            id="type"
+            name="type"
+            type="text"
+            maxLength={60}
+            defaultValue={product?.type ?? ""}
+            placeholder="kurtha, saree, lehenga, t-shirt…"
+            className="admin-field mt-2"
+            autoComplete="off"
+          />
+          <p className="mt-1 text-xs text-ink-soft">
+            Used only to match searches — e.g. a customer searching “kurtha” finds every product tagged with it, even if the name doesn&apos;t say it. Hidden from the storefront.
           </p>
         </div>
 

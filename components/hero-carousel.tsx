@@ -251,7 +251,7 @@ function HeroSlide({ product, priority = false }: { product: Product; priority?:
             aria-hidden
             fill
             sizes="100vw"
-            unoptimized
+            loading={priority ? "eager" : "lazy"}
             draggable={false}
             className="scale-110 object-cover opacity-60 blur-2xl"
           />
@@ -262,7 +262,7 @@ function HeroSlide({ product, priority = false }: { product: Product; priority?:
             fill
             sizes="100vw"
             priority={priority}
-            unoptimized
+            loading={priority ? "eager" : "lazy"}
             draggable={false}
             className="object-contain"
           />

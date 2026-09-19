@@ -1,7 +1,11 @@
 import { getSupabase } from "./supabase/client";
 import { getSupabaseAdmin, isAdminSupabaseConfigured } from "./supabase/admin";
 
-/** One row of the `products` table. */
+/**
+ * One row of the `products` table as the STOREFRONT sees it.
+ * `type` (the internal search tag) is deliberately absent — it must never
+ * reach the client. Admin code reads `AdminProduct` instead.
+ */
 export type Product = {
   id: string;
   name: string;
@@ -17,6 +21,14 @@ export type Product = {
   created_at: string | null;
 };
 
+/**
+ * Same row as the ADMIN panel sees it, including the internal `type` search
+ * tag. Never send this shape to a customer-facing client.
+ */
+export type AdminProduct = Product & {
+  type: string | null;
+};
+
 export class ProductCatalogError extends Error {
   constructor() {
     super("Product catalog unavailable");
@@ -24,10 +36,31 @@ export class ProductCatalogError extends Error {
   }
 }
 
+/**
+ * Storefront columns — no `type`. The internal search tag exists only so
+ * search can match it inside Postgres; it never crosses the network boundary
+ * to a customer.
+ */
 const COLUMNS =
   "id,name,price,sale_price,category,sizes,colors,description,image_url,image_urls,in_stock,created_at";
+/** Admin columns — include the `type` search tag for the product form/list. */
+const ADMIN_COLUMNS = `${COLUMNS},type`;
 const LEGACY_COLUMNS =
   "id,name,price,category,description,image_url,in_stock,created_at";
+
+/**
+ * Search terms match name, the internal `type` tag, and description in one
+ * Postgres `or()`. When the legacy fallback (pre-`type` schema) trips, the
+ * same predicate without `type` is used instead.
+ */
+function searchFilter(search: string, includeType: boolean): string | null {
+  const term = search.trim().slice(0, 80).replace(/[%_]/g, " ");
+  if (!term) return null;
+  const pattern = `%${term}%`;
+  return includeType
+    ? `name.ilike.${pattern},type.ilike.${pattern},description.ilike.${pattern}`
+    : `name.ilike.${pattern},description.ilike.${pattern}`;
+}
 
 /**
  * Storefront product list. Newest first.
@@ -49,8 +82,8 @@ export async function getProducts(options?: {
 
   if (options?.category) query = query.eq("category", options.category);
   if (options?.search) {
-    const search = options.search.trim().slice(0, 80).replace(/[%_]/g, " ");
-    if (search) query = query.ilike("name", `%${search}%`);
+    const filter = searchFilter(options.search, true);
+    if (filter) query = query.or(filter);
   }
   if (options?.limit) query = query.limit(options.limit);
 
@@ -62,8 +95,8 @@ export async function getProducts(options?: {
       .order("created_at", { ascending: false });
     if (options?.category) legacyQuery = legacyQuery.eq("category", options.category);
     if (options?.search) {
-      const search = options.search.trim().slice(0, 80).replace(/[%_]/g, " ");
-      if (search) legacyQuery = legacyQuery.ilike("name", `%${search}%`);
+      const legacyFilter = searchFilter(options.search, false);
+      if (legacyFilter) legacyQuery = legacyQuery.or(legacyFilter);
     }
     if (options?.limit) legacyQuery = legacyQuery.limit(options.limit);
     const legacyResult = await legacyQuery;
@@ -94,8 +127,8 @@ export async function countProducts(options?: {
 
   if (options?.category) query = query.eq("category", options.category);
   if (options?.search) {
-    const search = options.search.trim().slice(0, 80).replace(/[%_]/g, " ");
-    if (search) query = query.ilike("name", `%${search}%`);
+    const filter = searchFilter(options.search, true);
+    if (filter) query = query.or(filter);
   }
 
   const { count, error } = await query;
@@ -133,11 +166,11 @@ export async function getCategories(): Promise<string[]> {
 /* Admin reads (service role — sees everything, used by /admin only)   */
 /* ------------------------------------------------------------------ */
 
-export async function getAllProductsForAdmin(): Promise<Product[]> {
+export async function getAllProductsForAdmin(): Promise<AdminProduct[]> {
   if (!isAdminSupabaseConfigured()) return [];
   const { data, error } = await getSupabaseAdmin()
     .from("products")
-    .select(COLUMNS)
+    .select(ADMIN_COLUMNS)
     .order("created_at", { ascending: false });
 
   if (error?.message.includes("sale_price") || error?.message.includes("sizes")) {
@@ -146,17 +179,17 @@ export async function getAllProductsForAdmin(): Promise<Product[]> {
       .select(LEGACY_COLUMNS)
       .order("created_at", { ascending: false });
     if (legacyResult.error) throw new Error(legacyResult.error.message);
-    return (legacyResult.data ?? []) as Product[];
+    return (legacyResult.data ?? []) as AdminProduct[];
   }
   if (error) throw new Error(error.message);
-  return (data ?? []) as Product[];
+  return (data ?? []) as AdminProduct[];
 }
 
-export async function getProductForAdmin(id: string): Promise<Product | null> {
+export async function getProductForAdmin(id: string): Promise<AdminProduct | null> {
   if (!isAdminSupabaseConfigured()) return null;
   const { data, error } = await getSupabaseAdmin()
     .from("products")
-    .select(COLUMNS)
+    .select(ADMIN_COLUMNS)
     .eq("id", id)
     .maybeSingle();
 
@@ -167,10 +200,10 @@ export async function getProductForAdmin(id: string): Promise<Product | null> {
       .eq("id", id)
       .maybeSingle();
     if (legacyResult.error) throw new Error(legacyResult.error.message);
-    return (legacyResult.data as Product) ?? null;
+    return (legacyResult.data as AdminProduct) ?? null;
   }
   if (error) throw new Error(error.message);
-  return (data as Product) ?? null;
+  return (data as AdminProduct) ?? null;
 }
 
 export async function getProduct(id: string): Promise<Product | null> {

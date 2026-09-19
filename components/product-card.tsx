@@ -12,6 +12,8 @@ type Props = {
   /** First couple of cards on a page get priority loading. */
   priority?: boolean;
   sizes?: string;
+  /** Below-the-fold images lazy-load; hero/first-visible ones stay eager. */
+  loading?: "lazy" | "eager";
 };
 
 /**
@@ -22,6 +24,7 @@ export default function ProductCard({
   product,
   priority = false,
   sizes = "(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw",
+  loading = "lazy",
 }: Props) {
   const soldOut = !product.in_stock;
   const [imageFailed, setImageFailed] = useState(false);
@@ -37,16 +40,13 @@ export default function ProductCard({
         className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-bone"
       >
         {product.image_url && !imageFailed ? (
-          // Served raw (unoptimized): these are already client-compressed
-          // JPEGs, and the image-optimizer pipeline is what was dropping
-          // some of them on the live site.
           <Image
             src={product.image_url}
             alt={product.name}
             fill
             sizes={sizes}
             priority={priority}
-            unoptimized
+            loading={priority ? "eager" : loading}
             onError={() => setImageFailed(true)}
             className={`object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.045] ${
               soldOut ? "opacity-70 saturate-[0.4]" : ""

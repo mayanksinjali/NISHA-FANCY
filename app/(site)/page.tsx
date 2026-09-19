@@ -7,10 +7,11 @@ import { STORE } from "@/lib/config";
 import { SITE_URL } from "@/lib/seo";
 
 /**
- * Products are read at request time so anything the admin adds on their phone
- * shows up on the live site immediately — no redeploy.
+ * ISR: the rail refreshes from Supabase at most once a minute. Admin edits
+ * still appear immediately — every product mutation calls revalidateStorefront()
+ * (see app/admin/actions.ts), which purges this cache on demand.
  */
-export const revalidate = 0;
+export const revalidate = 60;
 
 /** schema.org ClothingStore (a LocalBusiness) — hours, address and contact. */
 function StoreJsonLd() {

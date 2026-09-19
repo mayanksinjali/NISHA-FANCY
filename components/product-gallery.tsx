@@ -106,15 +106,14 @@ export default function ProductGallery({ productName, images }: Props) {
                       </span>
                     </div>
                   ) : (
-                    // Raw (unoptimized): photos are already client-compressed,
-                    // and the optimizer pipeline was dropping some of them.
+                    // Hidden slides stay lazy; the active photo renders eager.
                     <Image
                       src={image}
                       alt={`${productName} ${index + 1}`}
                       fill
                       priority={index === 0}
+                      loading={index === 0 ? "eager" : "lazy"}
                       sizes="(min-width: 768px) 46vw, 100vw"
-                      unoptimized
                       onError={() => markFailed(index)}
                       className="object-contain"
                     />
@@ -205,7 +204,6 @@ export default function ProductGallery({ productName, images }: Props) {
                 alt={`${productName} ${displayedIndex + 1}`}
                 fill
                 sizes="92vw"
-                unoptimized
                 onError={() => markFailed(displayedIndex)}
                 className="object-contain"
               />
