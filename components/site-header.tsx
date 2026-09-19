@@ -56,7 +56,7 @@ export default function SiteHeader() {
     <>
       {!isProductDetail && (
         <header
-          className={`relative z-50 h-16 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 md:h-20 ${
+          className={`relative z-50 h-12 border-b border-line bg-paper transition-[opacity,transform] duration-300 md:sticky md:top-0 md:h-16 ${
             scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
           }`}
         >
@@ -73,7 +73,7 @@ export default function SiteHeader() {
             width={28}
             height={28}
             priority
-            className="h-10 w-10 rounded-full object-cover ring-1 ring-line md:h-12 md:w-12"
+            className="h-8 w-8 rounded-full object-cover ring-1 ring-line md:h-10 md:w-10"
           />
           <span className="font-sans text-sm font-bold leading-none tracking-[-0.02em] md:text-base">
             {STORE.name}
@@ -124,21 +124,21 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 data-active={active}
-                className="flex h-10 flex-col items-center justify-center gap-0 border-r border-line text-[7px] font-medium uppercase tracking-[0.1em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-ink data-[active=true]:[&>span]:[&>svg]:stroke-2"
+                className="flex h-14 flex-col items-center justify-center gap-0.5 border-r border-line text-[9px] font-medium uppercase tracking-[0.1em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-ink data-[active=true]:[&>span]:[&>svg]:stroke-2"
               >
-                <span aria-hidden className="flex h-3.5 w-3.5 items-center justify-center">
+                <span aria-hidden className="flex h-4 w-4 items-center justify-center">
                   {link.href === "/" ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-3.5 w-3.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
                       <path d="m3 10 9-7 9 7" />
                       <path d="M5 9v11h14V9M9 20v-6h6v6" />
                     </svg>
                   ) : link.href === "/shop" ? (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-3.5 w-3.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
                       <path d="M4 9h16l-1 11H5L4 9Z" />
                       <path d="M8 9a4 4 0 0 1 8 0" />
                     </svg>
                   ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-3.5 w-3.5">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
                       <rect x="3" y="5" width="18" height="14" rx="2" />
                       <path d="m3 7 9 6 9-6" />
                     </svg>
@@ -151,10 +151,10 @@ export default function SiteHeader() {
           <Link
             href="/cart"
             data-active={pathname.startsWith("/cart")}
-            className="relative flex h-10 flex-col items-center justify-center gap-0 text-[7px] font-medium uppercase tracking-[0.1em] text-ink-soft transition-colors data-[active=true]:text-ink data-[active=true]:[&>span>svg]:stroke-2"
+            className="relative flex h-14 flex-col items-center justify-center gap-0.5 text-[9px] font-medium uppercase tracking-[0.1em] text-ink-soft transition-colors data-[active=true]:text-ink data-[active=true]:[&>span>svg]:stroke-2"
           >
-            <span aria-hidden className="flex h-3.5 w-3.5 items-center justify-center">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-3.5 w-3.5">
+            <span aria-hidden className="flex h-4 w-4 items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
                 <path d="M4 5h2l1.5 10h10L20 8H7" />
                 <circle cx="10" cy="19" r="1" />
                 <circle cx="17" cy="19" r="1" />
