@@ -10,39 +10,53 @@ type Props = {
   products: Product[];
 };
 
-const INTERVAL_MS = 4000;
+const INTERVAL_MS = 3500;
 
 export default function HeroCarousel({ products }: Props) {
-  const slides = products.slice(0, 8);
+  const slides = products.slice(0, 6);
   const count = slides.length;
 
   const [active, setActive] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const activeRef = useRef(0);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const touchStartX = useRef<number | null>(null);
-  const touchStartTime = useRef<number | null>(null);
 
-  const syncActive = (index: number) => {
-    activeRef.current = index;
+  const goTo = (index: number) => {
+    if (!trackRef.current) return;
+    const pos = index * trackRef.current.clientWidth;
+    trackRef.current.scrollTo({
+      left: pos,
+      behavior: reducedMotion ? "instant" : "smooth",
+    });
     setActive(index);
   };
 
-  const goToSlide = (index: number) => {
-    const normalized = ((index % count) + count) % count;
-    if (trackRef.current) {
-      trackRef.current.scrollTo({
-        left: (normalized + 1) * trackRef.current.clientWidth,
-        behavior: reducedMotion ? "instant" : "smooth",
-      });
+  const goNext = () => {
+    if (!trackRef.current) return;
+    const maxScroll = trackRef.current.scrollWidth - trackRef.current.clientWidth;
+    const next = trackRef.current.scrollLeft + trackRef.current.clientWidth;
+    if (next >= maxScroll) {
+      // Loop back to start instantly (user won't see because it's a clone)
+      trackRef.current.scrollTo({ left: 0, behavior: "instant" });
+      setActive(0);
+    } else {
+      goTo(Math.round(trackRef.current.scrollLeft / trackRef.current.clientWidth) + 1);
     }
-    syncActive(normalized);
   };
 
-  const goNext = () => goToSlide(activeRef.current + 1);
-  const goPrev = () => goToSlide(activeRef.current - 1);
+  const goPrev = () => {
+    if (!trackRef.current) return;
+    const prev = trackRef.current.scrollLeft - trackRef.current.clientWidth;
+    if (prev <= 0) {
+      // Jump to last position (clone of last slide)
+      const lastPos = (count - 1) * trackRef.current.clientWidth;
+      trackRef.current.scrollTo({ left: lastPos, behavior: "instant" });
+      setActive(count - 1);
+    } else {
+      goTo(Math.round(trackRef.current.scrollLeft / trackRef.current.clientWidth) - 1);
+    }
+  };
 
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -55,82 +69,79 @@ export default function HeroCarousel({ products }: Props) {
   // Auto-play
   useEffect(() => {
     if (count < 2 || reducedMotion) return;
-
-    autoPlayRef.current = setInterval(() => {
-      goNext();
-    }, INTERVAL_MS);
-
+    autoPlayRef.current = setInterval(goNext, INTERVAL_MS);
     return () => {
-      if (autoPlayRef.current) {
-        clearInterval(autoPlayRef.current);
-        autoPlayRef.current = null;
-      }
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
   }, [count, reducedMotion]);
 
-  // Reset auto-play timer on interaction
-  const resetAutoPlay = () => {
+  // Reset timer on interaction
+  const resetTimer = () => {
     if (autoPlayRef.current && count >= 2 && !reducedMotion) {
       clearInterval(autoPlayRef.current);
-      autoPlayRef.current = setInterval(() => {
-        goNext();
-      }, INTERVAL_MS);
+      autoPlayRef.current = setInterval(goNext, INTERVAL_MS);
     }
   };
 
   // Initial position
   useEffect(() => {
     if (trackRef.current && count) {
-      trackRef.current.scrollTo({
-        left: trackRef.current.clientWidth,
-        behavior: "instant",
-      });
-      syncActive(0);
+      trackRef.current.scrollTo({ left: trackRef.current.clientWidth, behavior: "instant" });
+      setActive(0);
     }
   }, [count]);
 
-  // Track scroll position for dots
+  // Track scroll for dots
   useEffect(() => {
     const track = trackRef.current;
     if (!track || count < 2) return;
 
+    let rafId: number;
     const handleScroll = () => {
-      if (!track) return;
-      const slot = Math.round(track.scrollLeft / (track.clientWidth || 1));
-      
-      // Handle wrap-around (clones)
-      if (slot === 0) {
-        syncActive(count - 1);
-      } else if (slot === count + 1) {
-        syncActive(0);
-      } else {
-        syncActive(slot - 1);
-      }
+      rafId = requestAnimationFrame(() => {
+        if (!track) return;
+        const idx = Math.round(track.scrollLeft / track.clientWidth);
+        // Normalize: 0 = first clone, 1..count = real slides, count+1 = last clone
+        let normalized = idx;
+        if (idx > count) normalized = count - 1;
+        else if (idx === 0) normalized = 0;
+        else normalized = idx - 1;
+        if (normalized >= 0 && normalized < count) {
+          setActive(normalized);
+        }
+      });
     };
 
     track.addEventListener("scroll", handleScroll, { passive: true });
-    return () => track.removeEventListener("scroll", handleScroll);
+    return () => {
+      cancelAnimationFrame(rafId);
+      track.removeEventListener("scroll", handleScroll);
+    };
   }, [count]);
 
-  // Detect tap vs swipe on touch devices
+  // Touch handling - pause autoplay during swipe, resume after
+  const touchStartX = useRef<number | null>(null);
+  const touchStartTime = useRef<number | null>(null);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartTime.current = Date.now();
+    if (autoPlayRef.current) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = null;
+    }
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    
-    const touchDuration = Date.now() - (touchStartTime.current ?? 0);
-    const touchDistance = Math.abs(e.changedTouches[0].clientX - touchStartX.current);
-    
+    const duration = Date.now() - (touchStartTime.current ?? 0);
+    const distance = Math.abs(e.changedTouches[0].clientX - (touchStartX.current ?? 0));
     touchStartX.current = null;
     touchStartTime.current = null;
 
-    // If it was a quick tap (not a swipe), the Link will handle navigation
-    // If it was a swipe, CSS scroll-snap handles it naturally
-    // Just reset auto-play timer on any touch interaction
-    resetAutoPlay();
+    // Tap = navigate to product (Link handles it)
+    // Swipe = CSS scroll handles it
+    // Just restart autoplay
+    resetTimer();
   };
 
   if (count <= 1) {
@@ -162,26 +173,19 @@ export default function HeroCarousel({ products }: Props) {
       <h1 className="sr-only">New arrivals</h1>
       <div
         ref={trackRef}
-        className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Clone of last slide */}
-        <div className="relative min-w-full snap-center" aria-hidden>
-          <HeroSlide product={slides[count - 1]} index={count - 1} />
-        </div>
-        {slides.map((product, index) => (
+        {/* Duplicate slides for infinite loop effect */}
+        {[...slides, ...slides, ...slides].map((product, index) => (
           <div
-            key={product.id}
-            className="relative min-w-full snap-center"
+            key={`${product.id}-${index}`}
+            className="relative flex-shrink-0 w-full"
           >
             <HeroSlide product={product} index={index} />
           </div>
         ))}
-        {/* Clone of first slide */}
-        <div className="relative min-w-full snap-center" aria-hidden>
-          <HeroSlide product={slides[0]} index={0} />
-        </div>
       </div>
 
       {/* Dots */}
@@ -190,8 +194,8 @@ export default function HeroCarousel({ products }: Props) {
           <button
             key={product.id}
             onClick={() => {
-              goToSlide(index);
-              resetAutoPlay();
+              goTo(index + 1);
+              resetTimer();
             }}
             aria-label={`Go to slide ${index + 1}`}
             aria-current={index === active ? "true" : undefined}
@@ -207,7 +211,7 @@ export default function HeroCarousel({ products }: Props) {
 
 /* ------------------------------------------------------------------ */
 
-function HeroSlide({ product, index }: { product: Product; index?: number }) {
+function HeroSlide({ product }: { product: Product; index?: number }) {
   const soldOut = !product.in_stock;
   const discountPercent = product.sale_price
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
@@ -219,23 +223,22 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
       className="block relative h-[230px] w-full overflow-hidden bg-bone md:h-full"
       aria-label={`View ${product.name}`}
     >
-      <div className="absolute inset-0 h-[120%] w-full -translate-y-10">
-        {product.image_url ? (
-          <Image
-            src={product.image_url}
-            alt={product.name}
-            fill
-            priority={index === 0}
-            sizes="100vw"
-            className="object-cover"
-          />
-        ) : (
+      {product.image_url ? (
+        <Image
+          src={product.image_url}
+          alt={product.name}
+          fill
+          priority={false}
+          sizes="100vw"
+          className="object-cover"
+        />
+      ) : (
         <div className="flex h-full w-full items-center justify-center">
           <span className="font-display text-4xl text-ink/15">
             {product.name.slice(0, 1).toUpperCase()}
           </span>
-        </div>        )}
-      </div>
+        </div>
+      )}
 
       {/* Ink scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
