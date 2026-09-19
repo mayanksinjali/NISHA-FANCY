@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/products";
 import { formatRs } from "@/lib/format";
 
@@ -11,53 +11,71 @@ type Props = {
 };
 
 const INTERVAL_MS = 3500;
+const SLIDE_MS = 600;
+const EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 export default function HeroCarousel({ products }: Props) {
   const slides = products.slice(0, 6);
   const count = slides.length;
 
-  const [active, setActive] = useState(0);
+  /*
+    Track layout (count > 1): [clone of last, ...slides, clone of first].
+    `pos` is the index within that extended list, so 1..count are the real
+    slides. Sliding past either end lands on a clone, which is swapped for the
+    real slide with the transition disabled — that's what makes the loop
+    seamless in both directions.
+  */
+  const [pos, setPos] = useState(1);
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [noTransition, setNoTransition] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const posRef = useRef(1);
+  const pointerIdRef = useRef<number | null>(null);
+  const startXRef = useRef(0);
+  const startTimeRef = useRef(0);
+  const dxRef = useRef(0);
+  const movedRef = useRef(false);
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const goTo = (index: number) => {
-    if (!trackRef.current) return;
-    const pos = index * trackRef.current.clientWidth;
-    trackRef.current.scrollTo({
-      left: pos,
-      behavior: reducedMotion ? "instant" : "smooth",
-    });
-    setActive(index);
-  };
+  const extended = count > 1 ? [slides[count - 1], ...slides, slides[0]] : slides;
 
-  const goNext = () => {
-    if (!trackRef.current) return;
-    const maxScroll = trackRef.current.scrollWidth - trackRef.current.clientWidth;
-    const next = trackRef.current.scrollLeft + trackRef.current.clientWidth;
-    if (next >= maxScroll) {
-      // Loop back to start instantly (user won't see because it's a clone)
-      trackRef.current.scrollTo({ left: 0, behavior: "instant" });
-      setActive(0);
-    } else {
-      goTo(Math.round(trackRef.current.scrollLeft / trackRef.current.clientWidth) + 1);
+  const moveTo = useCallback((target: number) => {
+    posRef.current = target;
+    setPos(target);
+  }, []);
+
+  /** Teleport without animating — used to swap a clone for its real slide. */
+  const jumpTo = useCallback(
+    (target: number) => {
+      setNoTransition(true);
+      moveTo(target);
+      requestAnimationFrame(() => requestAnimationFrame(() => setNoTransition(false)));
+    },
+    [moveTo],
+  );
+
+  const stopAutoplay = useCallback(() => {
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current);
+      autoplayRef.current = null;
     }
-  };
+  }, []);
 
-  const goPrev = () => {
-    if (!trackRef.current) return;
-    const prev = trackRef.current.scrollLeft - trackRef.current.clientWidth;
-    if (prev <= 0) {
-      // Jump to last position (clone of last slide)
-      const lastPos = (count - 1) * trackRef.current.clientWidth;
-      trackRef.current.scrollTo({ left: lastPos, behavior: "instant" });
-      setActive(count - 1);
-    } else {
-      goTo(Math.round(trackRef.current.scrollLeft / trackRef.current.clientWidth) - 1);
-    }
-  };
+  const startAutoplay = useCallback(() => {
+    stopAutoplay();
+    if (count < 2 || reducedMotion) return;
+    autoplayRef.current = setInterval(() => {
+      if (pointerIdRef.current !== null) return; // finger down — wait for it
+      const at = posRef.current;
+      if (at >= count + 1) jumpTo(1); // safety: stuck on a clone
+      else moveTo(at + 1);
+    }, INTERVAL_MS);
+  }, [count, reducedMotion, jumpTo, moveTo, stopAutoplay]);
 
+  // Respect prefers-reduced-motion.
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(query.matches);
@@ -66,82 +84,79 @@ export default function HeroCarousel({ products }: Props) {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  // Auto-play
+  // Autoplay lifecycle — paused while the tab is hidden or hovered.
   useEffect(() => {
-    if (count < 2 || reducedMotion) return;
-    autoPlayRef.current = setInterval(goNext, INTERVAL_MS);
+    startAutoplay();
+    const onVisibility = () => (document.hidden ? stopAutoplay() : startAutoplay());
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+      stopAutoplay();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [count, reducedMotion]);
+  }, [startAutoplay, stopAutoplay]);
 
-  // Reset timer on interaction
-  const resetTimer = () => {
-    if (autoPlayRef.current && count >= 2 && !reducedMotion) {
-      clearInterval(autoPlayRef.current);
-      autoPlayRef.current = setInterval(goNext, INTERVAL_MS);
+  /** Swap a clone for its real slide once the slide animation finishes. */
+  const handleTransitionEnd = (e: React.TransitionEvent) => {
+    if (e.target !== trackRef.current || e.propertyName !== "transform") return;
+    if (posRef.current <= 0) jumpTo(count);
+    else if (posRef.current >= count + 1) jumpTo(1);
+  };
+
+  // ---- Drag / swipe -------------------------------------------------------
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (count < 2 || pointerIdRef.current !== null) return;
+    pointerIdRef.current = e.pointerId;
+    startXRef.current = e.clientX;
+    startTimeRef.current = Date.now();
+    dxRef.current = 0;
+    movedRef.current = false;
+    setDragging(true);
+    stopAutoplay();
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId);
+    } catch {
+      // Pointer already released — nothing to capture.
     }
   };
 
-  // Initial position
-  useEffect(() => {
-    if (trackRef.current && count) {
-      trackRef.current.scrollTo({ left: trackRef.current.clientWidth, behavior: "instant" });
-      setActive(0);
-    }
-  }, [count]);
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (pointerIdRef.current !== e.pointerId) return;
+    const dx = e.clientX - startXRef.current;
+    if (Math.abs(dx) > 6) movedRef.current = true;
+    dxRef.current = dx;
+    setDragX(dx); // 1:1 finger follow
+  };
 
-  // Track scroll for dots
-  useEffect(() => {
+  const endDrag = () => {
+    if (pointerIdRef.current === null) return;
+    pointerIdRef.current = null;
+
     const track = trackRef.current;
-    if (!track || count < 2) return;
+    const width = track?.clientWidth ?? 1;
+    const dx = dxRef.current;
+    const dt = Math.max(1, Date.now() - startTimeRef.current);
+    const flick = Math.abs(dx) / dt > 0.55; // quick swipe, px per ms
 
-    let rafId: number;
-    const handleScroll = () => {
-      rafId = requestAnimationFrame(() => {
-        if (!track) return;
-        const idx = Math.round(track.scrollLeft / track.clientWidth);
-        // Normalize: 0 = first clone, 1..count = real slides, count+1 = last clone
-        let normalized = idx;
-        if (idx > count) normalized = count - 1;
-        else if (idx === 0) normalized = 0;
-        else normalized = idx - 1;
-        if (normalized >= 0 && normalized < count) {
-          setActive(normalized);
-        }
-      });
-    };
+    setDragging(false);
+    setDragX(0);
 
-    track.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(rafId);
-      track.removeEventListener("scroll", handleScroll);
-    };
-  }, [count]);
-
-  // Touch handling - pause autoplay during swipe, resume after
-  const touchStartX = useRef<number | null>(null);
-  const touchStartTime = useRef<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartTime.current = Date.now();
-    if (autoPlayRef.current) {
-      clearInterval(autoPlayRef.current);
-      autoPlayRef.current = null;
+    let target = posRef.current;
+    if (Math.abs(dx) > Math.max(40, width * 0.15) || flick) {
+      target += dx < 0 ? 1 : -1;
     }
+    target = Math.min(count + 1, Math.max(0, target));
+    moveTo(target); // animates from wherever the finger left it
+    startAutoplay();
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const duration = Date.now() - (touchStartTime.current ?? 0);
-    const distance = Math.abs(e.changedTouches[0].clientX - (touchStartX.current ?? 0));
-    touchStartX.current = null;
-    touchStartTime.current = null;
-
-    // Tap = navigate to product (Link handles it)
-    // Swipe = CSS scroll handles it
-    // Just restart autoplay
-    resetTimer();
+  /** Swallow the link click that follows a swipe. */
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (movedRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      movedRef.current = false;
+    }
   };
 
   if (count <= 1) {
@@ -149,56 +164,64 @@ export default function HeroCarousel({ products }: Props) {
     return (
       <section className="relative left-1/2 w-screen -translate-x-1/2">
         <h1 className="sr-only">New arrivals</h1>
-        <Link
-          href={product ? `/shop/${product.id}` : "/shop"}
-          className="relative block h-[230px] w-full overflow-hidden bg-bone md:h-full"
-        >
-          {product ? (
-            <HeroSlide product={product} index={0} />
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
-              <p className="font-display text-xl text-ink/30">New arrivals</p>
-              <p className="text-[10px] text-ink-soft">The first drop is being photographed.</p>
-            </div>
-          )}
-        </Link>
+        {product ? (
+          <HeroSlide product={product} priority />
+        ) : (
+          <div className="flex h-[230px] w-full flex-col items-center justify-center gap-2 bg-bone text-center">
+            <p className="font-display text-xl text-ink/30">New arrivals</p>
+            <p className="text-[10px] text-ink-soft">The first drop is being photographed.</p>
+          </div>
+        )}
       </section>
     );
   }
 
+  const active = (((pos - 1) % count) + count) % count;
+
   return (
-    <section
-      className="relative left-1/2 w-screen -translate-x-1/2"
-    >
+    <section className="relative left-1/2 w-screen -translate-x-1/2">
       <h1 className="sr-only">New arrivals</h1>
       <div
-        ref={trackRef}
-        className="flex overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        className="relative h-[230px] w-full touch-pan-y select-none overflow-hidden bg-bone"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={onClickCapture}
+        onMouseEnter={stopAutoplay}
+        onMouseLeave={startAutoplay}
       >
-        {/* Duplicate slides for infinite loop effect */}
-        {[...slides, ...slides, ...slides].map((product, index) => (
-          <HeroSlide key={`${product.id}-${index}`} product={product} index={index} />
-        ))}
-      </div>
+        <div
+          ref={trackRef}
+          onTransitionEnd={handleTransitionEnd}
+          className="flex h-full will-change-transform"
+          style={{
+            transform: `translate3d(calc(${-pos * 100}% + ${dragX}px), 0, 0)`,
+            transition:
+              dragging || noTransition || reducedMotion
+                ? "none"
+                : `transform ${SLIDE_MS}ms ${EASING}`,
+          }}
+        >
+          {extended.map((product, index) => (
+            <HeroSlide key={`${product.id}-${index}`} product={product} priority={index === 1} />
+          ))}
+        </div>
 
-      {/* Dots */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex justify-center gap-1 md:bottom-5">
-        {slides.map((product, index) => (
-          <button
-            key={product.id}
-            onClick={() => {
-              goTo(index + 1);
-              resetTimer();
-            }}
-            aria-label={`Go to slide ${index + 1}`}
-            aria-current={index === active ? "true" : undefined}
-            className={`pointer-events-auto h-0.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-              index === active ? "w-3 bg-white" : "w-0.5 bg-white/50"
-            }`}
-          />
-        ))}
+        {/* Dots */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex justify-center gap-1 md:bottom-5">
+          {slides.map((product, index) => (
+            <button
+              key={product.id}
+              onClick={() => moveTo(index + 1)}
+              aria-label={`Go to slide ${index + 1}`}
+              aria-current={index === active ? "true" : undefined}
+              className={`pointer-events-auto h-0.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
+                index === active ? "w-3 bg-white" : "w-0.5 bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -206,7 +229,7 @@ export default function HeroCarousel({ products }: Props) {
 
 /* ------------------------------------------------------------------ */
 
-function HeroSlide({ product }: { product: Product; index?: number }) {
+function HeroSlide({ product, priority = false }: { product: Product; priority?: boolean }) {
   const soldOut = !product.in_stock;
   const discountPercent = product.sale_price
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
@@ -215,19 +238,35 @@ function HeroSlide({ product }: { product: Product; index?: number }) {
   return (
     <Link
       href={`/shop/${product.id}`}
-      className="block relative h-[230px] w-full overflow-hidden bg-bone"
       aria-label={`View ${product.name}`}
+      draggable={false}
+      className="relative block h-[230px] w-full shrink-0 overflow-hidden bg-bone"
     >
       {product.image_url ? (
-        <Image
-          src={product.image_url}
-          alt={product.name}
-          fill
-          priority={false}
-          sizes="100vw"
-          className="object-cover"
-          style={{ objectPosition: "center 20%" }}
-        />
+        <>
+          {/* Soft blurred copy fills the side gaps so nothing looks cut off. */}
+          <Image
+            src={product.image_url}
+            alt=""
+            aria-hidden
+            fill
+            sizes="100vw"
+            unoptimized
+            draggable={false}
+            className="scale-110 object-cover opacity-60 blur-2xl"
+          />
+          {/* The photo in full — contained, never cropped. */}
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            fill
+            sizes="100vw"
+            priority={priority}
+            unoptimized
+            draggable={false}
+            className="object-contain"
+          />
+        </>
       ) : (
         <div className="flex h-full w-full items-center justify-center">
           <span className="font-display text-4xl text-ink/15">

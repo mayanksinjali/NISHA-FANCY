@@ -60,7 +60,7 @@ export default function SiteHeader() {
             scrollingDown ? "-translate-y-3 opacity-0 md:translate-y-0 md:opacity-100" : ""
           }`}
         >
-      <div className="mx-auto flex h-10 max-w-[1280px] items-center justify-between px-4 md:h-12 md:px-8">
+      <div className="mx-auto flex h-14 max-w-[1280px] items-center justify-between px-4 md:h-16 md:px-8">
         {/* Wordmark */}
         <Link
           href="/"
@@ -73,7 +73,7 @@ export default function SiteHeader() {
             width={28}
             height={28}
             priority
-            className="h-7 w-7 rounded-full object-cover ring-1 ring-line md:h-8 md:w-8"
+            className="h-9 w-9 rounded-full object-cover ring-1 ring-line md:h-10 md:w-10"
           />
           <span className="font-sans text-[11px] font-bold leading-none tracking-[-0.02em] md:text-xs">
             {STORE.name}
