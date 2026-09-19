@@ -140,7 +140,7 @@ export default function HeroCarousel({ products }: Props) {
         <h1 className="sr-only">New arrivals</h1>
         <Link
           href={product ? `/shop/${product.id}` : "/shop"}
-          className="relative block h-[100px] w-full overflow-hidden bg-bone md:h-full"
+          className="relative block h-[230px] w-full overflow-hidden bg-bone md:h-full"
         >
           {product ? (
             <HeroSlide product={product} index={0} />
@@ -216,7 +216,7 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
   return (
     <Link
       href={`/shop/${product.id}`}
-      className="block relative h-[100px] w-full overflow-hidden bg-bone md:h-full"
+      className="block relative h-[230px] w-full overflow-hidden bg-bone md:h-full"
       aria-label={`View ${product.name}`}
     >
       {product.image_url ? (
