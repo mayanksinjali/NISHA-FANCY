@@ -7,180 +7,150 @@ import type { Product } from "@/lib/products";
 import { formatRs } from "@/lib/format";
 
 type Props = {
-  /** Resolved product list (newest first). The page awaits this — no Promise. */
   products: Product[];
 };
 
-/**
- * Auto-sliding "New arrivals" hero. CSS scroll-snap gives the swipe feel, a
- * tiny interval does the auto-advance, and cloned edge slides make the loop
- * seamless — no carousel library.
- *
- *   [clone of LAST][ S1 ][ S2 ]...[ SN ][ clone of FIRST]
- *    position 0      1    2   ...  N     position N+1
- *
- * The track keeps CSS `scroll-behavior: smooth` for everything the user sees.
- * Silent correction jumps (clone → real slide, and the initial offset) pass
- * behavior: "instant" so the seam is never visible. Advancing from the last
- * slide animates onto the "clone of FIRST" slot, then snaps to the real first
- * slide — one slide-width of motion, no rewind across the track.
- */
-const INTERVAL_MS = 3500;
+const INTERVAL_MS = 4000;
 
 export default function HeroCarousel({ products }: Props) {
   const slides = products.slice(0, 8);
   const count = slides.length;
 
-  /* Index of the real slide the dots show (0-based). */
   const [active, setActive] = useState(0);
-  const [paused, setPaused] = useState(false);
-  /* Honored only once the OS-level media query has been read on the client. */
   const [reducedMotion, setReducedMotion] = useState(false);
 
   const trackRef = useRef<HTMLDivElement>(null);
-  const touchStartX = useRef<number | null>(null);
   const activeRef = useRef(0);
-  /* A programmatic scroll is in flight towards this slot (including clones). */
-  const targetSlot = useRef<number | null>(null);
-
-  /* Current slot (0..count+1) derived from scrollLeft. */
-  const currentSlot = () => {
-    const track = trackRef.current;
-    if (!track) return null;
-    const step = track.clientWidth || 1;
-    return Math.round(track.scrollLeft / step);
-  };
+  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartTime = useRef<number | null>(null);
 
   const syncActive = (index: number) => {
     activeRef.current = index;
     setActive(index);
   };
 
-  /* Move to a slot. Animated for real moves, instant for silent corrections. */
-  const scrollToSlot = (slot: number, smooth: boolean) => {
-    const track = trackRef.current;
-    if (!track) return;
-    targetSlot.current = slot;
-    track.scrollTo({
-      left: slot * track.clientWidth,
-      behavior: smooth ? "smooth" : "instant",
-    });
+  const goToSlide = (index: number) => {
+    const normalized = ((index % count) + count) % count;
+    if (trackRef.current) {
+      trackRef.current.scrollTo({
+        left: (normalized + 1) * trackRef.current.clientWidth,
+        behavior: reducedMotion ? "instant" : "smooth",
+      });
+    }
+    syncActive(normalized);
   };
 
-  /* Animated move to a real slide; callers may pass -1 or count to wrap. */
-  const scrollToIndex = (index: number) => {
-    scrollToSlot(index + 1, true);
-  };
+  const goNext = () => goToSlide(activeRef.current + 1);
+  const goPrev = () => goToSlide(activeRef.current - 1);
 
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(query.matches);
-    const onChange = (event: MediaQueryListEvent) => setReducedMotion(event.matches);
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     query.addEventListener("change", onChange);
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  /* -------- Auto-advance (skipped for reduced-motion users) -------- */
+  // Auto-play
   useEffect(() => {
-    if (paused || reducedMotion || count < 2) return;
-    const timer = window.setInterval(() => {
-      const next = (activeRef.current + 1) % count;
-      // Unclamped target: from the last slide this lands on the clone of the
-      // first (one slide of motion), and the scroll handler snaps it back.
-      scrollToIndex(next);
-      syncActive(next);
-    }, INTERVAL_MS);
-    return () => window.clearInterval(timer);
-  }, [paused, reducedMotion, count]);
+    if (count < 2 || reducedMotion) return;
 
-  /* -------- Scroll handling: dots + seamless wrap corrections -------- */
+    autoPlayRef.current = setInterval(() => {
+      goNext();
+    }, INTERVAL_MS);
+
+    return () => {
+      if (autoPlayRef.current) {
+        clearInterval(autoPlayRef.current);
+        autoPlayRef.current = null;
+      }
+    };
+  }, [count, reducedMotion]);
+
+  // Reset auto-play timer on interaction
+  const resetAutoPlay = () => {
+    if (autoPlayRef.current && count >= 2 && !reducedMotion) {
+      clearInterval(autoPlayRef.current);
+      autoPlayRef.current = setInterval(() => {
+        goNext();
+      }, INTERVAL_MS);
+    }
+  };
+
+  // Initial position
+  useEffect(() => {
+    if (trackRef.current && count) {
+      trackRef.current.scrollTo({
+        left: trackRef.current.clientWidth,
+        behavior: "instant",
+      });
+      syncActive(0);
+    }
+  }, [count]);
+
+  // Track scroll position for dots
   useEffect(() => {
     const track = trackRef.current;
     if (!track || count < 2) return;
 
-    const onScroll = () => {
-      const slot = currentSlot();
-      if (slot === null) return;
-
-      /* Programmatic scroll in flight: wait for it to land. */
-      if (targetSlot.current !== null) {
-        if (slot !== targetSlot.current) return;
-        targetSlot.current = null;
-        /* It landed on a clone — silently jump to the equivalent real slide. */
-        if (slot === count + 1) {
-          syncActive(0);
-          scrollToSlot(1, false);
-          return;
-        }
-        if (slot === 0) {
-          syncActive(count - 1);
-          scrollToSlot(count, false);
-          return;
-        }
-        return;
-      }
-
-      /* User-driven scroll (touch swipe / momentum snap). */
-      if (slot === count + 1) {
-        syncActive(0);
-        scrollToSlot(1, false);
-      } else if (slot === 0) {
+    const handleScroll = () => {
+      if (!track) return;
+      const slot = Math.round(track.scrollLeft / (track.clientWidth || 1));
+      
+      // Handle wrap-around (clones)
+      if (slot === 0) {
         syncActive(count - 1);
-        scrollToSlot(count, false);
+      } else if (slot === count + 1) {
+        syncActive(0);
       } else {
-        syncActive(Math.min(count - 1, Math.max(0, slot - 1)));
+        syncActive(slot - 1);
       }
     };
 
-    track.addEventListener("scroll", onScroll, { passive: true });
-    return () => track.removeEventListener("scroll", onScroll);
+    track.addEventListener("scroll", handleScroll, { passive: true });
+    return () => track.removeEventListener("scroll", handleScroll);
   }, [count]);
 
-  /* Initial offset on mount (and when the product list changes): sit on slot 1. */
-  useEffect(() => {
-    const track = trackRef.current;
-    if (track && count) {
-      activeRef.current = 0;
-      track.scrollTo({ left: track.clientWidth, behavior: "instant" });
-    }
-  }, [count]);
+  // Detect tap vs swipe on touch devices
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartTime.current = Date.now();
+  };
 
-  /* -------- Manual swipe on touch screens -------- */
-  function handleTouchStart(event: React.TouchEvent) {
-    touchStartX.current = event.touches[0]?.clientX ?? null;
-    setPaused(true);
-  }
-
-  function handleTouchEnd(event: React.TouchEvent) {
-    const startX = touchStartX.current;
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    
+    const touchDuration = Date.now() - (touchStartTime.current ?? 0);
+    const touchDistance = Math.abs(e.changedTouches[0].clientX - touchStartX.current);
+    
     touchStartX.current = null;
-    setPaused(false);
-    if (startX === null) return;
-    const endX = event.changedTouches[0]?.clientX;
-    if (endX === undefined) return;
-    if (Math.abs(endX - startX) < 40) return; // a tap, not a swipe
-    // Target from the logical index, not scrollLeft — the momentum snap may
-    // still be in flight when touchend fires.
-    scrollToIndex(activeRef.current + (endX < startX ? 1 : -1));
-  }
+    touchStartTime.current = null;
 
-  /* Single product: no sliding machinery, just a hero card. */
+    // If it was a quick tap (not a swipe), the Link will handle navigation
+    // If it was a swipe, CSS scroll-snap handles it naturally
+    // Just reset auto-play timer on any touch interaction
+    resetAutoPlay();
+  };
+
   if (count <= 1) {
     const product = slides[0];
     return (
       <section className="relative left-1/2 w-screen -translate-x-1/2">
         <h1 className="sr-only">New arrivals</h1>
-        <div className="relative aspect-[4/5] w-full overflow-hidden bg-bone md:aspect-[16/8.5]">
+        <Link
+          href={product ? `/shop/${product.id}` : "/shop"}
+          className="relative block aspect-[3/4] w-full overflow-hidden bg-bone md:aspect-[16/8.5] md:h-full"
+        >
           {product ? (
-            <HeroSlide product={product} />
+            <HeroSlide product={product} index={0} />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
               <p className="font-display text-3xl text-ink/30">New arrivals</p>
               <p className="text-sm text-ink-soft">The first drop is being photographed.</p>
-              <Link href="/shop" className="btn btn-solid">Shop all</Link>
             </div>
           )}
-        </div>
+        </Link>
       </section>
     );
   }
@@ -188,40 +158,44 @@ export default function HeroCarousel({ products }: Props) {
   return (
     <section
       className="relative left-1/2 w-screen -translate-x-1/2"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-      aria-roledescription="carousel"
-      aria-label="New arrivals"
     >
       <h1 className="sr-only">New arrivals</h1>
       <div
         ref={trackRef}
         className="flex snap-x snap-mandatory overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Clone of the last slide, so swiping backwards from #1 wraps */}
+        {/* Clone of last slide */}
         <div className="relative min-w-full snap-center" aria-hidden>
-          <HeroSlide product={slides[count - 1]} />
+          <HeroSlide product={slides[count - 1]} index={count - 1} />
         </div>
         {slides.map((product, index) => (
-          <div key={product.id} className="relative min-w-full snap-center">
+          <div
+            key={product.id}
+            className="relative min-w-full snap-center"
+          >
             <HeroSlide product={product} index={index} />
           </div>
         ))}
-        {/* Clone of the first slide, so swiping forwards from #last wraps */}
+        {/* Clone of first slide */}
         <div className="relative min-w-full snap-center" aria-hidden>
-          <HeroSlide product={slides[0]} />
+          <HeroSlide product={slides[0]} index={0} />
         </div>
       </div>
 
       {/* Dots */}
       <div className="pointer-events-none absolute inset-x-0 bottom-14 z-10 flex justify-center gap-1.5 md:bottom-5">
         {slides.map((product, index) => (
-          <span
+          <button
             key={product.id}
-            aria-hidden
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            onClick={() => {
+              goToSlide(index);
+              resetAutoPlay();
+            }}
+            aria-label={`Go to slide ${index + 1}`}
+            aria-current={index === active ? "true" : undefined}
+            className={`pointer-events-auto h-1.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
               index === active ? "w-5 bg-white" : "w-1.5 bg-white/50"
             }`}
           />
@@ -240,7 +214,11 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
     : 0;
 
   return (
-    <div className="relative aspect-[4/5] w-full overflow-hidden bg-bone md:aspect-[16/8.5]">
+    <Link
+      href={`/shop/${product.id}`}
+      className="block relative aspect-[3/4] w-full overflow-hidden bg-bone md:aspect-[16/8.5]"
+      aria-label={`View ${product.name}`}
+    >
       {product.image_url ? (
         <Image
           src={product.image_url}
@@ -258,17 +236,17 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
         </div>
       )}
 
-      {/* Ink scrim, heavier on mobile where the type sits over the photo centre */}
+      {/* Ink scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-      <div className="absolute inset-x-0 bottom-0 px-4 pb-4 md:px-8 md:pb-6">
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-3 md:px-8 md:pb-6">
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <p className="eyebrow text-white/70">New arrival</p>
-            <h2 className="mt-1 truncate max-w-[70vw] font-display text-xl leading-tight text-white md:text-3xl">
+            <h2 className="mt-1 truncate max-w-[70vw] font-display text-lg leading-tight text-white md:text-3xl">
               {product.name}
             </h2>
-            <p className="mt-1 text-base font-semibold tabular-nums text-white md:text-lg">
+            <p className="mt-1 text-sm font-semibold tabular-nums text-white md:text-lg">
               {product.sale_price ? (
                 <>
                   <span className="text-terracotta">{formatRs(product.sale_price)}</span>{" "}
@@ -290,15 +268,12 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
               Sold out
             </span>
           ) : (
-            <Link
-              href={`/shop/${product.id}`}
-              className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-4 py-2.5 text-[10px] text-ink hover:bg-white"
-            >
+            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-4 py-2.5 text-[10px] text-ink hover:bg-white">
               Shop now
-            </Link>
+            </span>
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

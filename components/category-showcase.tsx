@@ -4,7 +4,7 @@ import { FEATURED_CATEGORIES } from "@/lib/config";
 
 export default function CategoryShowcase() {
   return (
-    <section className="mx-auto max-w-[1280px] px-4 pt-7 md:px-8 md:pt-12">
+    <section className="mx-auto max-w-[1280px] px-4 pt-4 md:px-8 md:pt-6">
       <div className="flex items-end justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terracotta">Shop by category</p>
