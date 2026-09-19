@@ -140,7 +140,7 @@ export default function HeroCarousel({ products }: Props) {
         <h1 className="sr-only">New arrivals</h1>
         <Link
           href={product ? `/shop/${product.id}` : "/shop"}
-          className="relative block aspect-[1/2] w-full overflow-hidden bg-bone md:aspect-[16/8.5] md:h-full"
+          className="relative block h-[100px] w-full overflow-hidden bg-bone md:h-full"
         >
           {product ? (
             <HeroSlide product={product} index={0} />
@@ -216,7 +216,7 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
   return (
     <Link
       href={`/shop/${product.id}`}
-      className="block relative aspect-[1/2] w-full overflow-hidden bg-bone md:aspect-[16/8.5]"
+      className="block relative h-[100px] w-full overflow-hidden bg-bone md:h-full"
       aria-label={`View ${product.name}`}
     >
       {product.image_url ? (
@@ -239,37 +239,36 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
       {/* Ink scrim */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
 
-      <div className="absolute inset-x-0 bottom-0 px-3 pb-1.5 md:px-8 md:pb-6">
+      <div className="absolute inset-x-0 bottom-0 px-2 pb-1 md:px-8 md:pb-6">
         <div className="flex items-end justify-between gap-2">
           <div className="min-w-0">
-            <p className="eyebrow text-white/60 mb-0.5">New</p>
-            <h2 className="truncate max-w-[80vw] font-display text-sm leading-tight text-white md:text-3xl">
+            <h2 className="truncate max-w-[85vw] font-display text-[11px] leading-tight text-white md:text-3xl">
               {product.name}
             </h2>
-            <p className="mt-0.5 text-[10px] font-semibold tabular-nums text-white md:text-lg">
+            <p className="mt-0.5 text-[9px] font-semibold tabular-nums text-white md:text-lg">
               {product.sale_price ? (
                 <>
                   <span className="text-terracotta">{formatRs(product.sale_price)}</span>{" "}
-                  <span className="text-[10px] text-white/60 line-through">{formatRs(product.price)}</span>
+                  <span className="text-[9px] text-white/60 line-through">{formatRs(product.price)}</span>
                 </>
               ) : (
                 formatRs(product.price)
               )}
               {discountPercent > 0 && (
-                <span className="ml-1 rounded-full bg-terracotta px-1 py-0.5 text-[7px] font-bold uppercase tracking-[0.1em] text-white align-middle">
-                  {discountPercent}% off
+                <span className="ml-1 rounded-full bg-terracotta px-1 py-0 text-[7px] font-bold uppercase tracking-[0.1em] text-white align-middle">
+                  -{discountPercent}%
                 </span>
               )}
             </p>
           </div>
 
           {soldOut ? (
-            <span className="shrink-0 rounded-full border border-white/40 px-2 py-1 text-[8px] uppercase tracking-[0.2em] text-white/80">
+            <span className="shrink-0 rounded-full border border-white/40 px-1.5 py-0.5 text-[7px] uppercase tracking-[0.2em] text-white/80">
               Sold out
             </span>
           ) : (
-            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-2 py-1 text-[8px] text-ink hover:bg-white">
-              Shop now
+            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-1.5 py-0.5 text-[7px] text-ink hover:bg-white">
+              Shop
             </span>
           )}
         </div>
