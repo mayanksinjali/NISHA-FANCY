@@ -227,6 +227,7 @@ function HeroSlide({ product, index }: { product: Product; index?: number }) {
           priority={index === 0}
           sizes="100vw"
           className="object-cover"
+          style={{ objectPosition: "center 30%" }}
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center">
