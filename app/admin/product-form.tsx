@@ -14,8 +14,6 @@ import {
 type Props = {
   /** Existing row when editing; omitted when adding. */
   product?: AdminProduct;
-  /** Category suggestions from products already in the database. */
-  knownCategories: string[];
 };
 
 /**
@@ -25,7 +23,7 @@ type Props = {
  *  - the chosen photo is downscaled in the browser before upload, so a 6 MB
  *    camera shot becomes ~250 KB and uploads fine on mobile data
  */
-export default function ProductForm({ product, knownCategories }: Props) {
+export default function ProductForm({ product }: Props) {
   const isEdit = Boolean(product);
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     isEdit ? updateProductAction : createProductAction,
@@ -214,26 +212,22 @@ export default function ProductForm({ product, knownCategories }: Props) {
 
         <div>
           <label htmlFor="category" className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-            Category <span className="normal-case tracking-normal">— type any category you want</span>
+            Category
           </label>
-          <input
+          <select
             id="category"
             name="category"
-            type="text"
-            maxLength={40}
             defaultValue={product?.category ?? ""}
-            placeholder="Men, Women, Kurti, Saree, anything…"
-            className="admin-field mt-2"
-            list="known-categories"
-            autoComplete="off"
-          />
-          <datalist id="known-categories">
-            {knownCategories.map((category) => (
-              <option key={category} value={category} />
-            ))}
-          </datalist>
+            className="admin-field mt-2 appearance-none bg-white"
+          >
+            <option value="">No category</option>
+            <option value="Men">Men</option>
+            <option value="Women">Women</option>
+            <option value="Children">Children</option>
+            <option value="Both">Both</option>
+          </select>
           <p className="mt-1 text-xs text-ink-soft">
-            Free text — the shop shows a filter for every category you use here.
+            The shop shows a filter for the category you pick here.
           </p>
         </div>
 
