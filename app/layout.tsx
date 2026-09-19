@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Bodoni_Moda } from "next/font/google";
 import { STORE } from "@/lib/config";
+import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 /* Display: high-contrast Didone serif — the fashion-magazine voice. */
@@ -24,9 +25,7 @@ export const metadata: Metadata = {
     template: `%s · ${STORE.name}`,
   },
   description: STORE.tagline,
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://nisha-fancy.netlify.app",
-  ),
+  metadataBase: new URL(SITE_URL),
   openGraph: {
     title: STORE.name,
     description: STORE.tagline,

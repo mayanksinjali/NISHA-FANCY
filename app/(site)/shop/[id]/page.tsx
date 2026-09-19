@@ -8,6 +8,8 @@ import ProductGallery from "@/components/product-gallery";
 import AddToCartButton from "@/components/add-to-cart-button";
 import ProductCard from "@/components/product-card";
 import { getProducts } from "@/lib/products";
+import { productDescription, SITE_URL } from "@/lib/seo";
+import { STORE } from "@/lib/config";
 
 export const revalidate = 0;
 
@@ -18,22 +20,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(id);
   if (!product) return { title: "Product" };
 
-  const description = product.description || `Shop ${product.name} from Nisha Ghumti Fancy.`;
+  const effectivePrice = product.sale_price ?? product.price;
+  const description = productDescription(
+    product.description,
+    product.name,
+    product.category,
+    effectivePrice,
+  );
   return {
+    // Title template in the root layout appends " · Store name".
     title: product.name,
     description,
     alternates: {
       canonical: `/shop/${product.id}`,
     },
     openGraph: {
-      title: product.name,
+      title: `${product.name} · ${STORE.name}`,
       description,
       type: "website",
+      url: `/shop/${product.id}`,
       images: product.image_url ? [{ url: product.image_url, alt: product.name }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: product.name,
+      title: `${product.name} · ${STORE.name}`,
       description,
       images: product.image_url ? [product.image_url] : undefined,
     },
@@ -60,16 +70,28 @@ export default async function ProductPage({ params }: Props) {
   const discountPercent = product.sale_price
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
     : 0;
+  const effectivePrice = product.sale_price ?? product.price;
+  const metaDescription = productDescription(
+    product.description,
+    product.name,
+    product.category,
+    effectivePrice,
+  );
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    description: product.description || undefined,
+    description: metaDescription,
     image: images,
+    sku: product.id,
+    category: product.category ?? undefined,
+    brand: { "@type": "Brand", name: STORE.name },
     offers: {
       "@type": "Offer",
+      url: `${SITE_URL}/shop/${product.id}`,
       priceCurrency: "NPR",
-      price: product.price,
+      price: effectivePrice.toFixed(2),
+      itemCondition: "https://schema.org/NewCondition",
       availability: soldOut
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",

@@ -41,6 +41,8 @@ export default function InventoryList({ products, categories }: Props) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<string | null>(null);
   const [openId, setOpenId] = useState<string | null>(null);
+  /* Product ids whose 44px thumb failed to load — fall back to the letter tile. */
+  const [failedThumbs, setFailedThumbs] = useState<Set<string>>(new Set());
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -105,8 +107,19 @@ export default function InventoryList({ products, categories }: Props) {
                 aria-expanded={open}
                 className="flex w-full items-center gap-3 px-3.5 py-3.5 text-left"
               >
-                {product.image_url ? (
-                  <Image src={product.image_url} alt="" width={44} height={44} sizes="44px" className="h-11 w-11 shrink-0 rounded-xl object-cover" />
+                {product.image_url && !failedThumbs.has(product.id) ? (
+                  // Raw (unoptimized): the optimizer pipeline was dropping
+                  // some photos on the deployed site.
+                  <Image
+                    src={product.image_url}
+                    alt=""
+                    width={44}
+                    height={44}
+                    sizes="44px"
+                    unoptimized
+                    onError={() => setFailedThumbs((current) => new Set(current).add(product.id))}
+                    className="h-11 w-11 shrink-0 rounded-xl object-cover"
+                  />
                 ) : (
                   <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-base font-semibold text-white ${categoryColor(product.category)}`}>
                     {(product.category ?? product.name).slice(0, 1).toUpperCase()}

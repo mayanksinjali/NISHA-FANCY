@@ -1,8 +1,10 @@
-import Hero from "@/components/hero";
+import HeroCarousel from "@/components/hero-carousel";
 import CategoryShowcase from "@/components/category-showcase";
 import ProductGrid from "@/components/product-grid";
 import SectionHeading from "@/components/section-heading";
-import { getProducts } from "@/lib/products";
+import { getProducts, type Product } from "@/lib/products";
+import { STORE } from "@/lib/config";
+import { SITE_URL } from "@/lib/seo";
 
 /**
  * Products are read at request time so anything the admin adds on their phone
@@ -10,12 +12,63 @@ import { getProducts } from "@/lib/products";
  */
 export const revalidate = 0;
 
+/** schema.org ClothingStore (a LocalBusiness) — hours, address and contact. */
+function StoreJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ClothingStore",
+    name: STORE.name,
+    description: STORE.tagline,
+    url: SITE_URL,
+    image: `${SITE_URL}/logo.jpeg`,
+    telephone: `+${STORE.whatsappNumber}`,
+    email: STORE.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Butwal 12, Tamnagar",
+      addressLocality: "Butwal",
+      addressCountry: "NP",
+    },
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ],
+        opens: "09:00",
+        closes: "21:00",
+      },
+    ],
+    sameAs: STORE.social.map((social) => social.href),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+    />
+  );
+}
+
 export default async function HomePage() {
-  const newArrivals = await getProducts({ limit: 4 });
+  let newArrivals: Product[] = [];
+  try {
+    newArrivals = await getProducts({ limit: 8 });
+  } catch {
+    // Catalog briefly unavailable — render the page without the rail.
+    newArrivals = [];
+  }
 
   return (
     <>
-      <Hero />
+      <StoreJsonLd />
+      <HeroCarousel products={newArrivals} />
       <CategoryShowcase />
 
       <section className="mx-auto max-w-[1280px] px-4 pt-5 md:px-8 md:pt-8">

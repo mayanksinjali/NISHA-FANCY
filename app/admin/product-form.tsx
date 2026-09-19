@@ -111,20 +111,20 @@ export default function ProductForm({ product, knownCategories }: Props) {
         <h2 className="eyebrow text-ink-soft">Photo</h2>
 
         <div className="mt-4 flex items-start gap-4">
-          <div className="flex h-28 w-24 shrink-0 gap-1 overflow-hidden rounded-lg bg-gray-50">
+          <div className="grid h-28 w-32 shrink-0 grid-cols-2 grid-rows-2 gap-1 overflow-hidden rounded-lg bg-gray-50">
             {previews.length ? (
-              previews.slice(0, 3).map((image) => (
+              previews.map((image, index) => (
               // Blob previews aren't known to next/image, so use a plain img.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={image}
                 src={image}
-                alt="Product preview"
-                className="h-full min-w-full object-cover"
+                alt={`Product preview ${index + 1}`}
+                className={`object-cover ${previews.length === 1 ? "col-span-2 row-span-2 h-full w-full" : "h-full w-full"}`}
               />
               ))
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs text-ink-soft">
+              <div className="col-span-2 row-span-2 flex items-center justify-center text-xs text-ink-soft">
                 No photo
               </div>
             )}

@@ -13,6 +13,8 @@ function whatsappCartUrl(items: CartItem[]): string {
 
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
+  /* Cart lines whose photo failed to load — they show a letter tile instead. */
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setItems(JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]"));
@@ -59,8 +61,18 @@ export default function CartPage() {
               <div key={`${item.id}-${item.selectedSize ?? ""}-${item.selectedColor ?? ""}`} className="overflow-hidden rounded-2xl border border-line bg-paper shadow-sm">
                 <Link href={`/shop/${item.id}`} aria-label={`View ${item.name}`} className="block">
                   <div className="relative aspect-[4/3] bg-bone">
-                    {item.imageUrl ? (
-                      <Image src={item.imageUrl} alt={item.name} fill sizes="(min-width: 768px) 260px, 45vw" className="object-contain" />
+                    {item.imageUrl && !failedImages.has(item.id) ? (
+                      // Raw (unoptimized): already-compressed photos, and the
+                      // image optimizer was dropping some of them.
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.name}
+                        fill
+                        sizes="(min-width: 768px) 260px, 45vw"
+                        unoptimized
+                        onError={() => setFailedImages((current) => new Set(current).add(item.id))}
+                        className="object-contain"
+                      />
                     ) : (
                       <span className="flex h-full items-center justify-center font-display text-4xl text-ink/20">{item.name.slice(0, 1)}</span>
                     )}
@@ -75,23 +87,23 @@ export default function CartPage() {
                     </p>
                   )}
 
-                  {/* Quantity stepper + remove */}
-                  <div className="mt-3 flex items-center justify-between gap-2">
-                    <div className="flex items-center rounded-lg border border-line">
+                  {/* Quantity stepper + remove — compact so both fit on a narrow card */}
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-1.5">
+                    <div className="flex shrink-0 items-center rounded-lg border border-line">
                       <button
                         type="button"
                         aria-label={`Remove one ${item.name}`}
                         onClick={() => changeQuantity(item, -1)}
-                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-ink transition-colors hover:bg-bone"
+                        className="flex h-7 w-7 items-center justify-center text-sm font-semibold text-ink transition-colors hover:bg-bone"
                       >
                         −
                       </button>
-                      <span className="min-w-6 text-center text-sm font-medium tabular-nums">{item.quantity}</span>
+                      <span className="min-w-4 px-0.5 text-center text-xs font-medium tabular-nums">{item.quantity}</span>
                       <button
                         type="button"
                         aria-label={`Add one more ${item.name}`}
                         onClick={() => changeQuantity(item, 1)}
-                        className="flex h-8 w-8 items-center justify-center text-base font-semibold text-ink transition-colors hover:bg-bone"
+                        className="flex h-7 w-7 items-center justify-center text-sm font-semibold text-ink transition-colors hover:bg-bone"
                       >
                         +
                       </button>
@@ -100,7 +112,7 @@ export default function CartPage() {
                       type="button"
                       aria-label={`Remove ${item.name} from cart`}
                       onClick={() => changeQuantity(item, -item.quantity)}
-                      className="rounded bg-red-600 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-white transition-colors hover:bg-red-700"
+                      className="shrink-0 whitespace-nowrap rounded bg-red-600 px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-red-700"
                     >
                       Remove
                     </button>

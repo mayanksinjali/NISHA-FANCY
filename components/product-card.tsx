@@ -1,4 +1,7 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 import type { Product } from "@/lib/products";
 import { formatRs } from "@/lib/format";
 import Link from "next/link";
@@ -21,6 +24,7 @@ export default function ProductCard({
   sizes = "(min-width: 1280px) 22vw, (min-width: 768px) 30vw, 45vw",
 }: Props) {
   const soldOut = !product.in_stock;
+  const [imageFailed, setImageFailed] = useState(false);
   const discountPercent = product.sale_price
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
     : 0;
@@ -32,19 +36,24 @@ export default function ProductCard({
         aria-label={`View ${product.name}`}
         className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-bone"
       >
-        {product.image_url ? (
+        {product.image_url && !imageFailed ? (
+          // Served raw (unoptimized): these are already client-compressed
+          // JPEGs, and the image-optimizer pipeline is what was dropping
+          // some of them on the live site.
           <Image
             src={product.image_url}
             alt={product.name}
             fill
             sizes={sizes}
             priority={priority}
+            unoptimized
+            onError={() => setImageFailed(true)}
             className={`object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.045] ${
               soldOut ? "opacity-70 saturate-[0.4]" : ""
             }`}
           />
         ) : (
-          // Graceful placeholder for rows added without a photo yet.
+          // Placeholder for rows without a photo — or a photo that failed to load.
           <div className="flex h-full w-full items-center justify-center text-ink-soft">
             <span className="font-display text-5xl text-ink/15">
               {product.name.slice(0, 1).toUpperCase()}

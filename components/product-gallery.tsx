@@ -13,6 +13,16 @@ export default function ProductGallery({ productName, images }: Props) {
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const didSwipe = useRef(false);
+  /* Indices of photos that failed to load — they render as placeholders. */
+  const [failed, setFailed] = useState<Set<number>>(new Set());
+
+  const markFailed = (index: number) =>
+    setFailed((current) => {
+      if (current.has(index)) return current;
+      const next = new Set(current);
+      next.add(index);
+      return next;
+    });
 
   const go = useCallback(
     (step: number) => {
@@ -89,14 +99,26 @@ export default function ProductGallery({ productName, images }: Props) {
             >
               {images.map((image, index) => (
                 <div key={image} className="relative h-full min-w-full shrink-0">
-                  <Image
-                    src={image}
-                    alt={`${productName} ${index + 1}`}
-                    fill
-                    priority={index === 0}
-                    sizes="(min-width: 768px) 46vw, 100vw"
-                    className="object-contain"
-                  />
+                  {failed.has(index) ? (
+                    <div className="flex h-full w-full items-center justify-center bg-bone">
+                      <span className="font-display text-7xl text-ink/15">
+                        {productName.slice(0, 1).toUpperCase()}
+                      </span>
+                    </div>
+                  ) : (
+                    // Raw (unoptimized): photos are already client-compressed,
+                    // and the optimizer pipeline was dropping some of them.
+                    <Image
+                      src={image}
+                      alt={`${productName} ${index + 1}`}
+                      fill
+                      priority={index === 0}
+                      sizes="(min-width: 768px) 46vw, 100vw"
+                      unoptimized
+                      onError={() => markFailed(index)}
+                      className="object-contain"
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -171,13 +193,23 @@ export default function ProductGallery({ productName, images }: Props) {
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <Image
-              src={images[displayedIndex]}
-              alt={`${productName} ${displayedIndex + 1}`}
-              fill
-              sizes="92vw"
-              className="object-contain"
-            />
+            {failed.has(displayedIndex) ? (
+              <div className="flex h-full w-full items-center justify-center">
+                <span className="font-display text-7xl text-paper/30">
+                  {productName.slice(0, 1).toUpperCase()}
+                </span>
+              </div>
+            ) : (
+              <Image
+                src={images[displayedIndex]}
+                alt={`${productName} ${displayedIndex + 1}`}
+                fill
+                sizes="92vw"
+                unoptimized
+                onError={() => markFailed(displayedIndex)}
+                className="object-contain"
+              />
+            )}
           </div>
 
           {multiple && (

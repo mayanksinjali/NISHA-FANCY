@@ -5,17 +5,48 @@ import { countProducts, getCategories, getProducts, type Product } from "@/lib/p
 import { ProductCatalogError } from "@/lib/products";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
-export const metadata: Metadata = {
-  title: "Shop",
-  description: "Browse the full collection.",
-};
-
 /** Always fresh — admin edits appear on the next page load. */
 export const revalidate = 0;
 
 type Props = {
   searchParams: Promise<{ category?: string; q?: string }>;
 };
+
+const CATEGORY_BLURBS: Record<string, string> = {
+  Men: "Men's clothing in stock right now — browse the latest pieces, check the price, and order on WhatsApp.",
+  Women: "Women's clothing in stock right now — browse the latest pieces, check the price, and order on WhatsApp.",
+  Children: "Children's clothing in stock right now — browse the latest pieces, check the price, and order on WhatsApp.",
+  Both: "Unisex pieces that work for anyone — see what's in stock and order on WhatsApp.",
+};
+
+/** Distinct title + description per category (and for a search) — no generic sitewide copy. */
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { category, q } = await searchParams;
+  const active = category?.trim() || null;
+  const search = q?.trim().slice(0, 80) || null;
+
+  if (search) {
+    return {
+      title: `“${search}” — search results`,
+      description: `Products matching “${search}” at Nisha Ghumti Fancy. Cash on delivery, order on WhatsApp.`,
+    };
+  }
+
+  if (active) {
+    return {
+      title: `${active}'s collection`,
+      description:
+        CATEGORY_BLURBS[active] ??
+        `Browse ${active} clothing at Nisha Ghumti Fancy. Cash on delivery, order on WhatsApp.`,
+    };
+  }
+
+  return {
+    title: "Shop",
+    description:
+      "Browse the full Nisha Ghumti Fancy collection — men's, women's, children's and unisex pieces. Order on WhatsApp, cash on delivery.",
+  };
+}
 
 export default async function ShopPage({ searchParams }: Props) {
   const { category, q } = await searchParams;
@@ -44,6 +75,9 @@ export default async function ShopPage({ searchParams }: Props) {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 pt-4 md:px-8 md:pt-6">
+      <h1 className="sr-only">
+        {active ? `${active}'s collection` : search ? `Search: ${search}` : "Shop"}
+      </h1>
       <div>
         <form
           action="/shop"
