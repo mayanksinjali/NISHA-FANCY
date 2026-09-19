@@ -173,7 +173,7 @@ export async function getAllProductsForAdmin(): Promise<AdminProduct[]> {
     .select(ADMIN_COLUMNS)
     .order("created_at", { ascending: false });
 
-  if (error?.message.includes("sale_price") || error?.message.includes("sizes")) {
+  if (error?.message.includes("sale_price") || error?.message.includes("sizes") || error?.message.includes("type")) {
     const legacyResult = await getSupabaseAdmin()
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -193,7 +193,7 @@ export async function getProductForAdmin(id: string): Promise<AdminProduct | nul
     .eq("id", id)
     .maybeSingle();
 
-  if (error?.message.includes("sale_price") || error?.message.includes("sizes")) {
+  if (error?.message.includes("sale_price") || error?.message.includes("sizes") || error?.message.includes("type")) {
     const legacyResult = await getSupabaseAdmin()
       .from("products")
       .select(LEGACY_COLUMNS)

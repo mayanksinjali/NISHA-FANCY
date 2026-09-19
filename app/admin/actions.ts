@@ -78,6 +78,16 @@ type ParsedProduct = {
 const MAX_PRODUCT_IMAGES = 4;
 const MAX_IMAGE_UPLOAD_BYTES = 14 * 1024 * 1024;
 
+/**
+ * PostgREST error wording when the live products table predates the new
+ * `type` column (i.e. the migration SQL hasn't been run yet). Saving still
+ * works — the tag is just skipped until the column exists.
+ */
+function isMissingTypeColumn(error: { message: string }): boolean {
+  const message = error.message.toLowerCase();
+  return message.includes("type") && (message.includes("column") || message.includes("schema cache"));
+}
+
 function parseProductForm(formData: FormData): ParsedProduct | { error: string } {
   const name = String(formData.get("name") ?? "").trim();
   const rawPrice = String(formData.get("price") ?? "").trim();
@@ -264,13 +274,16 @@ export async function createProductAction(
     }
     imageUrls = await uploadImages(files);
 
-    const { error } = await getSupabaseAdmin()
-      .from("products")
-      .insert({
-        ...parsed,
-        image_url: imageUrls[0] ?? null,
-        image_urls: imageUrls,
-      });
+    const payload = {
+      ...parsed,
+      image_url: imageUrls[0] ?? null,
+      image_urls: imageUrls,
+    };
+    let { error } = await getSupabaseAdmin().from("products").insert(payload);
+    if (error && isMissingTypeColumn(error)) {
+      const { type: _omittedType, ...legacyPayload } = payload;
+      ({ error } = await getSupabaseAdmin().from("products").insert(legacyPayload));
+    }
 
     if (error) throw new Error(error.message);
   } catch (err) {
@@ -324,15 +337,23 @@ export async function updateProductAction(
       MAX_PRODUCT_IMAGES,
     );
 
-    const { error } = await getSupabaseAdmin()
+    const updatePayload = {
+      ...parsed,
+      ...(newImageUrls.length
+        ? { image_url: combinedImageUrls[0], image_urls: combinedImageUrls }
+        : {}),
+    };
+    let { error } = await getSupabaseAdmin()
       .from("products")
-      .update({
-        ...parsed,
-        ...(newImageUrls.length
-          ? { image_url: combinedImageUrls[0], image_urls: combinedImageUrls }
-          : {}),
-      })
+      .update(updatePayload)
       .eq("id", id);
+    if (error && isMissingTypeColumn(error)) {
+      const { type: _omittedType, ...legacyPayload } = updatePayload;
+      ({ error } = await getSupabaseAdmin()
+        .from("products")
+        .update(legacyPayload)
+        .eq("id", id));
+    }
 
     if (error) throw new Error(error.message);
   } catch (err) {
