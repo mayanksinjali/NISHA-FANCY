@@ -179,12 +179,7 @@ export default function HeroCarousel({ products }: Props) {
       >
         {/* Duplicate slides for infinite loop effect */}
         {[...slides, ...slides, ...slides].map((product, index) => (
-          <div
-            key={`${product.id}-${index}`}
-            className="relative flex-shrink-0 w-full"
-          >
-            <HeroSlide product={product} index={index} />
-          </div>
+          <HeroSlide key={`${product.id}-${index}`} product={product} index={index} />
         ))}
       </div>
 
@@ -220,21 +215,19 @@ function HeroSlide({ product }: { product: Product; index?: number }) {
   return (
     <Link
       href={`/shop/${product.id}`}
-      className="block relative h-[230px] w-full overflow-hidden bg-bone md:h-full"
+      className="block relative h-[230px] w-full overflow-hidden bg-bone"
       aria-label={`View ${product.name}`}
     >
-      {/* Image container - fills width, height auto to show full image */}
       {product.image_url ? (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Image
-            src={product.image_url}
-            alt={product.name}
-            className="h-auto max-h-[230px] w-full object-contain"
-            priority={false}
-            sizes="100vw"
-            unoptimized
-          />
-        </div>
+        <Image
+          src={product.image_url}
+          alt={product.name}
+          fill
+          priority={false}
+          sizes="100vw"
+          className="object-cover"
+          style={{ objectPosition: "center 20%" }}
+        />
       ) : (
         <div className="flex h-full w-full items-center justify-center">
           <span className="font-display text-4xl text-ink/15">
@@ -243,16 +236,16 @@ function HeroSlide({ product }: { product: Product; index?: number }) {
         </div>
       )}
 
-      {/* Ink scrim - only at bottom so image is visible */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
+      {/* Dark scrim only at bottom for text */}
+      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent" />
 
-      <div className="absolute inset-x-0 bottom-0 px-2 pb-1 md:px-8 md:pb-6">
+      <div className="absolute inset-x-0 bottom-0 px-2 pb-1">
         <div className="flex items-end justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="truncate max-w-[85vw] font-display text-[11px] leading-tight text-white md:text-3xl">
+            <h2 className="truncate max-w-[85vw] font-display text-[11px] leading-tight text-white">
               {product.name}
             </h2>
-            <p className="mt-0.5 text-[9px] font-semibold tabular-nums text-white md:text-lg">
+            <p className="mt-0.5 text-[9px] font-semibold tabular-nums text-white">
               {product.sale_price ? (
                 <>
                   <span className="text-terracotta">{formatRs(product.sale_price)}</span>{" "}
