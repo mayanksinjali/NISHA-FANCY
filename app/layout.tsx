@@ -30,11 +30,17 @@ export const metadata: Metadata = {
     title: STORE.name,
     description: STORE.tagline,
     type: "website",
-    images: ["/logo.jpeg"],
+    // Share images come from app/(site)/opengraph-image.tsx (branded fallback)
+    // and app/(site)/shop/[id]/opengraph-image.tsx (per-product card).
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/logo.jpeg"],
+  },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: STORE.name,
+    statusBarStyle: "black-translucent",
   },
   icons: { icon: "/logo.jpeg", apple: "/logo.jpeg" },
 };

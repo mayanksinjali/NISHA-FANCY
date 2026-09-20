@@ -42,6 +42,7 @@ export const STORE = {
 export const NAV_LINKS = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/shop" },
+  { label: "Favorites", href: "/favorites" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -68,24 +69,28 @@ export const FEATURED_CATEGORIES = [
   {
     slug: "Women",
     label: "Women",
+    alt: "Woman wearing a printed kurta set, photographed for the Women's collection",
     image:
       "https://images.unsplash.com/photo-1479064555552-3ef4979f8908?auto=format&fit=crop&w=900&q=80",
   },
   {
     slug: "Men",
     label: "Men",
+    alt: "Man in a casual button-up shirt, photographed for the Men's collection",
     image:
       "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=900&q=80",
   },
   {
     slug: "Both",
     label: "Both",
+    alt: "Unisex outfit styled for anyone, photographed for the unisex collection",
     image:
       "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=900&q=80",
   },
   {
     slug: "Children",
     label: "Children",
+    alt: "Child in comfortable everyday clothing, photographed for the Children's collection",
     image:
       "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=900&q=80",
   },

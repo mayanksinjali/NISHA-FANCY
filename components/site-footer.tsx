@@ -64,7 +64,7 @@ export default function SiteFooter() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-paper/15 pt-5 text-[10px] tracking-[0.12em] text-paper/40 uppercase md:flex-row md:items-center md:justify-between">
+        <div className="mt-10 flex flex-col gap-2 border-t border-paper/15 pt-5 text-[11px] tracking-[0.12em] text-paper/40 uppercase md:flex-row md:items-center md:justify-between">
           <p>
             © {year} {STORE.name}
           </p>

@@ -13,6 +13,8 @@ export default function ProductGallery({ productName, images }: Props) {
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const didSwipe = useRef(false);
+  /* The fullscreen dialog — used to trap focus while it's open. */
+  const dialogRef = useRef<HTMLDivElement>(null);
   /* Indices of photos that failed to load — they render as placeholders. */
   const [failed, setFailed] = useState<Set<number>>(new Set());
 
@@ -33,13 +35,39 @@ export default function ProductGallery({ productName, images }: Props) {
     [images.length],
   );
 
-  /* Escape closes fullscreen; arrows navigate while it's open. */
+  /* Escape closes fullscreen; arrows navigate; Tab is trapped inside. */
   useEffect(() => {
     if (!fullscreenOpen) return;
+    const dialog = dialogRef.current;
+    // Focusable controls inside the dialog (the arrows/dots are tabIndex -1).
+    const focusable = dialog
+      ? Array.from(
+          dialog.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        )
+      : [];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+
     const handleKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setFullscreenOpen(false);
       if (event.key === "ArrowRight") go(1);
       if (event.key === "ArrowLeft") go(-1);
+      if (event.key === "Tab") {
+        if (!first || !last) return;
+        const active = document.activeElement;
+        if (event.shiftKey) {
+          if (active === first || !dialog?.contains(active)) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else if (active === last || !dialog?.contains(active)) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -125,7 +153,7 @@ export default function ProductGallery({ productName, images }: Props) {
 
           {/* Counter */}
           {multiple && (
-            <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.14em] text-paper">
+            <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-paper">
               {displayedIndex + 1}/{images.length}
             </div>
           )}
@@ -171,6 +199,7 @@ export default function ProductGallery({ productName, images }: Props) {
       {/* ---------- Fullscreen viewer ---------- */}
       {fullscreenOpen && (
         <div
+          ref={dialogRef}
           className="fixed inset-0 z-[80] flex items-center justify-center bg-wine-deep/90 p-4"
           role="dialog"
           aria-modal="true"

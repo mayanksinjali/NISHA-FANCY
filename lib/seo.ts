@@ -4,14 +4,15 @@
  */
 
 /**
- * Canonical site origin. NEXT_PUBLIC_SITE_URL wins (set it in Vercel env),
- * then the Vercel deployment URL, then the historical fallback.
+ * Canonical site origin — ONE hardcoded value, no env lookups, no fallbacks.
+ *
+ * It used to be computed from NEXT_PUBLIC_SITE_URL / VERCEL_URL with a stale
+ * netlify.app fallback, which is how preview deployments (and one leftover
+ * Netlify domain) leaked into canonicals, Open Graph and Twitter tags.
+ * Every canonical, OG/Twitter URL, JSON-LD, sitemap.xml and robots.txt in the
+ * app imports this constant — nothing else may derive a base URL.
  */
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
-  "https://nisha-fancy.netlify.app"
-).replace(/\/+$/, "");
+export const SITE_URL = "https://nisha-fancy.vercel.app";
 
 /**
  * Short description used for meta tags and JSON-LD. Falls back to a

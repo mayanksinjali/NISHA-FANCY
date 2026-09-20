@@ -1,5 +1,6 @@
 import type { Product } from "@/lib/products";
 import ProductCard from "./product-card";
+import Reveal from "./reveal";
 
 type Props = {
   products: Product[];
@@ -34,14 +35,15 @@ export default function ProductGrid({
   return (
     <div className={columns}>
       {products.map((product, i) => (
-        <div
+        <Reveal
           key={product.id}
+          delay={(i % 4) * 70}
           className={
             variant === "lookbook" && i % 3 === 1 ? "md:mt-16" : undefined
           }
         >
           <ProductCard product={product} priority={i < 2} />
-        </div>
+        </Reveal>
       ))}
     </div>
   );

@@ -30,6 +30,7 @@ export default async function AdminProductsPage({
     (total, p) => total + (p.sale_price ?? p.price),
     0,
   );
+  const onSale = products.filter((p) => p.sale_price != null).length;
 
   return (
     <>
@@ -77,9 +78,9 @@ export default async function AdminProductsPage({
         </section>
 
         {/* ---------- 3-column stat row ---------- */}
-        <dl className="mt-3 grid grid-cols-3 gap-2">
+        <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <div className="admin-card px-3 py-3.5">
-            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Listed</dt>
+            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Total</dt>
             <dd className="mt-1 text-xl font-bold tabular-nums">{products.length}</dd>
           </div>
           <div className="admin-card px-3 py-3.5">
@@ -89,6 +90,10 @@ export default async function AdminProductsPage({
           <div className="admin-card px-3 py-3.5">
             <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">Hidden</dt>
             <dd className="mt-1 text-xl font-bold tabular-nums text-red-500">{soldOut}</dd>
+          </div>
+          <div className="admin-card px-3 py-3.5">
+            <dt className="text-[10px] font-medium uppercase tracking-wide text-gray-400">On sale</dt>
+            <dd className="mt-1 text-xl font-bold tabular-nums text-terracotta-deep">{onSale}</dd>
           </div>
         </dl>
 

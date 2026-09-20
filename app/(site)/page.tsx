@@ -2,6 +2,8 @@ import HeroCarousel from "@/components/hero-carousel";
 import CategoryShowcase from "@/components/category-showcase";
 import ProductGrid from "@/components/product-grid";
 import SectionHeading from "@/components/section-heading";
+import Testimonials from "@/components/testimonials";
+import Reveal from "@/components/reveal";
 import { getProducts, type Product } from "@/lib/products";
 import { STORE } from "@/lib/config";
 import { SITE_URL } from "@/lib/seo";
@@ -12,6 +14,31 @@ import { SITE_URL } from "@/lib/seo";
  * (see app/admin/actions.ts), which purges this cache on demand.
  */
 export const revalidate = 60;
+
+/** schema.org WebSite + SearchAction — lets Google render a sitelinks search box. */
+function WebsiteJsonLd() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: STORE.name,
+    url: SITE_URL,
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${SITE_URL}/shop?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
+    />
+  );
+}
 
 /** schema.org ClothingStore (a LocalBusiness) — hours, address and contact. */
 function StoreJsonLd() {
@@ -69,9 +96,13 @@ export default async function HomePage() {
   return (
     <>
       <StoreJsonLd />
+      <WebsiteJsonLd />
       <HeroCarousel products={newArrivals} />
-      <CategoryShowcase />
+      <Reveal>
+        <CategoryShowcase />
+      </Reveal>
 
+      <Reveal>
       <section className="mx-auto max-w-[1280px] px-4 pt-5 md:px-8 md:pt-8">
         <SectionHeading
           id="new-arrivals"
@@ -89,6 +120,11 @@ export default async function HomePage() {
           />
         </div>
       </section>
+      </Reveal>
+
+      <Reveal>
+        <Testimonials />
+      </Reveal>
     </>
   );
 }

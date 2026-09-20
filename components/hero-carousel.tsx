@@ -169,7 +169,7 @@ export default function HeroCarousel({ products }: Props) {
         ) : (
           <div className="flex h-[230px] w-full flex-col items-center justify-center gap-2 bg-bone text-center">
             <p className="font-display text-xl text-ink/30">New arrivals</p>
-            <p className="text-[10px] text-ink-soft">The first drop is being photographed.</p>
+            <p className="text-[11px] text-ink-soft">The first drop is being photographed.</p>
           </div>
         )}
       </section>
@@ -284,17 +284,17 @@ function HeroSlide({ product, priority = false }: { product: Product; priority?:
             <h2 className="truncate max-w-[85vw] font-display text-[11px] leading-tight text-white">
               {product.name}
             </h2>
-            <p className="mt-0.5 text-[9px] font-semibold tabular-nums text-white">
+            <p className="mt-0.5 text-[11px] font-semibold tabular-nums text-white">
               {product.sale_price ? (
                 <>
                   <span className="text-terracotta">{formatRs(product.sale_price)}</span>{" "}
-                  <span className="text-[9px] text-white/60 line-through">{formatRs(product.price)}</span>
+                  <span className="text-[11px] text-white/60 line-through">{formatRs(product.price)}</span>
                 </>
               ) : (
                 formatRs(product.price)
               )}
               {discountPercent > 0 && (
-                <span className="ml-1 rounded-full bg-terracotta px-1 py-0 text-[7px] font-bold uppercase tracking-[0.1em] text-white align-middle">
+                <span className="ml-1 rounded-full bg-terracotta px-1.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-white align-middle">
                   -{discountPercent}%
                 </span>
               )}
@@ -302,11 +302,11 @@ function HeroSlide({ product, priority = false }: { product: Product; priority?:
           </div>
 
           {soldOut ? (
-            <span className="shrink-0 rounded-full border border-white/40 px-1.5 py-0.5 text-[7px] uppercase tracking-[0.2em] text-white/80">
+            <span className="shrink-0 rounded-full border border-white/40 px-2 py-1 text-[11px] uppercase tracking-[0.12em] text-white/80">
               Sold out
             </span>
           ) : (
-            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-1.5 py-0.5 text-[7px] text-ink hover:bg-white">
+            <span className="btn btn-solid shrink-0 border-white/20 bg-white/95 px-2.5 py-1 text-[11px] text-ink hover:bg-white">
               Shop
             </span>
           )}

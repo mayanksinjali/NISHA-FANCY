@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import CategoryFilter from "@/components/category-filter";
 import LoadMoreProducts from "@/components/load-more-products";
 import ShopSearch from "@/components/shop-search";
+import Breadcrumbs from "@/components/breadcrumbs";
+import ShopSort from "@/components/shop-sort";
 import { countProducts, getCategories, getProducts, type Product } from "@/lib/products";
 import { ProductCatalogError } from "@/lib/products";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
@@ -14,8 +16,13 @@ import { isSupabaseConfigured } from "@/lib/supabase/client";
 export const revalidate = 300;
 
 type Props = {
-  searchParams: Promise<{ category?: string; q?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; sort?: string }>;
 };
+
+/** Whitelist the sort query param; anything else falls back to newest. */
+function normalizeSort(value: string | undefined): "newest" | "price-asc" | "price-desc" {
+  return value === "price-asc" || value === "price-desc" ? value : "newest";
+}
 
 const CATEGORY_BLURBS: Record<string, string> = {
   Men: "Men's clothing in stock right now — browse the latest pieces, check the price, and order on WhatsApp.",
@@ -54,9 +61,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function ShopPage({ searchParams }: Props) {
-  const { category, q } = await searchParams;
+  const { category, q, sort: sortParam } = await searchParams;
   const active = category?.trim() || null;
   const search = q?.trim().slice(0, 80) || null;
+  const sort = normalizeSort(sortParam);
 
   // One round trip each; they don't depend on one another.
   let products: Product[] = [];
@@ -65,7 +73,7 @@ export default async function ShopPage({ searchParams }: Props) {
   let catalogError = false;
   try {
     [products, categories, totalCount] = await Promise.all([
-      getProducts({ category: active, search, limit: 7 }),
+      getProducts({ category: active, search, sort, limit: 7 }),
       getCategories(),
       countProducts({ category: active, search }),
     ]);
@@ -83,23 +91,34 @@ export default async function ShopPage({ searchParams }: Props) {
       <h1 className="sr-only">
         {active ? `${active}'s collection` : search ? `Search: ${search}` : "Shop"}
       </h1>
+      <Breadcrumbs
+        className="mb-4"
+        items={[
+          { label: "Home", href: "/" },
+          { label: active ? active : search ? `Search: ${search}` : "Shop" },
+        ]}
+      />
+
       <div>
         {/* Debounced live search (300ms, stale requests aborted) — falls back
             to a plain form submit before JS loads. */}
-        <ShopSearch initialSearch={search ?? ""} category={active} />
+        <ShopSearch initialSearch={search ?? ""} category={active} sort={sort} />
       </div>
 
       <div className="mt-3">
         <CategoryFilter categories={categories} active={active} search={search} />
       </div>
 
-      <p className="mt-3 eyebrow text-ink-soft">
-        {catalogError
-          ? "Catalog unavailable"
-          : totalCount === 0
-            ? "No pieces found"
-            : `${totalCount} ${totalCount === 1 ? "piece" : "pieces"}${hasMore ? " — scroll for more" : ""}`}
-      </p>
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <p className="eyebrow text-ink-soft">
+          {catalogError
+            ? "Catalog unavailable"
+            : totalCount === 0
+              ? "No pieces found"
+              : `${totalCount} ${totalCount === 1 ? "piece" : "pieces"}${hasMore ? " — scroll for more" : ""}`}
+        </p>
+        <ShopSort value={sort} category={active} search={search} />
+      </div>
 
       {!isSupabaseConfigured() && (
         <p className="mt-8 border border-terracotta/40 bg-terracotta/5 px-4 py-3 text-[13px] leading-relaxed text-terracotta-deep">
@@ -113,15 +132,17 @@ export default async function ShopPage({ searchParams }: Props) {
       <div className="mt-5 pb-8 md:mt-8">
         {catalogError ? (
           <div className="border border-terracotta/40 bg-terracotta/5 px-5 py-12 text-center">
-            <p className="font-display text-2xl text-terracotta">The catalog is temporarily unavailable.</p>
+            <p className="font-display text-2xl text-terracotta-deep">The catalog is temporarily unavailable.</p>
             <p className="mt-3 text-sm text-ink-soft">Please try again in a moment.</p>
           </div>
         ) : (
           <LoadMoreProducts
+            key={sort}
             initialProducts={initialProducts}
             category={active}
             search={search}
             hasMore={hasMore}
+            sort={sort}
           />
         )}
       </div>

@@ -67,37 +67,54 @@ function searchFilter(search: string, includeType: boolean): string | null {
  * Returns [] (instead of throwing) if Supabase isn't configured yet, so the
  * design is still viewable on a fresh clone.
  */
+export type ProductSort = "newest" | "price-asc" | "price-desc";
+
+/**
+ * Apply the shop's sort choice (Task 9). Newest = created_at desc; the price
+ * sorts order by the listed `price` column. Shared by the storefront read and
+ * the legacy fallback below.
+ */
+function applySort<T extends { order: (...args: any[]) => T }>(
+  query: T,
+  sort: ProductSort | null | undefined,
+): T {
+  if (sort === "price-asc") return query.order("price", { ascending: true });
+  if (sort === "price-desc") return query.order("price", { ascending: false });
+  return query.order("created_at", { ascending: false });
+}
+
 export async function getProducts(options?: {
   limit?: number;
   category?: string | null;
   search?: string | null;
+  /** Restrict to specific product IDs (wishlist/favorites view). */
+  ids?: string[] | null;
+  /** Shop sort order (Task 9). Defaults to newest first. */
+  sort?: ProductSort | null;
 }): Promise<Product[]> {
   const supabase = getSupabase();
   if (!supabase) return [];
 
-  let query = supabase
-    .from("products")
-    .select(COLUMNS)
-    .order("created_at", { ascending: false });
+  let query = supabase.from("products").select(COLUMNS);
 
+  if (options?.ids?.length) query = query.in("id", options.ids);
   if (options?.category) query = query.eq("category", options.category);
   if (options?.search) {
     const filter = searchFilter(options.search, true);
     if (filter) query = query.or(filter);
   }
+  query = applySort(query, options?.sort);
   if (options?.limit) query = query.limit(options.limit);
 
   let { data, error } = await query;
   if (error?.message.includes("sale_price") || error?.message.includes("image_urls") || error?.message.includes("sizes")) {
-    let legacyQuery = supabase
-      .from("products")
-      .select(LEGACY_COLUMNS)
-      .order("created_at", { ascending: false });
+    let legacyQuery = supabase.from("products").select(LEGACY_COLUMNS);
     if (options?.category) legacyQuery = legacyQuery.eq("category", options.category);
     if (options?.search) {
       const legacyFilter = searchFilter(options.search, false);
       if (legacyFilter) legacyQuery = legacyQuery.or(legacyFilter);
     }
+    legacyQuery = applySort(legacyQuery, options?.sort);
     if (options?.limit) legacyQuery = legacyQuery.limit(options.limit);
     const legacyResult = await legacyQuery;
     data = legacyResult.data as typeof data;

@@ -7,6 +7,15 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category")?.trim() || null;
   const search = searchParams.get("q")?.trim().slice(0, 80) || null;
+  // Wishlist/favorites view asks for specific IDs instead of a page.
+  const ids = (searchParams.get("ids") ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 48);
+  const sortParam = searchParams.get("sort");
+  const sort =
+    sortParam === "price-asc" || sortParam === "price-desc" ? sortParam : "newest";
   const offset = Math.max(0, Number(searchParams.get("offset") ?? 0) || 0);
   const limit = Math.min(
     MAX_LIMIT,
@@ -14,10 +23,14 @@ export async function GET(request: Request) {
   );
 
   try {
+    if (ids.length) {
+      const products = await getProducts({ ids });
+      return NextResponse.json({ products, hasMore: false, total: products.length });
+    }
     // Both queries filter identically (including the internal `type` tag for
     // search), so the count always matches the results shown.
     const [products, total] = await Promise.all([
-      getProducts({ category, search, limit: offset + limit + 1 }),
+      getProducts({ category, search, sort, limit: offset + limit + 1 }),
       countProducts({ category, search }),
     ]);
     const page = products.slice(offset, offset + limit);

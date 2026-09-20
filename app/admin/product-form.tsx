@@ -40,6 +40,25 @@ export default function ProductForm({ product }: Props) {
   const [previews, setPreviews] = useState<string[]>(existingImages);
   const [fileNote, setFileNote] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
+  /* Drag-to-reorder (Task 15). Reordered existing photos are written back into
+     the hidden fields, so the saved gallery order follows the tiles. */
+  const [existingOrder, setExistingOrder] = useState<string[] | null>(null);
+  const dragIndex = useRef<number | null>(null);
+
+  function reorderPreviews(target: number) {
+    const from = dragIndex.current;
+    dragIndex.current = null;
+    if (from === null || from === target) return;
+    setPreviews((current) => {
+      const next = [...current];
+      const [moved] = next.splice(from, 1);
+      next.splice(target, 0, moved);
+      // Only existing (non-blob) photos can be re-persisted; new files keep
+      // their own input order.
+      setExistingOrder(next.filter((url) => !url.startsWith("blob:")));
+      return next;
+    });
+  }
 
   /**
    * Compress on selection and write the smaller file back into the input via a
@@ -93,14 +112,14 @@ export default function ProductForm({ product }: Props) {
         <input
           type="hidden"
           name="existing_image_url"
-          value={product.image_url}
+          value={(existingOrder ?? existingImages)[0] ?? product.image_url}
         />
       )}
       {product?.image_urls && (
         <input
           type="hidden"
           name="existing_image_urls"
-          value={JSON.stringify(product.image_urls)}
+          value={JSON.stringify(existingOrder ?? product.image_urls)}
         />
       )}
 
@@ -109,7 +128,7 @@ export default function ProductForm({ product }: Props) {
         <h2 className="eyebrow text-ink-soft">Photo</h2>
 
         <div className="mt-4 flex items-start gap-4">
-          <div className="grid h-28 w-32 shrink-0 grid-cols-2 grid-rows-2 gap-1 overflow-hidden rounded-lg bg-gray-50">
+          <div className="grid h-44 w-44 shrink-0 grid-cols-2 grid-rows-2 gap-1 overflow-hidden rounded-lg bg-gray-50">
             {previews.length ? (
               previews.map((image, index) => (
               // Blob previews aren't known to next/image, so use a plain img.
@@ -118,7 +137,12 @@ export default function ProductForm({ product }: Props) {
                 key={image}
                 src={image}
                 alt={`Product preview ${index + 1}`}
-                className={`object-cover ${previews.length === 1 ? "col-span-2 row-span-2 h-full w-full" : "h-full w-full"}`}
+                draggable
+                onDragStart={() => { dragIndex.current = index; }}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => { event.preventDefault(); reorderPreviews(index); }}
+                title="Drag to reorder"
+                className={`cursor-grab object-cover active:cursor-grabbing ${previews.length === 1 ? "col-span-2 row-span-2 h-full w-full" : "h-full w-full"}`}
               />
               ))
             ) : (

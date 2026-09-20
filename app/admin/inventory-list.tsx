@@ -142,7 +142,7 @@ export default function InventoryList({ products, categories }: Props) {
                       </span>
                     )}
                     {!soldOut && onSale && (
-                      <span className="ml-auto shrink-0 rounded-full bg-terracotta/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-terracotta">
+                      <span className="ml-auto shrink-0 rounded-full bg-terracotta/10 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-terracotta-deep">
                         Sale
                       </span>
                     )}

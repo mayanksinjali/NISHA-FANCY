@@ -6,6 +6,9 @@ import { getProduct } from "@/lib/products";
 import { whatsappOrderUrl } from "@/lib/whatsapp";
 import ProductGallery from "@/components/product-gallery";
 import AddToCartButton from "@/components/add-to-cart-button";
+import FavoriteButton from "@/components/favorite-button";
+import Breadcrumbs from "@/components/breadcrumbs";
+import StickyAddToCart from "@/components/sticky-add-to-cart";
 import ProductCard from "@/components/product-card";
 import { getProducts } from "@/lib/products";
 import { productDescription, SITE_URL } from "@/lib/seo";
@@ -44,13 +47,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       type: "website",
       url: `/shop/${product.id}`,
-      images: product.image_url ? [{ url: product.image_url, alt: product.name }] : undefined,
+      // og:image comes from opengraph-image.tsx (a branded share card).
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.name} · ${STORE.name}`,
       description,
-      images: product.image_url ? [product.image_url] : undefined,
     },
   };
 }
@@ -76,6 +78,19 @@ export default async function ProductPage({ params }: Props) {
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
     : 0;
   const effectivePrice = product.sale_price ?? product.price;
+  const orderUrl = whatsappOrderUrl(
+    product.name,
+    effectivePrice,
+    product.category,
+    images[0] ?? null,
+  );
+  const crumbs = [
+    { label: "Home", href: "/" },
+    ...(product.category
+      ? [{ label: product.category, href: `/shop?category=${encodeURIComponent(product.category)}` }]
+      : []),
+    { label: product.name },
+  ];
   const metaDescription = productDescription(
     product.description,
     product.name,
@@ -111,7 +126,8 @@ export default async function ProductPage({ params }: Props) {
           __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <Link href="/shop" className="btn btn-outline inline-flex px-4 py-2.5 text-[10px]">
+      <Breadcrumbs items={crumbs} />
+      <Link href="/shop" className="btn btn-outline mt-4 inline-flex px-4 py-2.5 text-[11px]">
         ← Back to shop
       </Link>
 
@@ -119,14 +135,14 @@ export default async function ProductPage({ params }: Props) {
         <div className="md:col-span-7">
           <div className="relative">
             <span
-              className={`absolute top-3 right-3 z-10 rounded-full px-2 py-1 text-[9px] font-medium uppercase tracking-[0.14em] ${
+              className={`absolute top-3 right-3 z-10 rounded-full px-2.5 py-1.5 text-[11px] font-medium uppercase tracking-[0.12em] ${
                 soldOut ? "bg-terracotta text-paper" : "bg-black/60 text-paper"
               }`}
             >
               {soldOut ? "Sold out" : "In stock"}
             </span>
-            {product.sale_price && !soldOut && (
-              <span className="absolute top-3 left-3 z-10 rounded-full bg-terracotta px-3 py-2 text-[9px] font-bold uppercase tracking-[0.1em] text-white shadow-md">
+            {Boolean(product.sale_price) && !soldOut && (
+              <span className="absolute top-3 left-3 z-10 rounded-full bg-terracotta px-3 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-md">
                 Sale · {discountPercent}% off
               </span>
             )}
@@ -136,13 +152,16 @@ export default async function ProductPage({ params }: Props) {
 
         <div className="rounded-3xl bg-bone p-5 md:col-span-5 md:p-8">
           {product.category && (
-            <p className="eyebrow text-terracotta">{product.category}</p>
+            <p className="eyebrow text-terracotta-deep">{product.category}</p>
           )}
 
           <h1 className="mt-2 max-w-lg font-sans text-lg font-semibold leading-tight tracking-normal md:text-xl [text-wrap:balance]">
             {product.name}
-            {(product.sizes?.length || product.colors?.length) && (
-              <span className="ml-2 align-middle text-[10px] font-normal uppercase tracking-[0.08em] text-ink-soft">
+            {/* Explicit > 0 checks: `a?.length || b?.length` evaluates to the
+                number 0 when both lists are empty, and React renders that 0
+                as literal text right after the title ("Plaid0"). */}
+            {((product.sizes?.length ?? 0) > 0 || (product.colors?.length ?? 0) > 0) && (
+              <span className="ml-2 align-middle text-[11px] font-normal uppercase tracking-[0.08em] text-ink-soft">
                 {product.sizes?.length ? `Size: ${product.sizes.join("/")}` : ""}
                 {product.sizes?.length && product.colors?.length ? " · " : ""}
                 {product.colors?.length ? `Color: ${product.colors.join("/")}` : ""}
@@ -150,11 +169,14 @@ export default async function ProductPage({ params }: Props) {
             )}
           </h1>
 
-          <p className="mt-3 text-2xl font-semibold tabular-nums">
-            {product.sale_price ? (
-              <><span className="text-terracotta">{formatRs(product.sale_price)}</span> <span className="text-base text-ink-soft line-through">{formatRs(product.price)}</span></>
-            ) : formatRs(product.price)}
-          </p>
+          <div className="mt-3 flex items-center gap-3">
+            <p className="text-2xl font-semibold tabular-nums">
+              {product.sale_price ? (
+                <><span className="text-terracotta-deep">{formatRs(product.sale_price)}</span> <span className="text-base text-ink-soft line-through">{formatRs(product.price)}</span></>
+              ) : formatRs(product.price)}
+            </p>
+            <FavoriteButton productId={product.id} productName={product.name} size="lg" />
+          </div>
 
           <div className="mt-5 flex flex-wrap gap-2">
             {["COD available", "Fast reply", "Size help"].map((label) => (
@@ -175,10 +197,10 @@ export default async function ProductPage({ params }: Props) {
               This piece is currently unavailable.
             </p>
           ) : (
-            <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            <div id="product-primary-cta" className="mt-5 grid gap-2 sm:grid-cols-2">
               <AddToCartButton product={product} inline />
               <a
-                href={whatsappOrderUrl(product.name, product.sale_price ?? product.price, product.category, images[0] ?? null)}
+                href={orderUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-solid w-full self-start"
@@ -213,6 +235,12 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </section>
       )}
+
+      <StickyAddToCart
+        product={product}
+        whatsappUrl={orderUrl}
+        targetId="product-primary-cta"
+      />
     </div>
   );
 }

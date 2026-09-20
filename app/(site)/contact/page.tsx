@@ -19,7 +19,7 @@ export default function ContactPage() {
     <div className="mx-auto max-w-[1280px] px-4 py-6 md:px-8 md:py-12">
       <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr] md:gap-16">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terracotta">We are here to help</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-terracotta-deep">We are here to help</p>
           <h1 className="mt-3 font-display text-5xl leading-none tracking-[-0.04em] md:text-7xl">Let&apos;s talk.</h1>
           <p className="mt-5 max-w-md text-base leading-7 text-ink-soft">
           Questions on sizing, fabric or delivery? Message us — we reply the

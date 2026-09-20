@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Product } from "@/lib/products";
+import type { Product, ProductSort } from "@/lib/products";
 import ProductGrid from "./product-grid";
 import { SHOP_RESULTS_EVENT, type ShopResultsDetail } from "./shop-search";
 
@@ -10,6 +10,7 @@ type Props = {
   category: string | null;
   search: string | null;
   hasMore: boolean;
+  sort: ProductSort;
 };
 
 /**
@@ -21,12 +22,13 @@ export default function LoadMoreProducts({
   category,
   search,
   hasMore: initialHasMore,
+  sort,
 }: Props) {
   const [products, setProducts] = useState(initialProducts);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const initialRef = useRef({ category, search });
+  const initialRef = useRef({ category, search, sort });
 
   // Debounced search results arrive via this event (see ShopSearch).
   useEffect(() => {
@@ -50,6 +52,7 @@ export default function LoadMoreProducts({
       });
       if (initialRef.current.category) params.set("category", initialRef.current.category);
       if (initialRef.current.search) params.set("q", initialRef.current.search);
+      if (initialRef.current.sort !== "newest") params.set("sort", initialRef.current.sort);
       const response = await fetch(`/api/products?${params}`, { cache: "no-store" });
       const result = (await response.json()) as {
         products?: Product[];
@@ -71,7 +74,7 @@ export default function LoadMoreProducts({
   return (
     <>
       <ProductGrid products={products} emptyMessage="No pieces match your search yet." />
-      {error && <p className="mt-6 text-center text-sm text-terracotta">{error}</p>}
+      {error && <p className="mt-6 text-center text-sm text-terracotta-deep">{error}</p>}
       {hasMore && (
         <div className="mt-10 flex justify-center">
           <button type="button" onClick={loadMore} disabled={loading} className="btn btn-outline min-w-40">

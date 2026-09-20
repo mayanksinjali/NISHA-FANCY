@@ -23,7 +23,7 @@ export default function SectionHeading({
       className="flex flex-col gap-4 border-t border-line pt-4 md:flex-row md:items-end md:justify-between"
     >
       <div>
-        {eyebrow && <p className="eyebrow text-terracotta">{eyebrow}</p>}
+        {eyebrow && <p className="eyebrow text-terracotta-deep">{eyebrow}</p>}
         <h2 className="mt-2 font-display text-[clamp(2rem,5vw,3.8rem)] leading-none tracking-[-0.03em]">
           {title}
         </h2>
@@ -37,7 +37,7 @@ export default function SectionHeading({
       {action && (
         <Link
           href={action.href}
-          className="btn btn-outline shrink-0 px-4 py-3 text-[10px] md:mb-2"
+          className="btn btn-outline shrink-0 px-4 py-3 text-[11px] md:mb-2"
         >
           {action.label}
         </Link>

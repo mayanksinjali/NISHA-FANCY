@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CART_STORAGE_KEY, type CartItem } from "@/lib/cart";
 import { NAV_LINKS, STORE } from "@/lib/config";
 import { whatsappGeneralUrl } from "@/lib/whatsapp";
@@ -17,6 +17,8 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const [scrollingDown, setScrollingDown] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [cartBump, setCartBump] = useState(false);
+  const previousCartCount = useRef(0);
   const isProductDetail = pathname.startsWith("/shop/") && pathname !== "/shop";
 
   // Keep the compact mobile masthead out of the way while reading the page.
@@ -36,7 +38,14 @@ export default function SiteHeader() {
   useEffect(() => {
     const updateCartCount = () => {
       const items = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]") as CartItem[];
-      setCartCount(items.reduce((total, item) => total + item.quantity, 0));
+      const nextCount = items.reduce((total, item) => total + item.quantity, 0);
+      // Bounce the badge only when the cart actually grew (an item was added).
+      if (nextCount > previousCartCount.current) {
+        setCartBump(true);
+        window.setTimeout(() => setCartBump(false), 400);
+      }
+      previousCartCount.current = nextCount;
+      setCartCount(nextCount);
     };
     updateCartCount();
     window.addEventListener("cart-updated", updateCartCount);
@@ -114,7 +123,7 @@ export default function SiteHeader() {
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] text-ink shadow-[0_-6px_18px_rgba(23,23,23,0.06)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] text-ink shadow-[0_-6px_18px_rgba(23,23,23,0.06)] md:hidden"
       >
           {NAV_LINKS.map((link) => {
             const active =
@@ -124,7 +133,7 @@ export default function SiteHeader() {
                 key={link.href}
                 href={link.href}
                 data-active={active}
-                className="flex h-14 flex-col items-center justify-center gap-0.5 border-r border-line text-[9px] font-medium uppercase tracking-[0.1em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-ink data-[active=true]:[&>span]:[&>svg]:stroke-2"
+                className="flex h-14 flex-col items-center justify-center gap-0.5 border-r border-line text-[11px] font-medium uppercase tracking-[0.06em] text-ink-soft transition-colors last:border-r-0 data-[active=true]:text-ink data-[active=true]:[&>span]:[&>svg]:stroke-2"
               >
                 <span aria-hidden className="flex h-4 w-4 items-center justify-center">
                   {link.href === "/" ? (
@@ -136,6 +145,10 @@ export default function SiteHeader() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
                       <path d="M4 9h16l-1 11H5L4 9Z" />
                       <path d="M8 9a4 4 0 0 1 8 0" />
+                    </svg>
+                  ) : link.href === "/favorites" ? (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
+                      <path d="M12 20.5 4.6 13a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9A4.6 4.6 0 0 1 19.4 13Z" />
                     </svg>
                   ) : (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
@@ -151,7 +164,7 @@ export default function SiteHeader() {
           <Link
             href="/cart"
             data-active={pathname.startsWith("/cart")}
-            className="relative flex h-14 flex-col items-center justify-center gap-0.5 text-[9px] font-medium uppercase tracking-[0.1em] text-ink-soft transition-colors data-[active=true]:text-ink data-[active=true]:[&>span>svg]:stroke-2"
+            className="relative flex h-14 flex-col items-center justify-center gap-0.5 text-[11px] font-medium uppercase tracking-[0.06em] text-ink-soft transition-colors data-[active=true]:text-ink data-[active=true]:[&>span>svg]:stroke-2"
           >
             <span aria-hidden className="flex h-4 w-4 items-center justify-center">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" className="h-4 w-4">
@@ -162,7 +175,7 @@ export default function SiteHeader() {
             </span>
             Cart
             {cartCount > 0 && (
-              <span className="absolute top-0 right-[calc(50%-14px)] flex h-3 min-w-3 items-center justify-center rounded-full bg-terracotta px-0.5 text-[6px] font-bold text-white">
+              <span className={`absolute top-1 right-[calc(50%-16px)] flex h-4 min-w-4 items-center justify-center rounded-full bg-terracotta px-1 text-[11px] font-bold leading-none text-white ${cartBump ? "animate-[badge-bounce_400ms_ease-out] motion-reduce:animate-none" : ""}`}>
                 {cartCount > 9 ? "9+" : cartCount}
               </span>
             )}

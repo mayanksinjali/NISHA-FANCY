@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="mx-auto flex min-h-[70svh] max-w-[1500px] flex-col justify-center px-5 md:px-10">
-      <p className="eyebrow text-terracotta">Error 404</p>
+      <p className="eyebrow text-terracotta-deep">Error 404</p>
       <h1 className="mt-5 font-display text-[clamp(3rem,14vw,9rem)] leading-[0.85] uppercase">
         Off the rail
       </h1>

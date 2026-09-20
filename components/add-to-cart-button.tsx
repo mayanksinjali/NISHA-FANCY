@@ -48,7 +48,7 @@ type Props = { product: Product; className?: string; /** Render the variant choo
         >
           <div className="space-y-2">
             {product.sizes?.length ? (
-              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
+              <label className="min-w-0 text-[11px] uppercase tracking-[0.08em] text-ink-soft">
                 Size
                 <select value={selectedSize} onChange={(event) => setSelectedSize(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded-lg border border-line bg-paper px-2 text-xs normal-case tracking-normal text-ink outline-none">
                   <option value="">Choose</option>
@@ -57,7 +57,7 @@ type Props = { product: Product; className?: string; /** Render the variant choo
               </label>
             ) : null}
             {product.colors?.length ? (
-              <label className="min-w-0 text-[10px] uppercase tracking-[0.08em] text-ink-soft">
+              <label className="min-w-0 text-[11px] uppercase tracking-[0.08em] text-ink-soft">
                 Color
                 <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)} className="mt-1 h-9 w-full min-w-0 rounded-lg border border-line bg-paper px-2 text-xs normal-case tracking-normal text-ink outline-none">
                   <option value="">Choose</option>
@@ -66,14 +66,16 @@ type Props = { product: Product; className?: string; /** Render the variant choo
               </label>
             ) : null}
           </div>
-          <button type="button" onClick={addToCart} className="btn btn-solid mt-2 w-full px-3 py-2 text-[9px]">Add selected item</button>
+          <button type="button" onClick={addToCart} className="btn btn-solid mt-2 w-full px-3 py-2 text-[11px]">Add selected item</button>
         </div>
       )}
-      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())} className="btn btn-outline w-full px-2 py-2.5 text-[10px] md:px-4 md:py-3">
-        Add to cart
-      </button>
+      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())}className="btn btn-outline w-full px-2 py-2.5 text-[11px] md:px-4 md:py-3">Add to cart</button>
       {added && (
-        <div className="fixed inset-x-4 bottom-20 z-[70] text-center md:bottom-6">
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-x-4 bottom-20 z-[70] text-center md:bottom-6"
+        >
           <span className="inline-block rounded-full bg-wine-deep px-4 py-2 text-xs font-medium text-paper shadow-lg">
             Added to cart
           </span>

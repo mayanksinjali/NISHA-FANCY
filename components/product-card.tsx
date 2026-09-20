@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Product } from "@/lib/products";
 import { formatRs } from "@/lib/format";
 import Link from "next/link";
 import AddToCartButton from "./add-to-cart-button";
+import FavoriteButton from "./favorite-button";
 
 type Props = {
   product: Product;
@@ -28,16 +29,41 @@ export default function ProductCard({
 }: Props) {
   const soldOut = !product.in_stock;
   const [imageFailed, setImageFailed] = useState(false);
+  const [hoverImageFailed, setHoverImageFailed] = useState(false);
+  const [canHover, setCanHover] = useState(false);
   const discountPercent = product.sale_price
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
     : 0;
 
+  /**
+   * Crossfade to the second photo only on devices with real hover support.
+   * The check mirrors the CSS `@media (hover: hover)` media query and runs
+   * after mount, so touch devices render (and download) just the first image.
+   */
+  useEffect(() => {
+    const query = window.matchMedia("(hover: hover)");
+    const update = () => setCanHover(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  const secondImage = product.image_urls?.[1];
+  const hoverImage =
+    canHover &&
+    !hoverImageFailed &&
+    secondImage &&
+    secondImage !== product.image_url
+      ? secondImage
+      : null;
+
   return (
     <article className="group flex h-full flex-col">
+      <div className="relative">
       <Link
         href={`/shop/${product.id}`}
         aria-label={`View ${product.name}`}
-        className="relative block aspect-[4/5] overflow-hidden rounded-2xl bg-bone"
+        className="block aspect-[4/5] overflow-hidden rounded-2xl bg-bone"
       >
         {product.image_url && !imageFailed ? (
           <Image
@@ -61,17 +87,45 @@ export default function ProductCard({
           </div>
         )}
 
+        {/*
+         * Second photo layered over the first. It only mounts on hover-capable
+         * devices (see canHover above), so it adds no weight or layout shift
+         * elsewhere. Fades in on card hover and back out on mouse-leave.
+         */}
+        {hoverImage && (
+          <Image
+            src={hoverImage}
+            alt=""
+            aria-hidden
+            fill
+            sizes={sizes}
+            loading="lazy"
+            onError={() => setHoverImageFailed(true)}
+            className={`object-cover transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+              soldOut
+                ? "opacity-0 saturate-[0.4] group-hover:opacity-70"
+                : "opacity-0 group-hover:opacity-100"
+            }`}
+          />
+        )}
+
         {soldOut && (
           <span className="eyebrow absolute top-3 right-3 bg-wine-deep px-2.5 py-1.5 text-paper">
             Sold out
           </span>
         )}
-        {product.sale_price && !soldOut && (
-          <span className="absolute top-3 right-3 rounded-full bg-terracotta px-3 py-2 text-[9px] font-bold uppercase tracking-[0.1em] text-white shadow-md">
+        {Boolean(product.sale_price) && !soldOut && (
+          <span className="absolute top-3 right-3 rounded-full bg-terracotta px-3 py-2 text-[11px] font-bold uppercase tracking-[0.1em] text-white shadow-md">
             Sale · {discountPercent}% off
           </span>
         )}
       </Link>
+        <FavoriteButton
+          productId={product.id}
+          productName={product.name}
+          className="absolute left-3 top-3 z-20"
+        />
+      </div>
 
       <div className="mt-3 flex items-start justify-between gap-3">
         <h3 className="min-w-0 flex-1 pr-2">
@@ -90,12 +144,12 @@ export default function ProductCard({
         </h3>
         <p className="shrink-0 text-sm font-medium tabular-nums">
           {product.sale_price ? (
-            <><span className="text-terracotta">{formatRs(product.sale_price)}</span> <span className="text-xs text-ink-soft line-through">{formatRs(product.price)}</span></>
+            <><span className="text-terracotta-deep">{formatRs(product.sale_price)}</span> <span className="text-xs text-ink-soft line-through">{formatRs(product.price)}</span></>
           ) : formatRs(product.price)}
         </p>
       </div>
 
-      <p className="mt-1.5 flex min-h-5 items-center text-[10px] font-medium uppercase tracking-[0.12em] text-ink-soft">
+      <p className="mt-1.5 flex min-h-5 items-center text-[11px] font-medium uppercase tracking-[0.1em] text-ink-soft">
         {product.category ? (
           <span>{product.category}</span>
         ) : (

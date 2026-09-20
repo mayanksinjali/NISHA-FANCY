@@ -47,7 +47,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-[1000px] px-4 py-7 md:px-8 md:py-12">
-      <Link href="/shop" className="btn btn-outline px-4 py-2.5 text-[10px]">← Add more items</Link>
+      <Link href="/shop" className="btn btn-outline px-4 py-2.5 text-[11px]">← Add more items</Link>
       <h1 className="mt-7 font-display text-4xl tracking-[-0.03em] md:text-5xl">Your items</h1>
       {!items.length ? (
         <div className="border-t border-line py-14 text-center">
@@ -81,7 +81,7 @@ export default function CartPage() {
                   <p className="truncate text-sm font-medium">{item.name}</p>
                   <p className="mt-1 text-xs text-ink-soft">{formatRs(item.price)}{item.quantity > 1 ? ` × ${item.quantity}` : ""}</p>
                   {(item.selectedSize || item.selectedColor) && (
-                    <p className="mt-1 truncate text-[10px] uppercase tracking-[0.08em] text-ink-soft">
+                    <p className="mt-1 truncate text-[11px] uppercase tracking-[0.08em] text-ink-soft">
                       {[item.selectedSize && `Size: ${item.selectedSize}`, item.selectedColor && `Color: ${item.selectedColor}`].filter(Boolean).join(" · ")}
                     </p>
                   )}
@@ -111,7 +111,7 @@ export default function CartPage() {
                       type="button"
                       aria-label={`Remove ${item.name} from cart`}
                       onClick={() => changeQuantity(item, -item.quantity)}
-                      className="shrink-0 whitespace-nowrap rounded bg-red-600 px-2 py-1.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-red-700"
+                      className="shrink-0 whitespace-nowrap rounded bg-red-600 px-2.5 py-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-white transition-colors hover:bg-red-700"
                     >
                       Remove
                     </button>
