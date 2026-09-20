@@ -2,15 +2,15 @@ import Link from "next/link";
 import { logoutAction } from "./actions";
 
 const NAV = [
-  { label: "Dashboard", href: "/admin/products" },
-  { label: "Add product", href: "/admin/products/new" },
+  { label: "Dashboard", href: "/owner/products" },
+  { label: "Add product", href: "/owner/products/new" },
 ];
 
 /**
- * Fixed admin top bar: store identity with a live "Online" pulse, nav links,
+ * Fixed owner top bar: store identity with a live "Online" pulse, nav links,
  * sign out. White card look, sticky on scroll.
  */
-export default function AdminHeader({
+export default function OwnerHeader({
   title,
   backHref,
 }: {

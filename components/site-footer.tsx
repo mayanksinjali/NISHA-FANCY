@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { STORE } from "@/lib/config";
 
 /** Dark editorial footer — contact, nav, socials, all placeholders swappable via env. */
@@ -23,14 +22,6 @@ export default function SiteFooter() {
                 </a>
               </li>
               <li className="text-paper/50">{STORE.hours}</li>
-              <li>
-                <Link
-                  href="/admin"
-                  className="text-paper/35 transition-colors hover:text-paper/70"
-                >
-                  Store admin
-                </Link>
-              </li>
             </ul>
           </div>
 

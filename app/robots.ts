@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 
-/** Allow everything except the admin panel. */
+/** Allow everything except the owner panel. */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/admin/"],
+      disallow: ["/owner", "/owner/", "/admin"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

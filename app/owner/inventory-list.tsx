@@ -174,7 +174,7 @@ export default function InventoryList({ products, categories }: Props) {
                   {/* Meta + actions */}
                   <div className="mt-3 flex items-center justify-between gap-3">
                     <Link
-                      href={`/admin/products/${product.id}`}
+                      href={`/owner/products/${product.id}`}
                       className="flex-1 rounded-xl border border-gray-200 py-2.5 text-center text-xs font-semibold text-ink transition-colors hover:border-ink"
                     >
                       Full edit

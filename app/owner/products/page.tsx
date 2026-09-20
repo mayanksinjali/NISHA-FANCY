@@ -1,5 +1,5 @@
 import Link from "next/link";
-import AdminHeader from "../admin-header";
+import OwnerHeader from "../owner-header";
 import InventoryList from "../inventory-list";
 import { formatRs } from "@/lib/format";
 import { getAllProductsForAdmin } from "@/lib/products";
@@ -13,7 +13,7 @@ const FLASH: Record<string, string> = {
   deleted: "Product deleted.",
 };
 
-export default async function AdminProductsPage({
+export default async function OwnerProductsPage({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -34,7 +34,7 @@ export default async function AdminProductsPage({
 
   return (
     <>
-      <AdminHeader title="Dashboard" />
+      <OwnerHeader title="Dashboard" />
 
       <div className="mx-auto max-w-xl px-5 py-6">
         {flash && (
@@ -53,7 +53,7 @@ export default async function AdminProductsPage({
         {/* ---------- Dark analytics card ---------- */}
         <section className="rounded-2xl bg-[#0B1528] px-5 py-5 text-white">
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">
-            Store admin
+            Owner
           </p>
           <div className="mt-2 flex items-end justify-between gap-3">
             <p className="font-display text-3xl leading-none tabular-nums">
@@ -99,7 +99,7 @@ export default async function AdminProductsPage({
 
         {/* ---------- Primary action ---------- */}
         <Link
-          href="/admin/products/new"
+          href="/owner/products/new"
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-4 w-4" aria-hidden>

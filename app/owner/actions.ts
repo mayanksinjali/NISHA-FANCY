@@ -37,7 +37,7 @@ export async function loginAction(
   }
 
   const password = String(formData.get("password") ?? "");
-  const next = String(formData.get("next") ?? "/admin/products");
+  const next = String(formData.get("next") ?? "/owner/products");
 
   if (!(await checkPassword(password))) {
     // Small delay so guessing is slow and the response time doesn't leak much.
@@ -49,13 +49,13 @@ export async function loginAction(
   store.set(SESSION_COOKIE, await createSessionValue(), sessionCookieOptions);
 
   // Only allow same-site relative paths — never bounce to an external URL.
-  redirect(next.startsWith("/admin") ? next : "/admin/products");
+  redirect(next.startsWith("/owner") ? next : "/owner/products");
 }
 
 export async function logoutAction(): Promise<void> {
   const store = await cookies();
   store.delete(SESSION_COOKIE);
-  redirect("/admin");
+  redirect("/owner");
 }
 
 /* ------------------------------------------------------------------ */
@@ -241,7 +241,7 @@ async function removeStoredImage(url: string | null): Promise<void> {
 function revalidateStorefront(): void {
   revalidatePath("/", "layout");
   revalidatePath("/shop");
-  revalidatePath("/admin/products");
+  revalidatePath("/owner/products");
 }
 
 /* ------------------------------------------------------------------ */
@@ -293,7 +293,7 @@ export async function createProductAction(
   }
 
   revalidateStorefront();
-  redirect("/admin/products?added=1");
+  redirect("/owner/products?added=1");
 }
 
 export async function updateProductAction(
@@ -379,7 +379,7 @@ export async function updateProductAction(
   }
 
   revalidateStorefront();
-  redirect("/admin/products?updated=1");
+  redirect("/owner/products?updated=1");
 }
 
 export async function deleteProductAction(formData: FormData): Promise<void> {
@@ -408,7 +408,7 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   }
 
   revalidateStorefront();
-  redirect("/admin/products?deleted=1");
+  redirect("/owner/products?deleted=1");
 }
 
 /** Inline price edit from the inventory drawer. */

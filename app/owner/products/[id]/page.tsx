@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import AdminHeader from "../../admin-header";
+import OwnerHeader from "../../owner-header";
 import ProductForm from "../../product-form";
 import { getProductForAdmin } from "@/lib/products";
 
@@ -18,7 +18,7 @@ export default async function EditProductPage({
 
   return (
     <>
-      <AdminHeader title="Edit product" backHref="/admin/products" />
+      <OwnerHeader title="Edit product" backHref="/owner/products" />
       <ProductForm product={product} />
     </>
   );

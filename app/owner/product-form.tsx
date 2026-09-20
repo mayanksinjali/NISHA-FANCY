@@ -346,7 +346,7 @@ export default function ProductForm({ product }: Props) {
       {/* ---------- Sticky save bar ---------- */}
       <div className="fixed inset-x-0 bottom-0 z-30 flex gap-3 border-t border-gray-100 bg-white/95 px-5 py-4 backdrop-blur-sm">
         <Link
-          href="/admin/products"
+          href="/owner/products"
           className="flex-1 rounded-full border border-gray-200 py-3 text-center text-xs font-semibold text-ink transition-colors hover:border-ink"
         >
           Cancel

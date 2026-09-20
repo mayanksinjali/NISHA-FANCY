@@ -1,4 +1,4 @@
-import AdminHeader from "../../admin-header";
+import OwnerHeader from "../../owner-header";
 import ProductForm from "../../product-form";
 
 export const revalidate = 0;
@@ -6,7 +6,7 @@ export const revalidate = 0;
 export default async function NewProductPage() {
   return (
     <>
-      <AdminHeader title="Add product" backHref="/admin/products" />
+      <OwnerHeader title="Add product" backHref="/owner/products" />
       <ProductForm />
     </>
   );
