@@ -26,39 +26,84 @@ function Stars({ rating }: { rating: number }) {
   );
 }
 
+/** One review card. Fixed width so the duplicated track loops seamlessly. */
+function TestimonialCard({
+  entry,
+  className = "",
+}: {
+  entry: (typeof TESTIMONIALS)[number];
+  className?: string;
+}) {
+  return (
+    <figure
+      className={`flex w-[19rem] shrink-0 flex-col rounded-2xl border border-line bg-paper p-5 shadow-[0_1px_10px_rgba(23,23,23,0.04)] ${className}`}
+    >
+      <Stars rating={entry.rating ?? 5} />
+      <blockquote className="mt-3 flex-1 text-[15px] leading-relaxed text-ink">
+        “{entry.quote}”
+      </blockquote>
+      <figcaption className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
+        {entry.name}
+        {entry.location ? <span className="font-normal"> — {entry.location}</span> : null}
+      </figcaption>
+    </figure>
+  );
+}
+
 /**
- * Static testimonials section (Task 14). Content comes from
+ * Infinite side-drifting review strip. Content comes from
  * lib/testimonials.ts — replace the placeholders there with real customer
  * quotes / WhatsApp screenshots whenever the owner supplies them.
+ *
+ * Two rows drift in opposite directions (like incoming reviews), each row
+ * duplicated once so the -50% translate loops seamlessly. Rows are offset
+ * vertically so cards read as a flowing band rather than a straight line.
+ * `pause-on-hover` freezes the row under the cursor for easy reading, and
+ * prefers-reduced-motion disables the drift entirely in globals.css.
  */
 export default function Testimonials() {
   if (!TESTIMONIALS.length) return null;
 
-  return (
-    <section className="mx-auto max-w-[1280px] px-4 pt-10 md:px-8 md:pt-16">
-      <SectionHeading
-        id="testimonials"
-        eyebrow=""
-        title="Kind words"
-        lede="Real feedback from customers who ordered on WhatsApp."
-      />
+  // Enough cards per row that the duplicated run always fills wide screens.
+  const perRow = Math.max(TESTIMONIALS.length / 2, 4);
+  const rowA = TESTIMONIALS.slice(0, perRow);
+  const rowB = TESTIMONIALS.slice(perRow);
+  const stripA = [...rowA, ...rowA];
+  const stripB = [...rowB, ...rowB];
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {TESTIMONIALS.map((entry, index) => (
-          <figure
-            key={`${entry.name}-${index}`}
-            className="flex h-full flex-col rounded-2xl border border-line bg-bone/40 p-5"
-          >
-            <Stars rating={entry.rating ?? 5} />
-            <blockquote className="mt-3 flex-1 text-[15px] leading-relaxed text-ink">
-              “{entry.quote}”
-            </blockquote>
-            <figcaption className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-soft">
-              {entry.name}
-              {entry.location ? <span className="font-normal"> — {entry.location}</span> : null}
-            </figcaption>
-          </figure>
-        ))}
+  return (
+    <section className="pt-10 md:pt-16">
+      <div className="mx-auto max-w-[1280px] px-4 md:px-8">
+        <SectionHeading
+          id="testimonials"
+          eyebrow=""
+          title="Kind words"
+          lede="Real feedback from customers across Butwal who ordered on WhatsApp."
+        />
+      </div>
+
+      <div className="testimonials-fade group relative mt-6">
+        {/* Row 1 — drifts right-to-left, nudged up */}
+        <div className="overflow-hidden py-2">
+          <ul className="testimonials-track-reverse gap-4 pr-4">
+            {stripA.map((entry, i) => (
+              <li key={`a-${entry.name}-${i}`}>
+                <TestimonialCard entry={entry} className="-rotate-1" />
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Row 2 — drifts left-to-right, nudged down */}
+        <div className="overflow-hidden py-2">
+          <ul className="testimonials-track gap-4 pr-4">
+            {stripB.map((entry, i) => (
+              <li key={`b-${entry.name}-${i}`}>
+                <TestimonialCard entry={entry} className="rotate-1" />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   );

@@ -278,9 +278,99 @@ body {
   animation: marquee 38s linear infinite;
 }
 
+/* ---------------------------------------------------------------------------
+   Testimonials strip (home page): two rows of review cards drifting sideways
+   in opposite directions, like reviews rolling in. Same technique as the
+   marquee: duplicate the content once, animate to -50%, loops seamlessly.
+   --------------------------------------------------------------------------- */
+@keyframes testimonials-drift-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes testimonials-drift-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.testimonials-track,
+.testimonials-track-reverse {
+  display: flex;
+  width: max-content;
+}
+
+.testimonials-track {
+  animation: testimonials-drift-left 45s linear infinite;
+}
+
+.testimonials-track-reverse {
+  animation: testimonials-drift-right 52s linear infinite;
+}
+
+/* Freeze the whole strip while the reader hovers over it. */
+.testimonials-fade:hover .testimonials-track,
+.testimonials-fade:hover .testimonials-track-reverse {
+  animation-play-state: paused;
+}
+
+/* Soft fade at the section's left/right edges so cards dissolve off-screen. */
+.testimonials-fade {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 6rem,
+    black calc(100% - 6rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    black 6rem,
+    black calc(100% - 6rem),
+    transparent 100%
+  );
+}
+
+@media (max-width: 640px) {
+  .testimonials-fade {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 2.5rem,
+      black calc(100% - 2.5rem),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 2.5rem,
+      black calc(100% - 2.5rem),
+      transparent 100%
+    );
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .marquee-track {
     animation: none;
+  }
+  .testimonials-track,
+  .testimonials-track-reverse {
+    animation: none;
+  }
+  /* Without the drift, rows can't scroll sideways — let them wrap instead. */
+  .testimonials-track,
+  .testimonials-track-reverse {
+    width: auto;
+    flex-wrap: wrap;
   }
   html {
     scroll-behavior: auto;
