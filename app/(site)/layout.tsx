@@ -1,6 +1,7 @@
 import PageFade from "@/components/page-fade";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
+import InstallToast from "@/components/install-toast";
 
 /**
  * Storefront chrome. Lives in a route group so /admin can have a completely
@@ -20,6 +21,7 @@ export default function SiteLayout({
         <PageFade>{children}</PageFade>
       </main>
       <SiteFooter />
+      <InstallToast />
     </>
   );
 }
