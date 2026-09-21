@@ -39,12 +39,12 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
-  manifest: "/manifest.webmanifest",
-  appleWebApp: {
-    capable: true,
-    title: STORE.name,
-    statusBarStyle: "black-translucent",
-  },
+  // No `manifest` here on purpose: a nested layout's manifest only wins if
+  // the root doesn't declare one at all. The storefront app (route group
+  // `(site)`) and the owner app (`app/owner`) each declare their own manifest
+  // + apple-web-app metadata, so installing from either area yields THAT app.
+  // (Declaring it here made /owner resolve to the storefront manifest, so
+  // Chrome's install prompt just focused the installed store PWA instead.)
   icons: { icon: "/logo.jpeg", apple: "/logo.jpeg" },
 };
 

@@ -6,9 +6,21 @@ import { SESSION_COOKIE, verifySessionValue } from "./lib/auth";
  * login form when there's no valid session). Each owner page and server action
  * re-checks auth as well — middleware is convenience, not the only lock.
  */
+/**
+ * Installable-PWA plumbing that must stay reachable while signed out: the
+ * manifest advertises the owner app, and the service worker + offline shell
+ * make it installable. All three are static, non-sensitive files.
+ */
+const PUBLIC_OWNER_FILES = new Set([
+  "/owner/sw.js",
+  "/owner/offline.html",
+  "/owner/manifest.webmanifest",
+]);
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname === "/owner") return NextResponse.next();
+  if (PUBLIC_OWNER_FILES.has(pathname)) return NextResponse.next();
 
   const authed = await verifySessionValue(
     request.cookies.get(SESSION_COOKIE)?.value,

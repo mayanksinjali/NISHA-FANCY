@@ -11,14 +11,14 @@
  * stale. Nothing under /owner is cacheable content anyway — the middleware
  * cookie-gate protects every route, and no product data lives in this cache.
  */
-const CACHE = "owner-shell-v1";
+const CACHE = "owner-shell-v2"; // v2: caches the owner icon, not the store logo
 const OFFLINE_URL = "/owner/offline.html";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(CACHE)
-      .then((cache) => cache.addAll([OFFLINE_URL, "/logo.jpeg", "/icon.svg"]))
+      .then((cache) => cache.addAll([OFFLINE_URL, "/icon-owner.svg"]))
       .then(() => self.skipWaiting()),
   );
 });
@@ -62,7 +62,7 @@ self.addEventListener("fetch", (event) => {
   // Static assets: cache-first so the installed app opens instantly.
   const isStatic =
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname === "/logo.jpeg" ||
+    url.pathname === "/icon-owner.svg" ||
     url.pathname === "/icon.svg";
   if (isStatic) {
     event.respondWith(

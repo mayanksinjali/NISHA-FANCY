@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   },
   robots: { index: false, follow: false },
   manifest: "/owner/manifest.webmanifest",
+  // Distinct favicon/apple icon so the owner app is recognisable in tabs and
+  // on the iOS home screen, not just in the Android launcher.
+  icons: { icon: "/icon-owner.svg", apple: "/icon-owner.svg" },
   appleWebApp: {
     capable: true,
     title: `${STORE.name} Owner`,

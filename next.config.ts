@@ -27,6 +27,9 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Don't advertise the framework and version on every response.
   poweredByHeader: false,
+  // Hide the floating dev-tools button — its "issues" counter is noisy when
+  // Supabase briefly hiccups, and errors still surface in the terminal.
+  devIndicators: false,
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
