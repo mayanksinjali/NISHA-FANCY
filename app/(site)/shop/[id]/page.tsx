@@ -2,21 +2,22 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatRs } from "@/lib/format";
-import { getProduct } from "@/lib/products";
+import { ProductCatalogError, getProduct, getProducts } from "@/lib/products";
+import { productImages } from "@/lib/product-rules";
 import { whatsappOrderUrl } from "@/lib/whatsapp";
 import ProductGallery from "@/components/product-gallery";
 import AddToCartButton from "@/components/add-to-cart-button";
 import FavoriteButton from "@/components/favorite-button";
+import ShareButton from "@/components/share-button";
 import Breadcrumbs from "@/components/breadcrumbs";
 import StickyAddToCart from "@/components/sticky-add-to-cart";
 import ProductCard from "@/components/product-card";
-import { getProducts } from "@/lib/products";
 import { productDescription, SITE_URL } from "@/lib/seo";
 import { STORE } from "@/lib/config";
 
 /**
  * ISR: product pages refresh from Supabase every 5 minutes. Admin edits show
- * up immediately regardless — revalidateStorefront() (app/admin/actions.ts)
+ * up immediately regardless — revalidateStorefront() (app/owner/actions.ts)
  * purges this cache on every product mutation.
  */
 export const revalidate = 300;
@@ -25,7 +26,15 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
-  const product = await getProduct(id);
+
+  let product = null;
+  try {
+    product = await getProduct(id);
+  } catch (error) {
+    // A database blip must not turn metadata generation into a 500. The page
+    // itself re-reads and surfaces the failure properly.
+    if (!(error instanceof ProductCatalogError)) throw error;
+  }
   if (!product) return { title: "Product" };
 
   const effectivePrice = product.sale_price ?? product.price;
@@ -59,20 +68,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { id } = await params;
+
+  // getProduct throws ProductCatalogError when Supabase is unreachable, which
+  // lands on app/(site)/error.tsx as a retryable error instead of a 404. Only
+  // a genuinely absent row reaches notFound().
   const product = await getProduct(id);
   if (!product) notFound();
 
-  // Other pieces from the same category, shown below the buy box.
-  const related = product.category
-    ? (await getProducts({ category: product.category, limit: 5 }))
+  // Other pieces from the same category, shown below the buy box. A failure
+  // here is cosmetic, so it never takes the product page down with it.
+  let related: Awaited<ReturnType<typeof getProducts>> = [];
+  if (product.category) {
+    try {
+      related = (await getProducts({ category: product.category, limit: 5 }))
         .filter((entry) => entry.id !== product.id)
-        .slice(0, 4)
-    : [];
+        .slice(0, 4);
+    } catch (error) {
+      if (!(error instanceof ProductCatalogError)) throw error;
+    }
+  }
 
-  const images = [
-    ...(product.image_url ? [product.image_url] : []),
-    ...(product.image_urls ?? []),
-  ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
+  const images = productImages(product);
   const soldOut = !product.in_stock;
   const discountPercent = product.sale_price
     ? Math.round(((product.price - product.sale_price) / product.price) * 100)
@@ -115,6 +131,9 @@ export default async function ProductPage({ params }: Props) {
       availability: soldOut
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
+      // Mirrors the "COD available" promise shown on the page — Google needs
+      // it here to mark the offer up as a real, buyable listing.
+      seller: { "@type": "Organization", name: STORE.name },
     },
   };
 
@@ -176,6 +195,7 @@ export default async function ProductPage({ params }: Props) {
               ) : formatRs(product.price)}
             </p>
             <FavoriteButton productId={product.id} productName={product.name} size="lg" />
+            <ShareButton name={product.name} />
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2">

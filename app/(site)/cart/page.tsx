@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { CART_STORAGE_KEY, cartMessage, type CartItem } from "@/lib/cart";
+import { CART_EVENT, cartMessage, readCart, writeCart, type CartItem } from "@/lib/cart";
 import { STORE } from "@/lib/config";
 import { formatRs } from "@/lib/format";
 
@@ -17,13 +17,22 @@ export default function CartPage() {
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    setItems(JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]"));
+    // readCart() tolerates corrupt/legacy storage instead of throwing inside
+    // the effect (which used to blank the page).
+    const load = () => setItems(readCart());
+    load();
+    // Another tab added something, or the header changed the cart.
+    window.addEventListener(CART_EVENT, load);
+    window.addEventListener("storage", load);
+    return () => {
+      window.removeEventListener(CART_EVENT, load);
+      window.removeEventListener("storage", load);
+    };
   }, []);
 
   function save(next: CartItem[]) {
     setItems(next);
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(new Event("cart-updated"));
+    writeCart(next);
   }
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);

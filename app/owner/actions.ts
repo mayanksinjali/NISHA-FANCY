@@ -10,7 +10,19 @@ import {
   isAdminPasswordConfigured,
   sessionCookieOptions,
 } from "@/lib/auth";
-import { requireAdmin } from "@/lib/admin-guard";
+import { clientIp, requireAdmin } from "@/lib/admin-guard";
+import {
+  checkRateLimit,
+  formatRetryAfter,
+  recordFailure,
+  resetRateLimit,
+} from "@/lib/rate-limit";
+import {
+  MAX_PRODUCT_IMAGES,
+  isLegacySchemaError,
+  parseSubmittedImageUrls,
+  stripUnsupportedColumns,
+} from "@/lib/product-rules";
 import {
   PRODUCT_IMAGE_BUCKET,
   getSupabaseAdmin,
@@ -23,6 +35,9 @@ import {
  */
 
 export type ActionState = { error?: string; success?: string } | null;
+
+/** Namespace for login throttling, so other actions can reuse the limiter. */
+const LOGIN_RATE_LIMIT_KEY = "admin-login";
 
 /* ------------------------------------------------------------------ */
 /* Auth                                                                */
@@ -39,11 +54,33 @@ export async function loginAction(
   const password = String(formData.get("password") ?? "");
   const next = String(formData.get("next") ?? "/owner/products");
 
+  // One shared password with no lockout was the weakest link in the panel:
+  // a 600 ms delay alone still allows thousands of guesses a day. Check the
+  // throttle BEFORE touching the password so a locked-out caller can't even
+  // time the comparison.
+  const throttleKey = `${LOGIN_RATE_LIMIT_KEY}:${await clientIp()}`;
+  const throttle = checkRateLimit(throttleKey);
+  if (!throttle.allowed) {
+    return {
+      error: `Too many failed attempts. Try again in ${formatRetryAfter(throttle.retryAfterSeconds)}.`,
+    };
+  }
+
   if (!(await checkPassword(password))) {
+    const outcome = recordFailure(throttleKey);
     // Small delay so guessing is slow and the response time doesn't leak much.
     await new Promise((r) => setTimeout(r, 600));
+    if (outcome.seconds > 0) {
+      return {
+        error: `Too many failed attempts. Try again in ${formatRetryAfter(outcome.seconds)}.`,
+      };
+    }
     return { error: "Wrong password. Try again." };
   }
+
+  // Right password — forget the failed attempts so the owner is never locked
+  // out by their own earlier typos.
+  resetRateLimit(throttleKey);
 
   const store = await cookies();
   store.set(SESSION_COOKIE, await createSessionValue(), sessionCookieOptions);
@@ -75,18 +112,7 @@ type ParsedProduct = {
   in_stock: boolean;
 };
 
-const MAX_PRODUCT_IMAGES = 4;
 const MAX_IMAGE_UPLOAD_BYTES = 14 * 1024 * 1024;
-
-/**
- * PostgREST error wording when the live products table predates the new
- * `type` column (i.e. the migration SQL hasn't been run yet). Saving still
- * works — the tag is just skipped until the column exists.
- */
-function isMissingTypeColumn(error: { message: string }): boolean {
-  const message = error.message.toLowerCase();
-  return message.includes("type") && (message.includes("column") || message.includes("schema cache"));
-}
 
 function parseProductForm(formData: FormData): ParsedProduct | { error: string } {
   const name = String(formData.get("name") ?? "").trim();
@@ -241,6 +267,9 @@ async function removeStoredImage(url: string | null): Promise<void> {
 function revalidateStorefront(): void {
   revalidatePath("/", "layout");
   revalidatePath("/shop");
+  // The sitemap is cached for an hour (app/sitemap.ts) so crawlers don't hit
+  // Supabase on every fetch — a new product has to purge it by path.
+  revalidatePath("/sitemap.xml");
   revalidatePath("/owner/products");
 }
 
@@ -280,9 +309,10 @@ export async function createProductAction(
       image_urls: imageUrls,
     };
     let { error } = await getSupabaseAdmin().from("products").insert(payload);
-    if (error && isMissingTypeColumn(error)) {
-      const { type: _omittedType, ...legacyPayload } = payload;
-      ({ error } = await getSupabaseAdmin().from("products").insert(legacyPayload));
+    if (error && isLegacySchemaError(error.message)) {
+      ({ error } = await getSupabaseAdmin()
+        .from("products")
+        .insert(stripUnsupportedColumns(payload, error.message)));
     }
 
     if (error) throw new Error(error.message);
@@ -312,11 +342,24 @@ export async function updateProductAction(
   const parsed = parseProductForm(formData);
   if ("error" in parsed) return parsed;
 
-  const previousUrl = String(formData.get("existing_image_url") ?? "") || null;
-  const previousImageUrls = JSON.parse(
-    String(formData.get("existing_image_urls") ?? "[]"),
-  ) as string[];
+  // The form submits the COMPLETE existing gallery in display order (reorder
+  // included) — not just the cover — so an order-only save is persisted too.
+  // This used to be skipped whenever no new file was uploaded, silently
+  // discarding drag-to-reorder edits behind a "Changes saved" flash.
+  const rawExistingImageUrls = formData.get("existing_image_urls");
+  // `null` means the field wasn't submitted at all — a form rendered before
+  // this field existed. Fall back to the old separate cover field so that
+  // client can't silently wipe the product's photos.
+  const legacyCover = String(formData.get("existing_image_url") ?? "") || null;
+  const existingImageUrls =
+    rawExistingImageUrls === null
+      ? legacyCover
+        ? [legacyCover]
+        : null
+      : parseSubmittedImageUrls(String(rawExistingImageUrls));
   let newImageUrls: string[] = [];
+  let submittedImageUrls: string[] | null = existingImageUrls;
+  let combinedImageUrls: string[] | null = existingImageUrls;
 
   try {
     const files = formData
@@ -329,29 +372,26 @@ export async function updateProductAction(
       return { error: "The photos are too large together. Choose smaller images and try again." };
     }
     newImageUrls = await uploadImages(files);
-    const retainedImageUrls = [previousUrl, ...previousImageUrls]
-      .filter((url): url is string => Boolean(url))
-      .filter((url, index, all) => all.indexOf(url) === index);
-    const combinedImageUrls = [...retainedImageUrls, ...newImageUrls].slice(
-      0,
-      MAX_PRODUCT_IMAGES,
-    );
+    submittedImageUrls = [...(existingImageUrls ?? []), ...newImageUrls];
+    combinedImageUrls = submittedImageUrls.slice(0, MAX_PRODUCT_IMAGES);
 
+    // Write both photo columns whenever we know what the gallery should be:
+    // image_url mirrors the first entry, image_urls is the ordered gallery the
+    // storefront renders. Neither is written when there's nothing to go on.
     const updatePayload = {
       ...parsed,
-      ...(newImageUrls.length
-        ? { image_url: combinedImageUrls[0], image_urls: combinedImageUrls }
+      ...(combinedImageUrls
+        ? { image_url: combinedImageUrls[0] ?? null, image_urls: combinedImageUrls }
         : {}),
     };
     let { error } = await getSupabaseAdmin()
       .from("products")
       .update(updatePayload)
       .eq("id", id);
-    if (error && isMissingTypeColumn(error)) {
-      const { type: _omittedType, ...legacyPayload } = updatePayload;
+    if (error && isLegacySchemaError(error.message)) {
       ({ error } = await getSupabaseAdmin()
         .from("products")
-        .update(legacyPayload)
+        .update(stripUnsupportedColumns(updatePayload, error.message))
         .eq("id", id));
     }
 
@@ -361,21 +401,13 @@ export async function updateProductAction(
     return { error: err instanceof Error ? err.message : "Could not update product." };
   }
 
-  // Row is saved — now it's safe to bin the old photo.
-  if (newImageUrls.length) {
-    const retainedImageUrls = [previousUrl, ...previousImageUrls]
-      .filter((url): url is string => Boolean(url))
-      .filter((url, index, all) => all.indexOf(url) === index);
-    const combinedImageUrls = [...retainedImageUrls, ...newImageUrls].slice(
-      0,
-      MAX_PRODUCT_IMAGES,
-    );
-    const removedImageUrls = retainedImageUrls.filter(
-      (url) => !combinedImageUrls.includes(url),
-    );
-    for (const url of removedImageUrls) {
-      await removeStoredImage(url);
-    }
+  // Row is saved — now it's safe to bin whatever didn't make the final gallery
+  // (a photo dropped by the 4-image cap, including overflow uploads).
+  const removedImageUrls = (submittedImageUrls ?? []).filter(
+    (url) => !(combinedImageUrls ?? []).includes(url),
+  );
+  for (const url of removedImageUrls) {
+    await removeStoredImage(url);
   }
 
   revalidateStorefront();
@@ -391,11 +423,19 @@ export async function deleteProductAction(formData: FormData): Promise<void> {
   const supabase = getSupabaseAdmin();
 
   // Read the image URL first so we can clean up storage after the row is gone.
-  const { data: existing } = await supabase
+  let { data: existing } = await supabase
     .from("products")
     .select("image_url,image_urls")
     .eq("id", id)
     .maybeSingle();
+  // Pre-migration table has no image_urls column — fall back to the cover only.
+  if (!existing) {
+    ({ data: existing } = await supabase
+      .from("products")
+      .select("image_url")
+      .eq("id", id)
+      .maybeSingle());
+  }
 
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) throw new Error(error.message);

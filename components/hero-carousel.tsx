@@ -208,18 +208,24 @@ export default function HeroCarousel({ products }: Props) {
           ))}
         </div>
 
-        {/* Dots */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-2 z-10 flex justify-center gap-1 md:bottom-5">
+        {/* Dots — the visible bar is 2px, but each button keeps a 24×32px
+            hit area so it's actually tappable on a phone. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-1 z-10 flex justify-center md:bottom-3">
           {slides.map((product, index) => (
             <button
               key={product.id}
+              type="button"
               onClick={() => moveTo(index + 1)}
               aria-label={`Go to slide ${index + 1}`}
               aria-current={index === active ? "true" : undefined}
-              className={`pointer-events-auto h-0.5 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 ${
-                index === active ? "w-3 bg-white" : "w-0.5 bg-white/50"
-              }`}
-            />
+              className="pointer-events-auto flex h-8 w-6 items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              <span
+                className={`block h-0.5 rounded-full transition-all duration-300 ${
+                  index === active ? "w-3 bg-white" : "w-1.5 bg-white/50"
+                }`}
+              />
+            </button>
           ))}
         </div>
       </div>
@@ -244,14 +250,23 @@ function HeroSlide({ product, priority = false }: { product: Product; priority?:
     >
       {product.image_url ? (
         <>
-          {/* Soft blurred copy fills the side gaps so nothing looks cut off. */}
+          {/*
+            Soft blurred copy fills the side gaps so nothing looks cut off.
+
+            It is deliberately never `priority`: previously BOTH layers of the
+            first slide were preloaded eager at full resolution, so two images
+            raced for LCP on every first paint. This layer is decoration — it
+            stays lazy, is fetched at 35% quality and never taller than half
+            the viewport width. It's blurred beyond recognition either way.
+          */}
           <Image
             src={product.image_url}
             alt=""
             aria-hidden
             fill
-            sizes="100vw"
-            loading={priority ? "eager" : "lazy"}
+            sizes="50vw"
+            quality={35}
+            loading="lazy"
             draggable={false}
             className="scale-110 object-cover opacity-60 blur-2xl"
           />

@@ -5,6 +5,11 @@ export const metadata: Metadata = {
   title: "Favorites",
   description:
     "Pieces you've saved at Nisha Ghumti Fancy. Add to cart and order on WhatsApp.",
+  alternates: { canonical: "/favorites" },
+  // The list lives in the shopper's localStorage, so every crawler sees the
+  // empty state. Keep it out of the index, and never send it as the
+  // "canonical" version of anything.
+  robots: { index: false, follow: true },
 };
 
 export default function FavoritesPage() {

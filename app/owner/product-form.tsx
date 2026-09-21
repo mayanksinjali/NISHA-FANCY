@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
 import { compressImage } from "@/lib/compress-image";
 import type { AdminProduct } from "@/lib/products";
+import { productImages } from "@/lib/product-rules";
 import {
   createProductAction,
   updateProductAction,
@@ -31,10 +32,7 @@ export default function ProductForm({ product }: Props) {
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const existingImages = [
-    ...(product?.image_url ? [product.image_url] : []),
-    ...(product?.image_urls ?? []),
-  ].filter((url, index, all) => all.indexOf(url) === index).slice(0, 4);
+  const existingImages = product ? productImages(product) : [];
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const selectedFilesRef = useRef<File[]>([]);
   const [previews, setPreviews] = useState<string[]>(existingImages);
@@ -108,18 +106,16 @@ export default function ProductForm({ product }: Props) {
   return (
     <form action={formAction} className="pb-28 pt-2">
       {product && <input type="hidden" name="id" value={product.id} />}
-      {product?.image_url && (
-        <input
-          type="hidden"
-          name="existing_image_url"
-          value={(existingOrder ?? existingImages)[0] ?? product.image_url}
-        />
-      )}
-      {product?.image_urls && (
+      {/*
+        The COMPLETE gallery in display order, so dragging photos to reorder
+        persists even when no new file is uploaded. `existingOrder` is set once
+        the owner reorders; until then the stored order is submitted as-is.
+      */}
+      {product && (
         <input
           type="hidden"
           name="existing_image_urls"
-          value={JSON.stringify(existingOrder ?? product.image_urls)}
+          value={JSON.stringify(existingOrder ?? existingImages)}
         />
       )}
 

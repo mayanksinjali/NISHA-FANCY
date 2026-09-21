@@ -1,5 +1,6 @@
 import { getSupabase } from "./supabase/client";
 import { getSupabaseAdmin, isAdminSupabaseConfigured } from "./supabase/admin";
+import { buildSearchFilter, isLegacySchemaError } from "./product-rules";
 
 /**
  * One row of the `products` table as the STOREFRONT sees it.
@@ -48,25 +49,9 @@ const ADMIN_COLUMNS = `${COLUMNS},type`;
 const LEGACY_COLUMNS =
   "id,name,price,category,description,image_url,in_stock,created_at";
 
-/**
- * Search terms match name, the internal `type` tag, and description in one
- * Postgres `or()`. When the legacy fallback (pre-`type` schema) trips, the
- * same predicate without `type` is used instead.
- */
-function searchFilter(search: string, includeType: boolean): string | null {
-  const term = search.trim().slice(0, 80).replace(/[%_]/g, " ");
-  if (!term) return null;
-  const pattern = `%${term}%`;
-  return includeType
-    ? `name.ilike.${pattern},type.ilike.${pattern},description.ilike.${pattern}`
-    : `name.ilike.${pattern},description.ilike.${pattern}`;
-}
+/** Upper bound on the category lookup so a huge catalog can't blow up the page. */
+const CATEGORY_SCAN_LIMIT = 2000;
 
-/**
- * Storefront product list. Newest first.
- * Returns [] (instead of throwing) if Supabase isn't configured yet, so the
- * design is still viewable on a fresh clone.
- */
 export type ProductSort = "newest" | "price-asc" | "price-desc";
 
 /**
@@ -83,6 +68,11 @@ function applySort<T extends { order: (...args: any[]) => T }>(
   return query.order("created_at", { ascending: false });
 }
 
+/**
+ * Storefront product list. Newest first.
+ * Returns [] (instead of throwing) if Supabase isn't configured yet, so the
+ * design is still viewable on a fresh clone.
+ */
 export async function getProducts(options?: {
   limit?: number;
   category?: string | null;
@@ -100,18 +90,21 @@ export async function getProducts(options?: {
   if (options?.ids?.length) query = query.in("id", options.ids);
   if (options?.category) query = query.eq("category", options.category);
   if (options?.search) {
-    const filter = searchFilter(options.search, true);
+    const filter = buildSearchFilter(options.search, true);
     if (filter) query = query.or(filter);
   }
   query = applySort(query, options?.sort);
   if (options?.limit) query = query.limit(options.limit);
 
   let { data, error } = await query;
-  if (error?.message.includes("sale_price") || error?.message.includes("image_urls") || error?.message.includes("sizes")) {
+  if (isLegacySchemaError(error?.message)) {
     let legacyQuery = supabase.from("products").select(LEGACY_COLUMNS);
+    // Every other filter must be re-applied too — dropping `ids` here used to
+    // make the Favorites page show the newest products instead of the saved ones.
+    if (options?.ids?.length) legacyQuery = legacyQuery.in("id", options.ids);
     if (options?.category) legacyQuery = legacyQuery.eq("category", options.category);
     if (options?.search) {
-      const legacyFilter = searchFilter(options.search, false);
+      const legacyFilter = buildSearchFilter(options.search, false);
       if (legacyFilter) legacyQuery = legacyQuery.or(legacyFilter);
     }
     legacyQuery = applySort(legacyQuery, options?.sort);
@@ -130,6 +123,8 @@ export async function getProducts(options?: {
 /**
  * Total matching products for the shop header count — same filters as
  * getProducts (category + search), but no limit/fetch, server-side count.
+ * Falls back to the legacy predicate on a pre-`type` database so the header
+ * count never reads "No pieces found" while the grid renders fine.
  */
 export async function countProducts(options?: {
   category?: string | null;
@@ -138,17 +133,26 @@ export async function countProducts(options?: {
   const supabase = getSupabase();
   if (!supabase) return 0;
 
-  let query = supabase
-    .from("products")
-    .select("id", { count: "exact", head: true });
+  // Named const so the closure below keeps the non-null narrowing.
+  const client = supabase;
 
-  if (options?.category) query = query.eq("category", options.category);
-  if (options?.search) {
-    const filter = searchFilter(options.search, true);
-    if (filter) query = query.or(filter);
+  async function run(includeType: boolean) {
+    let query = client
+      .from("products")
+      .select("id", { count: "exact", head: true });
+
+    if (options?.category) query = query.eq("category", options.category);
+    if (options?.search) {
+      const filter = buildSearchFilter(options.search, includeType);
+      if (filter) query = query.or(filter);
+    }
+    return query;
   }
 
-  const { count, error } = await query;
+  let { count, error } = await run(true);
+  if (isLegacySchemaError(error?.message)) {
+    ({ count, error } = await run(false));
+  }
   if (error) {
     console.error("[products] countProducts failed:", error.message);
     return 0;
@@ -164,7 +168,8 @@ export async function getCategories(): Promise<string[]> {
   const { data, error } = await supabase
     .from("products")
     .select("category")
-    .not("category", "is", null);
+    .not("category", "is", null)
+    .limit(CATEGORY_SCAN_LIMIT);
 
   if (error) {
     console.error("[products] getCategories failed:", error.message);
@@ -190,7 +195,7 @@ export async function getAllProductsForAdmin(): Promise<AdminProduct[]> {
     .select(ADMIN_COLUMNS)
     .order("created_at", { ascending: false });
 
-  if (error?.message.includes("sale_price") || error?.message.includes("sizes") || error?.message.includes("type")) {
+  if (isLegacySchemaError(error?.message)) {
     const legacyResult = await getSupabaseAdmin()
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -210,7 +215,7 @@ export async function getProductForAdmin(id: string): Promise<AdminProduct | nul
     .eq("id", id)
     .maybeSingle();
 
-  if (error?.message.includes("sale_price") || error?.message.includes("sizes") || error?.message.includes("type")) {
+  if (isLegacySchemaError(error?.message)) {
     const legacyResult = await getSupabaseAdmin()
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -223,6 +228,14 @@ export async function getProductForAdmin(id: string): Promise<AdminProduct | nul
   return (data as AdminProduct) ?? null;
 }
 
+/**
+ * One product, or null when it genuinely doesn't exist.
+ *
+ * A transient database failure throws ProductCatalogError instead of returning
+ * null, so callers can tell "this product is gone" (404) apart from "Supabase
+ * hiccuped" (retry / error state). Returning null for both is what used to
+ * turn a 2-second outage into a 404 that also dropped the URL from Google.
+ */
 export async function getProduct(id: string): Promise<Product | null> {
   const supabase = getSupabase();
   if (!supabase) return null;
@@ -233,7 +246,7 @@ export async function getProduct(id: string): Promise<Product | null> {
     .eq("id", id)
     .maybeSingle();
 
-  if (error?.message.includes("sale_price") || error?.message.includes("image_urls") || error?.message.includes("sizes")) {
+  if (isLegacySchemaError(error?.message)) {
     const legacyResult = await supabase
       .from("products")
       .select(LEGACY_COLUMNS)
@@ -245,7 +258,7 @@ export async function getProduct(id: string): Promise<Product | null> {
 
   if (error) {
     console.error("[products] getProduct failed:", error.message);
-    return null;
+    throw new ProductCatalogError();
   }
   return (data as Product) ?? null;
 }

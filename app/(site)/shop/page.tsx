@@ -5,7 +5,6 @@ import ShopSearch from "@/components/shop-search";
 import Breadcrumbs from "@/components/breadcrumbs";
 import ShopSort from "@/components/shop-sort";
 import { countProducts, getCategories, getProducts, type Product } from "@/lib/products";
-import { ProductCatalogError } from "@/lib/products";
 import { isSupabaseConfigured } from "@/lib/supabase/client";
 
 /**
@@ -41,6 +40,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     return {
       title: `“${search}” — search results`,
       description: `Products matching “${search}” at Nisha Ghumti Fancy. Cash on delivery, order on WhatsApp.`,
+      // Search result pages are unbounded (?q=<anything>) and near-empty, so
+      // they must never be indexed. Links stay crawlable.
+      robots: { index: false, follow: true },
     };
   }
 
@@ -50,6 +52,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       description:
         CATEGORY_BLURBS[active] ??
         `Browse ${active} clothing at Nisha Ghumti Fancy. Cash on delivery, order on WhatsApp.`,
+      // Self-referencing canonical: ?sort= and any other tracking params
+      // collapse onto the one address Google should index.
+      alternates: { canonical: `/shop?category=${encodeURIComponent(active)}` },
     };
   }
 
@@ -57,6 +62,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     title: "Shop",
     description:
       "Browse the full Nisha Ghumti Fancy collection — men's, women's, children's and unisex pieces. Order on WhatsApp, cash on delivery.",
+    alternates: { canonical: "/shop" },
   };
 }
 
@@ -67,22 +73,17 @@ export default async function ShopPage({ searchParams }: Props) {
   const sort = normalizeSort(sortParam);
 
   // One round trip each; they don't depend on one another.
-  let products: Product[] = [];
-  let categories: string[] = [];
-  let totalCount = 0;
-  let catalogError = false;
-  try {
-    [products, categories, totalCount] = await Promise.all([
+  //
+  // A genuine catalog failure is deliberately NOT swallowed here: catching it
+  // and rendering "catalog unavailable" inside an ISR page would cache that
+  // message for the full 5-minute window. Letting it throw reaches
+  // app/(site)/error.tsx, which is never cached and offers a retry.
+  const [products, categories, totalCount]: [Product[], string[], number] =
+    await Promise.all([
       getProducts({ category: active, search, sort, limit: 7 }),
       getCategories(),
       countProducts({ category: active, search }),
     ]);
-  } catch (error) {
-    if (!(error instanceof ProductCatalogError)) throw error;
-    catalogError = true;
-    products = [];
-    totalCount = 0;
-  }
   const initialProducts = products.slice(0, 6);
   const hasMore = products.length > initialProducts.length;
 
@@ -111,11 +112,9 @@ export default async function ShopPage({ searchParams }: Props) {
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p className="eyebrow text-ink-soft">
-          {catalogError
-            ? "Catalog unavailable"
-            : totalCount === 0
-              ? "No pieces found"
-              : `${totalCount} ${totalCount === 1 ? "piece" : "pieces"}${hasMore ? " — scroll for more" : ""}`}
+          {totalCount === 0
+            ? "No pieces found"
+            : `${totalCount} ${totalCount === 1 ? "piece" : "pieces"}${hasMore ? " — scroll for more" : ""}`}
         </p>
         <ShopSort value={sort} category={active} search={search} />
       </div>
@@ -130,21 +129,14 @@ export default async function ShopPage({ searchParams }: Props) {
       )}
 
       <div className="mt-5 pb-8 md:mt-8">
-        {catalogError ? (
-          <div className="border border-terracotta/40 bg-terracotta/5 px-5 py-12 text-center">
-            <p className="font-display text-2xl text-terracotta-deep">The catalog is temporarily unavailable.</p>
-            <p className="mt-3 text-sm text-ink-soft">Please try again in a moment.</p>
-          </div>
-        ) : (
-          <LoadMoreProducts
-            key={sort}
-            initialProducts={initialProducts}
-            category={active}
-            search={search}
-            hasMore={hasMore}
-            sort={sort}
-          />
-        )}
+        <LoadMoreProducts
+          key={sort}
+          initialProducts={initialProducts}
+          category={active}
+          search={search}
+          hasMore={hasMore}
+          sort={sort}
+        />
       </div>
     </div>
   );

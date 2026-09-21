@@ -1,23 +1,44 @@
 "use client";
 
 import type { Product } from "@/lib/products";
-import { cartItemFromProduct, CART_STORAGE_KEY, type CartItem } from "@/lib/cart";
-import { useState } from "react";
+import { cartItemFromProduct, readCart, writeCart } from "@/lib/cart";
+import { useEffect, useRef, useState } from "react";
 
-type Props = { product: Product; className?: string; /** Render the variant chooser inline (detail page) instead of as a floating popover (cards). */ inline?: boolean };export default function AddToCartButton({ product, className = "", inline = false }: Props) {
+type Props = {
+  product: Product;
+  className?: string;
+  /**
+   * Render the variant chooser inline (detail page) instead of as a floating
+   * popover (cards).
+   */
+  inline?: boolean;
+};
+
+export default function AddToCartButton({ product, className = "", inline = false }: Props) {
   const [added, setAdded] = useState(false);
   const [choosing, setChoosing] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
+  const addedTimer = useRef<number | null>(null);
+
+  // Clear the "Added to cart" toast timer if the card unmounts first.
+  useEffect(
+    () => () => {
+      if (addedTimer.current) window.clearTimeout(addedTimer.current);
+    },
+    [],
+  );
 
   const needsChoice = Boolean(product.sizes?.length || product.colors?.length);
 
   function addToCart() {
-    if (needsChoice && (!selectedSize && product.sizes?.length || !selectedColor && product.colors?.length)) {
+    const missingSize = Boolean(product.sizes?.length) && !selectedSize;
+    const missingColor = Boolean(product.colors?.length) && !selectedColor;
+    if (needsChoice && (missingSize || missingColor)) {
       setChoosing(true);
       return;
     }
-    const current = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]") as CartItem[];
+    const current = readCart();
     const existing = current.find(
       (item) =>
         item.id === product.id &&
@@ -29,10 +50,10 @@ type Props = { product: Product; className?: string; /** Render the variant choo
           item === existing ? { ...item, quantity: item.quantity + 1 } : item,
         )
       : [...current, cartItemFromProduct(product, selectedSize || null, selectedColor || null)];
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(next));
-    window.dispatchEvent(new Event("cart-updated"));
+    writeCart(next);
     setAdded(true);
-    window.setTimeout(() => setAdded(false), 2000);
+    if (addedTimer.current) window.clearTimeout(addedTimer.current);
+    addedTimer.current = window.setTimeout(() => setAdded(false), 2000);
     setChoosing(false);
   }
 
@@ -69,7 +90,13 @@ type Props = { product: Product; className?: string; /** Render the variant choo
           <button type="button" onClick={addToCart} className="btn btn-solid mt-2 w-full px-3 py-2 text-[11px]">Add selected item</button>
         </div>
       )}
-      <button type="button" onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())}className="btn btn-outline w-full px-2 py-2.5 text-[11px] md:px-4 md:py-3">Add to cart</button>
+      <button
+        type="button"
+        onClick={() => (needsChoice ? setChoosing((open) => !open) : addToCart())}
+        className="btn btn-outline w-full px-2 py-2.5 text-[11px] md:px-4 md:py-3"
+      >
+        Add to cart
+      </button>
       {added && (
         <div
           role="status"

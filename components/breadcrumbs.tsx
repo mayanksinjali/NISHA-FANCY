@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SITE_URL } from "@/lib/seo";
 
 export type Crumb = {
   label: string;
@@ -10,6 +11,9 @@ export type Crumb = {
  * Editorial breadcrumb trail (Task 12). Renders "Home / Category / Product",
  * each earlier part a link back to that level; the final crumb is plain text.
  * Also emits BreadcrumbList JSON-LD so search engines can render the trail.
+ *
+ * JSON-LD `item` must be an ABSOLUTE URL — relative hrefs are ignored by
+ * Rich Results, so they're resolved against the canonical origin here.
  */
 export default function Breadcrumbs({
   items,
@@ -27,7 +31,7 @@ export default function Breadcrumbs({
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
-      item: item.href ? item.href : undefined,
+      item: item.href ? new URL(item.href, SITE_URL).toString() : undefined,
     })),
   };
 

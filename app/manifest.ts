@@ -3,8 +3,11 @@ import { STORE } from "@/lib/config";
 
 /**
  * Basic PWA manifest (Task 8). Enables "Add to Home Screen" installability.
- * Icons reuse the square 1080×1080 brand logo (served at 192/512 declarations)
- * plus an SVG maskable mark for platforms that support it.
+ *
+ * Icon sizes are declared to match the FILES on disk — /logo.jpeg really is
+ * 1080×1080, and the SVG is a full-bleed mark designed with enough margin to
+ * survive Android's maskable safe zone. Declaring a 1080px file as 192/512
+ * undersells it and trips Lighthouse's icon checks.
  */
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -19,8 +22,8 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#0d0d0c",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/logo.jpeg", sizes: "192x192", type: "image/jpeg", purpose: "any" },
-      { src: "/logo.jpeg", sizes: "512x512", type: "image/jpeg", purpose: "maskable" },
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      { src: "/logo.jpeg", sizes: "1080x1080", type: "image/jpeg", purpose: "any" },
     ],
   };
 }

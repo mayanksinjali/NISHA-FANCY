@@ -5,6 +5,7 @@ import { whatsappGeneralUrl } from "@/lib/whatsapp";
 export const metadata: Metadata = {
   title: "Contact",
   description: "Find us, message us, order from us.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function ContactPage() {

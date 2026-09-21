@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CART_STORAGE_KEY, type CartItem } from "@/lib/cart";
+import { CART_EVENT, countCartItems, readCart } from "@/lib/cart";
 import { NAV_LINKS, STORE } from "@/lib/config";
 import { whatsappGeneralUrl } from "@/lib/whatsapp";
 
@@ -37,8 +37,7 @@ export default function SiteHeader() {
 
   useEffect(() => {
     const updateCartCount = () => {
-      const items = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? "[]") as CartItem[];
-      const nextCount = items.reduce((total, item) => total + item.quantity, 0);
+      const nextCount = countCartItems(readCart());
       // Bounce the badge only when the cart actually grew (an item was added).
       if (nextCount > previousCartCount.current) {
         setCartBump(true);
@@ -48,10 +47,10 @@ export default function SiteHeader() {
       setCartCount(nextCount);
     };
     updateCartCount();
-    window.addEventListener("cart-updated", updateCartCount);
+    window.addEventListener(CART_EVENT, updateCartCount);
     window.addEventListener("storage", updateCartCount);
     return () => {
-      window.removeEventListener("cart-updated", updateCartCount);
+      window.removeEventListener(CART_EVENT, updateCartCount);
       window.removeEventListener("storage", updateCartCount);
     };
   }, []);
@@ -107,6 +106,27 @@ export default function SiteHeader() {
               </Link>
             );
           })}
+          {/* Desktop had no route to the cart at all — it only existed in the
+              mobile bottom bar. Same badge, same bounce as the phone layout. */}
+          <Link
+            href="/cart"
+            data-active={pathname.startsWith("/cart")}
+            aria-label={
+              cartCount > 0 ? `Cart, ${cartCount} items` : "Cart"
+            }
+            className="relative text-xs font-medium text-ink-soft transition-colors hover:text-ink data-[active=true]:text-ink"
+          >
+            Cart
+            {cartCount > 0 && (
+              <span
+                className={`absolute -top-2 -right-3 flex h-4 min-w-4 items-center justify-center rounded-full bg-terracotta px-1 text-[10px] font-bold leading-none text-white ${
+                  cartBump ? "animate-[badge-bounce_400ms_ease-out] motion-reduce:animate-none" : ""
+                }`}
+              >
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            )}
+          </Link>
           <a
             href={whatsappGeneralUrl()}
             target="_blank"

@@ -6,6 +6,10 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    // tests/*.test.ts import the modules under test by relative path and are
+    // executed directly by `node --test` (Node strips the types itself), which
+    // needs the explicit .ts extension.
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

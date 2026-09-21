@@ -26,6 +26,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0d0d0c",
+  // Match the storefront, so the owner panel's bottom padding clears the home
+  // indicator on notched iPhones too.
+  viewportFit: "cover",
 };
 
 /**

@@ -26,6 +26,9 @@ export const metadata: Metadata = {
   },
   description: STORE.tagline,
   metadataBase: new URL(SITE_URL),
+  // No canonical here on purpose: this layout also wraps /owner, and a
+  // sitewide "canonical: /" would point the owner panel at the homepage.
+  // Each storefront page declares its own instead.
   openGraph: {
     title: STORE.name,
     description: STORE.tagline,
@@ -49,6 +52,10 @@ export const viewport: Viewport = {
   themeColor: "#0d0d0c",
   width: "device-width",
   initialScale: 1,
+  // Without `cover`, iOS reports every env(safe-area-inset-*) as 0 — which is
+  // why the mobile nav, the sticky add-to-cart bar and the install toast all
+  // sat underneath the home indicator on notched iPhones.
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

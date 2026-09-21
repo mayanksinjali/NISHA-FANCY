@@ -21,10 +21,12 @@ export default function ownerManifest(): MetadataRoute.Manifest {
     orientation: "portrait",
     background_color: "#f9fafb",
     theme_color: "#0d0d0c",
+    // Same assets as the storefront manifest — the owner app is told apart by
+    // its name and scope, not by its icon. Sizes match the real files.
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-      { src: "/logo.jpeg", sizes: "192x192", type: "image/jpeg", purpose: "any" },
-      { src: "/logo.jpeg", sizes: "512x512", type: "image/jpeg", purpose: "maskable" },
+      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
+      { src: "/logo.jpeg", sizes: "1080x1080", type: "image/jpeg", purpose: "any" },
     ],
   };
 }

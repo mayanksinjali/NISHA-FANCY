@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import HeroCarousel from "@/components/hero-carousel";
 import CategoryShowcase from "@/components/category-showcase";
 import ProductGrid from "@/components/product-grid";
@@ -11,9 +12,14 @@ import { SITE_URL } from "@/lib/seo";
 /**
  * ISR: the rail refreshes from Supabase at most once a minute. Admin edits
  * still appear immediately — every product mutation calls revalidateStorefront()
- * (see app/admin/actions.ts), which purges this cache on demand.
+ * (see app/owner/actions.ts), which purges this cache on demand.
  */
 export const revalidate = 60;
+
+/** The home page is the one canonical address for the site root. */
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 /** schema.org WebSite + SearchAction — lets Google render a sitelinks search box. */
 function WebsiteJsonLd() {
