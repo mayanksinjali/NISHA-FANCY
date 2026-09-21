@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { isAdminAuthenticated } from "@/lib/admin-guard";
 import { isAdminPasswordConfigured } from "@/lib/auth";
 import { STORE } from "@/lib/config";
+import InstallButton from "./install-button";
 import LoginForm from "./login-form";
 
 /** /owner — login screen, or a redirect straight through if already signed in. */
@@ -45,6 +46,11 @@ export default async function OwnerLoginPage({
               Vercel environment variables) and restart the server.
             </p>
           )}
+
+          <InstallButton
+            label="Install Owner app"
+            className="mt-3 w-full rounded-full border border-gray-200 py-3 text-xs font-semibold uppercase tracking-wide text-ink transition-colors hover:border-gray-300"
+          />
 
           <Link
             href="/"

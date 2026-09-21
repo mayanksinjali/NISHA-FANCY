@@ -1,4 +1,5 @@
 import Link from "next/link";
+import InstallButton from "./install-button";
 import { logoutAction } from "./actions";
 
 const NAV = [
@@ -54,6 +55,7 @@ export default function OwnerHeader({
               {item.label}
             </Link>
           ))}
+          <InstallButton className="text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700" />
           <form action={logoutAction}>
             <button
               type="submit"
